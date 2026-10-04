@@ -1,8 +1,9 @@
 export const CRITICITIES = [
-  { code: "INFO", order: 0, color: "#009dcf" },
-  { code: "WARNING", order: 1, color: "#ca8a04" },
-  { code: "DANGER", order: 2, color: "#dc2626" },
-  { code: "OK", order: 3, color: "#16a34a" },
+  { code: "GOOD", order: 0, color: "#16a34a" },
+  { code: "INFO", order: 1, color: "#009dcf" },
+  { code: "WARNING", order: 2, color: "#ca8a04" },
+  { code: "DANGER", order: 3, color: "#dc2626" },
+  { code: "OK", order: 4, color: "#16a34a" },
 ] as const;
 
 export type Criticity = (typeof CRITICITIES)[number]["code"];
@@ -30,6 +31,12 @@ export const INDICATORS = [
     description: "Société souhaitée",
   },
   {
+    icon: "💵",
+    criticity: "GOOD",
+    code: "SALARY_AND_ADVANTAGES",
+    description: "Affiche salaire et avantages",
+  },
+  {
     icon: "💼",
     criticity: "INFO",
     code: "IT_SERVICES_COMPANY",
@@ -42,7 +49,7 @@ export const INDICATORS = [
     description: "recruteur / société de placement",
   },
   {
-    icon: "💰",
+    icon: "💸",
     criticity: "WARNING",
     code: "WITHOUT_SALARY_NOR_ADVANTAGES",
   },
