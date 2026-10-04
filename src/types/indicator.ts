@@ -114,7 +114,13 @@ export function stripLeadingIndicatorIcon(text: string): string {
   const icons = INDICATORS.map((indicator) => indicator.icon).sort(
     (left, right) => right.length - left.length
   );
-  const value = text.trimStart();
-  const icon = icons.find((candidate) => value.startsWith(candidate));
-  return icon ? value.slice(icon.length).trimStart() : text;
+  let value = text.trimStart();
+  let stripped = false;
+  for (;;) {
+    const icon = icons.find((candidate) => value.startsWith(candidate));
+    if (!icon) break;
+    value = value.slice(icon.length).trimStart();
+    stripped = true;
+  }
+  return stripped ? value : text;
 }
