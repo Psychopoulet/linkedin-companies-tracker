@@ -40,15 +40,6 @@ const COMPANY_NAME_TEXT_SELECTORS = [
   '[class*="subtitle"]',
 ];
 
-const JOB_LIST_ROOT_SELECTORS = [
-  '[role="list"]',
-  "ul.scaffold-layout__list-container",
-  ".jobs-search-results-list",
-  "div.scaffold-layout__list > ul",
-  '[class*="search-results"] ul',
-  '[class*="jobs-search"] [role="list"]',
-];
-
 const JOB_CARD_SELECTORS = [
   "li.jobs-search-results__list-item",
   "li.scaffold-layout__list-item",
@@ -192,7 +183,7 @@ function isInsideListJobCard(element: HTMLElement): boolean {
 }
 
 /** Company line in SDUI job cards: div > p with short name (e.g. "Sander"). */
-export function findCompanyNameInSduiCard(
+function findCompanyNameInSduiCard(
   card: HTMLElement,
   options: { excludeListCards?: boolean } = {}
 ): HTMLElement | null {
@@ -314,11 +305,11 @@ export function findCompanyNameElementInListCard(card: HTMLElement): HTMLElement
   return fromSelectors;
 }
 
-export function findCompanyNameText(container: ParentNode): string | null {
+function findCompanyNameText(container: ParentNode): string | null {
   return findCompanyNameElement(container)?.textContent?.trim() || null;
 }
 
-export function findCompanyLinkInContainer(container: ParentNode): HTMLAnchorElement | null {
+function findCompanyLinkInContainer(container: ParentNode): HTMLAnchorElement | null {
   const companyNameSelectors = [
     "a.hidden-nested-link[href*='/company/']",
     ".job-card-container__company-name a",
@@ -405,7 +396,7 @@ const JOB_TITLE_SELECTORS = [
   'a[href*="/jobs/view/"]',
 ];
 
-export function findJobTitleInContainer(container: ParentNode): HTMLElement | null {
+function findJobTitleInContainer(container: ParentNode): HTMLElement | null {
   for (const selector of JOB_TITLE_SELECTORS) {
     const element = container.querySelector<HTMLElement>(selector);
     if (element?.textContent?.trim()) {
@@ -437,24 +428,6 @@ function findJobCardsFromViewLinks(root: ParentNode): HTMLElement[] {
   }
 
   return [...cards];
-}
-
-function findJobListRoots(): ParentNode[] {
-  const roots = new Set<ParentNode>();
-
-  for (const selector of JOB_LIST_ROOT_SELECTORS) {
-    document.querySelectorAll(selector).forEach((root) => {
-      if (root.querySelector('a[href*="/jobs/view/"], div[role="listitem"], li')) {
-        roots.add(root);
-      }
-    });
-  }
-
-  if (roots.size === 0) {
-    roots.add(document);
-  }
-
-  return [...roots];
 }
 
 function collectJobCardsInRoot(root: ParentNode): HTMLElement[] {
@@ -532,7 +505,7 @@ function isInsideJobDetailPanel(element: HTMLElement, detailPanel: HTMLElement |
 }
 
 /** Cards in the left list, excluding the detail panel on the right. */
-export function findListJobCardsExcludingDetail(): HTMLElement[] {
+function findListJobCardsExcludingDetail(): HTMLElement[] {
   const detailPanel = findJobDetailPanel();
   const cards = new Set<HTMLElement>();
 
@@ -846,7 +819,7 @@ function keepInnermostCards(cards: HTMLElement[]): HTMLElement[] {
 
 const TRACKER_COMPANY_LOCATION_SEPARATOR = "·";
 
-export function extractCompanyNameFromTrackerLine(text: string): string | null {
+function extractCompanyNameFromTrackerLine(text: string): string | null {
   const value = collapseText(text);
   const separatorIndex = value.indexOf(TRACKER_COMPANY_LOCATION_SEPARATOR);
   if (separatorIndex <= 0) return null;
@@ -959,18 +932,6 @@ export function findJobCards(root: ParentNode = document): HTMLElement[] {
   return keepInnermostCards(cards);
 }
 
-const JOB_VIEW_TITLE_SELECTORS = [
-  ".job-details-jobs-unified-top-card__job-title a",
-  ".job-details-jobs-unified-top-card__job-title",
-  "h1.job-details-jobs-unified-top-card__job-title",
-  "h1.t-24.t-bold",
-  ".jobs-unified-top-card__job-title a",
-  ".jobs-unified-top-card__job-title",
-  "h1[class*='job-title']",
-  "h2[class*='job-title']",
-  ".jobs-details-top-card__job-title",
-];
-
 const JOB_VIEW_CONTAINER_SELECTORS = [
   ".job-details-jobs-unified-top-card",
   ".jobs-unified-top-card",
@@ -980,16 +941,6 @@ const JOB_VIEW_CONTAINER_SELECTORS = [
   '[class*="jobs-details"]',
   "main",
 ];
-
-export function findJobViewTitle(): HTMLElement | null {
-  for (const selector of JOB_VIEW_TITLE_SELECTORS) {
-    const element = document.querySelector<HTMLElement>(selector);
-    if (element?.textContent?.trim()) {
-      return element;
-    }
-  }
-  return null;
-}
 
 export function findJobViewContainer(): HTMLElement | null {
   if (isJobsSearchResultsPage()) {
@@ -1006,14 +957,14 @@ export function findJobViewContainer(): HTMLElement | null {
   return null;
 }
 
-export function isJobsSearchPage(): boolean {
+function isJobsSearchPage(): boolean {
   return (
     /^\/jobs\/search(?:\/|$)/i.test(window.location.pathname) ||
     isJobsSearchResultsPage()
   );
 }
 
-export function isJobsViewPage(): boolean {
+function isJobsViewPage(): boolean {
   return /^\/jobs\/view/i.test(window.location.pathname);
 }
 
