@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
 
-    "lint-back": "npx eslint --config .eslintrc-back.js --ext .ts,.cts,.mts ./lib/src/**/*",
+    "lint-back": "npx eslint --config .eslintrc-back.cjs --ext .ts,.cts,.mts ./lib/src/**/*",
     "lint-front": "echo 'no linting front yet'",
-    "lint-tests": "npx eslint --config .eslintrc-tests.js --ext .js,.cjs,.mjs \"./test/**/*.js\"",
+    "lint-tests": "npx eslint --config .eslintrc-tests.cjs --ext .js,.cjs,.mjs \"./test/**/*.js\"",
     "lint": "npm run lint-back && npm run lint-front && npm run lint-tests",
 
     "clean-back": "npx rimraf ./lib/cjs",
