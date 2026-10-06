@@ -1,6 +1,8 @@
 .nyc_output/
+PLAN*.md
 package-lock.json
 coverage/
+lib/cjs/
 node_modules/
 exports/
 examples/
