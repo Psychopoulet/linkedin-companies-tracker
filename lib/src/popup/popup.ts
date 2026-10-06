@@ -5,7 +5,7 @@ import type { Message, MessageResponse } from "../messages";
 import { REGISTRY_STORAGE_KEY } from "../storage/constants";
 import { parseCompaniesJson, serializeCompanies } from "../storage/import-export";
 
-async function sendMessage(message: Message): Promise<MessageResponse> {
+async function sendMessage (message: Message): Promise<MessageResponse> {
   return chrome.runtime.sendMessage(message);
 }
 
@@ -33,30 +33,30 @@ const ioMessage = document.getElementById("io-message") as HTMLParagraphElement;
 
 let registry: CompanyRegistry = {};
 
-function hideError(): void {
+function hideError (): void {
   formError.hidden = true;
   formError.textContent = "";
 }
 
-function showError(message: string): void {
+function showError (message: string): void {
   formError.hidden = false;
   formError.textContent = message;
 }
 
-function hideIoMessage(): void {
+function hideIoMessage (): void {
   ioMessage.hidden = true;
   ioMessage.textContent = "";
   ioMessage.classList.remove("error", "success");
 }
 
-function showIoMessage(message: string, type: "error" | "success"): void {
+function showIoMessage (message: string, type: "error" | "success"): void {
   ioMessage.hidden = false;
   ioMessage.textContent = message;
   ioMessage.classList.remove("error", "success");
   ioMessage.classList.add(type);
 }
 
-function fillStatusSelects(): void {
+function fillStatusSelects (): void {
   const indicators = getIndicators();
 
   statusFilter.replaceChildren();
@@ -87,31 +87,33 @@ function fillStatusSelects(): void {
   }
 }
 
-function getFilteredCompanies(): Company[] {
+function getFilteredCompanies (): Company[] {
   const query = searchInput.value.trim().toLowerCase();
   const status = statusFilter.value as CompanyStatus | "";
 
   return Object.values(registry)
     .filter((company) => {
       const matchesStatus = !status || company.indicators.includes(status);
-      const matchesQuery =
-        !query ||
-        company.name.toLowerCase().includes(query) ||
-        company.linkedinCode.toLowerCase().includes(query);
+      const matchesQuery
+        = !query
+        || company.name.toLowerCase().includes(query)
+        || company.linkedinCode.toLowerCase().includes(query);
       return matchesStatus && matchesQuery;
     })
     .sort((a, b) => {
       const statusDiff = companySortRank(a) - companySortRank(b);
-      if (statusDiff !== 0) return statusDiff;
+      if (0 !== statusDiff) {
+ return statusDiff;
+}
       return a.name.localeCompare(b.name, "fr");
     });
 }
 
-function renderList(): void {
+function renderList (): void {
   const companies = getFilteredCompanies();
   companyList.innerHTML = "";
   countEl.textContent = String(Object.keys(registry).length);
-  emptyState.hidden = companies.length > 0;
+  emptyState.hidden = 0 < companies.length;
 
   for (const company of companies) {
     const li = document.createElement("li");
@@ -134,16 +136,21 @@ function renderList(): void {
     label.textContent = company.name;
     label.addEventListener("click", (event) => {
       event.preventDefault();
-      void chrome.tabs.create({ url: companyUrl });
+      chrome.tabs.create({ "url": companyUrl }).catch(reportError);
     });
 
-    if (indicators.length > 0) {
-      if (color) name.style.color = color;
+    if (0 < indicators.length) {
+      if (undefined !== color) {
+        name.style.color = color;
+      }
       const icon = document.createElement("span");
       icon.className = "company-icon";
-      icon.textContent = indicators.map((indicator) => indicator.icon).join("");
+      icon.textContent = indicators.map((indicator) => {
+ return indicator.icon;
+}).join("");
       name.append(icon, label);
-    } else {
+    }
+ else {
       name.append(label);
     }
 
@@ -153,8 +160,10 @@ function renderList(): void {
 
     const badge = document.createElement("span");
     badge.className = "badge";
-    badge.textContent = indicators.map((indicator) => indicator.code).join(", ");
-    if (color) {
+    badge.textContent = indicators.map((indicator) => {
+ return indicator.code;
+}).join(", ");
+    if (undefined !== color) {
       badge.style.color = color;
     }
 
@@ -171,13 +180,17 @@ function renderList(): void {
     const editBtn = document.createElement("button");
     editBtn.type = "button";
     editBtn.textContent = "Modifier";
-    editBtn.addEventListener("click", () => startEdit(company));
+    editBtn.addEventListener("click", () => {
+ return startEdit(company);
+});
 
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "danger";
     deleteBtn.textContent = "Supprimer";
-    deleteBtn.addEventListener("click", () => void deleteCompany(company.linkedinCode));
+    deleteBtn.addEventListener("click", () => {
+      deleteCompany(company.linkedinCode).catch(reportError);
+    });
 
     actions.append(editBtn, deleteBtn);
     li.append(header, detail, actions);
@@ -185,7 +198,11 @@ function renderList(): void {
   }
 }
 
-function resetForm(): void {
+function reportError (error: unknown): void {
+  console.error(error);
+}
+
+function resetForm (): void {
   editModeInput.value = "add";
   formTitle.textContent = "Ajouter une société";
   submitBtn.textContent = "Ajouter";
@@ -195,7 +212,7 @@ function resetForm(): void {
   hideError();
 }
 
-function startEdit(company: Company): void {
+function startEdit (company: Company): void {
   editModeInput.value = "edit";
   formTitle.textContent = "Modifier une société";
   submitBtn.textContent = "Enregistrer";
@@ -211,8 +228,8 @@ function startEdit(company: Company): void {
   nameInput.focus();
 }
 
-async function loadRegistry(): Promise<void> {
-  const response = await sendMessage({ type: "GET_REGISTRY" });
+async function loadRegistry (): Promise<void> {
+  const response = await sendMessage({ "type": "GET_REGISTRY" });
   if (!response.ok) {
     showError(response.error);
     return;
@@ -221,32 +238,39 @@ async function loadRegistry(): Promise<void> {
   renderList();
 }
 
-async function deleteCompany(linkedinCode: string): Promise<void> {
-  if (!confirm(`Supprimer ${linkedinCode} ?`)) return;
+async function deleteCompany (linkedinCode: string): Promise<void> {
+  // eslint-disable-next-line no-alert
+  if (!confirm(`Supprimer ${linkedinCode} ?`)) {
+    return;
+  }
 
-  const response = await sendMessage({ type: "DELETE_COMPANY", linkedinCode });
+  const response = await sendMessage({ "type": "DELETE_COMPANY", linkedinCode });
   if (!response.ok) {
     showError(response.error);
     return;
   }
   registry = response.registry;
-  if (editModeInput.value === "edit" && linkedinCodeInput.value === linkedinCode) {
+  if ("edit" === editModeInput.value && linkedinCodeInput.value === linkedinCode) {
     resetForm();
   }
   renderList();
 }
 
-companyForm.addEventListener("submit", async (event) => {
+async function handleCompanySubmit (event: Event): Promise<void> {
   event.preventDefault();
   hideError();
 
   const company = normalizeCompany({
-    name: nameInput.value.trim(),
-    linkedinCode: normalizeLinkedinCode(linkedinCodeInput.value),
-    indicators: indicatorInputs
-      .filter((input) => input.checked)
-      .map((input) => input.value as CompanyStatus),
-    comment: commentInput.value,
+    "name": nameInput.value.trim(),
+    "linkedinCode": normalizeLinkedinCode(linkedinCodeInput.value),
+    "indicators": indicatorInputs
+      .filter((input) => {
+ return input.checked;
+})
+      .map((input) => {
+ return input.value as CompanyStatus;
+}),
+    "comment": commentInput.value
   });
 
   if (!company.name) {
@@ -254,9 +278,9 @@ companyForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  const isEdit = editModeInput.value === "edit";
+  const isEdit = "edit" === editModeInput.value;
   const response = await sendMessage(
-    isEdit ? { type: "UPDATE_COMPANY", company } : { type: "ADD_COMPANY", company }
+    isEdit ? { "type": "UPDATE_COMPANY", company } : { "type": "ADD_COMPANY", company }
   );
 
   if (!response.ok) {
@@ -267,16 +291,20 @@ companyForm.addEventListener("submit", async (event) => {
   registry = response.registry;
   resetForm();
   renderList();
+}
+
+companyForm.addEventListener("submit", (event) => {
+  handleCompanySubmit(event).catch(reportError);
 });
 
-function exportFilename(): string {
+function exportFilename (): string {
   const date = new Date().toISOString().slice(0, 10);
   return `linkedin-companies-${date}.json`;
 }
 
-function exportRegistry(): void {
+function exportRegistry (): void {
   hideIoMessage();
-  const blob = new Blob([serializeCompanies(registry)], { type: "application/json" });
+  const blob = new Blob([ serializeCompanies(registry) ], { "type": "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -285,50 +313,64 @@ function exportRegistry(): void {
   URL.revokeObjectURL(url);
   const count = Object.keys(registry).length;
   showIoMessage(
-    count === 0
+    0 === count
       ? "Liste vide exportée."
-      : `${count} société${count > 1 ? "s" : ""} exportée${count > 1 ? "s" : ""}.`,
+      : `${count} société${1 < count ? "s" : ""} exportée${1 < count ? "s" : ""}.`,
     "success"
   );
 }
 
-async function importFromText(text: string): Promise<void> {
+function parseCompaniesOrReport (text: string): Company[] | null {
+  try {
+    return parseCompaniesJson(text);
+  }
+  catch (error) {
+    showIoMessage(error instanceof Error ? error.message : "Fichier JSON invalide.", "error");
+    return null;
+  }
+}
+
+function replaceLocalRegistry (next: CompanyRegistry): void {
+  registry = next;
+}
+
+async function importFromText (text: string): Promise<void> {
   hideIoMessage();
 
-  let companies: Company[];
-  try {
-    companies = parseCompaniesJson(text);
-  } catch (error) {
-    showIoMessage(error instanceof Error ? error.message : "Fichier JSON invalide.", "error");
+  const companies = parseCompaniesOrReport(text);
+  if (null === companies) {
     return;
   }
 
   const currentCount = Object.keys(registry).length;
   const importedCount = companies.length;
-  const confirmMessage =
-    currentCount === 0
-      ? `Importer ${importedCount} société${importedCount > 1 ? "s" : ""} ?`
-      : `Remplacer la liste actuelle (${currentCount}) par ${importedCount} société${importedCount > 1 ? "s" : ""} ?`;
+  const confirmMessage
+    = 0 === currentCount
+      ? `Importer ${importedCount} société${1 < importedCount ? "s" : ""} ?`
+      : `Remplacer la liste actuelle (${currentCount}) par ${importedCount} société${1 < importedCount ? "s" : ""} ?`;
 
-  if (!confirm(confirmMessage)) return;
+  // eslint-disable-next-line no-alert
+  if (!confirm(confirmMessage)) {
+    return;
+  }
 
-  const response = await sendMessage({ type: "IMPORT_REGISTRY", companies });
+  const response = await sendMessage({ "type": "IMPORT_REGISTRY", companies });
   if (!response.ok) {
     showIoMessage(response.error, "error");
     return;
   }
 
-  registry = response.registry;
+  replaceLocalRegistry(response.registry);
   resetForm();
   renderList();
   showIoMessage(
-    `${importedCount} société${importedCount > 1 ? "s" : ""} importée${importedCount > 1 ? "s" : ""}.`,
+    `${importedCount} société${1 < importedCount ? "s" : ""} importée${1 < importedCount ? "s" : ""}.`,
     "success"
   );
 }
 
-async function importFromFile(file: File): Promise<void> {
-  if (!file.name.toLowerCase().endsWith(".json") && file.type !== "application/json") {
+async function importFromFile (file: File): Promise<void> {
+  if (!file.name.toLowerCase().endsWith(".json") && "application/json" !== file.type) {
     showIoMessage("Choisissez un fichier JSON.", "error");
     return;
   }
@@ -340,11 +382,15 @@ searchInput.addEventListener("input", renderList);
 statusFilter.addEventListener("change", renderList);
 
 exportBtn.addEventListener("click", exportRegistry);
-importBtn.addEventListener("click", () => importFileInput.click());
+importBtn.addEventListener("click", () => {
+ return importFileInput.click();
+});
 importFileInput.addEventListener("change", () => {
   const file = importFileInput.files?.[0];
   importFileInput.value = "";
-  if (file) void importFromFile(file);
+  if (file) {
+    importFromFile(file).catch(reportError);
+  }
 });
 
 document.addEventListener("dragover", (event) => {
@@ -352,7 +398,7 @@ document.addEventListener("dragover", (event) => {
   ioSection.classList.add("is-dragover");
 });
 document.addEventListener("dragleave", (event) => {
-  if (event.relatedTarget === null) {
+  if (null === event.relatedTarget) {
     ioSection.classList.remove("is-dragover");
   }
 });
@@ -360,19 +406,23 @@ document.addEventListener("drop", (event) => {
   event.preventDefault();
   ioSection.classList.remove("is-dragover");
   const file = event.dataTransfer?.files[0];
-  if (file) void importFromFile(file);
+  if (file) {
+    importFromFile(file).catch(reportError);
+  }
 });
 
 fillStatusSelects();
-void loadRegistry();
+loadRegistry().catch(reportError);
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== "local" || !changes[REGISTRY_STORAGE_KEY]) return;
+  if ("local" !== areaName || !(REGISTRY_STORAGE_KEY in changes)) {
+    return;
+  }
 
-  const next = changes[REGISTRY_STORAGE_KEY].newValue;
-  registry =
-    next && typeof next === "object" ? normalizeRegistry(next as CompanyRegistry).registry : {};
-  if (editModeInput.value === "edit" && !registry[linkedinCodeInput.value]) {
+  const next: unknown = changes[REGISTRY_STORAGE_KEY].newValue;
+  registry
+    = "object" === typeof next && null !== next ? normalizeRegistry(next as CompanyRegistry).registry : {};
+  if ("edit" === editModeInput.value && !Object.hasOwn(registry, linkedinCodeInput.value)) {
     resetForm();
   }
   renderList();

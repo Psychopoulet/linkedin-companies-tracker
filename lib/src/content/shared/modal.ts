@@ -3,30 +3,30 @@ import { formatIndicatorLabel, getIndicators } from "../../types/indicator";
 import { sendMessage } from "./messaging";
 
 export interface AddCompanyModalOptions {
-  linkedinCode: string;
-  name: string;
-  comment?: string;
-  onSaved: (company: Company) => void;
+  "linkedinCode": string;
+  "name": string;
+  "comment"?: string;
+  "onSaved": (company: Company) => void;
 }
 
 let activeModal: HTMLDivElement | null = null;
 let modalOpen = false;
 
-export function isAddCompanyModalOpen(): boolean {
+export function isAddCompanyModalOpen (): boolean {
   return modalOpen;
 }
 
-function closeModal(): void {
+function closeModal (): void {
   modalOpen = false;
   activeModal?.remove();
   activeModal = null;
 }
 
-function focusCommentInput(commentInput: HTMLTextAreaElement): void {
-  commentInput.focus({ preventScroll: true });
+function focusCommentInput (commentInput: HTMLTextAreaElement): void {
+  commentInput.focus({ "preventScroll": true });
 }
 
-export function showAddCompanyModal(options: AddCompanyModalOptions): void {
+export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   closeModal();
   modalOpen = true;
 
@@ -71,7 +71,7 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
   indicatorsField.append(indicatorsLegend);
   // Boutons à bascule plutôt que des cases à cocher natives : LinkedIn restyle les
   // <input type="checkbox"> et les rend non cliquables dans nos éléments injectés.
-  const selectedIndicators = new Set<CompanyStatus>();
+  const selectedIndicators: Set<CompanyStatus> = new Set();
   for (const indicator of getIndicators()) {
     const code = indicator.code as CompanyStatus;
     const option = document.createElement("button");
@@ -83,8 +83,12 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
       event.preventDefault();
       event.stopPropagation();
       const pressed = !selectedIndicators.has(code);
-      if (pressed) selectedIndicators.add(code);
-      else selectedIndicators.delete(code);
+      if (pressed) {
+ selectedIndicators.add(code);
+}
+      else {
+ selectedIndicators.delete(code);
+}
       option.setAttribute("aria-pressed", String(pressed));
     });
     indicatorsField.append(option);
@@ -120,25 +124,27 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
   dialog.append(title, form);
   overlay.append(dialog);
 
-  const showError = (message: string) => {
+  function showError (message: string): void {
     errorEl.textContent = message;
     errorEl.hidden = false;
-  };
+  }
 
   cancelBtn.addEventListener("click", closeModal);
   overlay.addEventListener("click", (event) => {
-    if (event.target === overlay) closeModal();
+    if (event.target === overlay) {
+ closeModal();
+}
   });
 
-  form.addEventListener("submit", async (event) => {
+  async function handleSubmit (event: Event): Promise<void> {
     event.preventDefault();
     errorEl.hidden = true;
 
     const company = normalizeCompany({
-      name: nameInput.value.trim(),
-      linkedinCode: options.linkedinCode,
-      indicators: [...selectedIndicators],
-      comment: commentInput.value,
+      "name": nameInput.value.trim(),
+      "linkedinCode": options.linkedinCode,
+      "indicators": [ ...selectedIndicators ],
+      "comment": commentInput.value
     });
 
     if (!company.name) {
@@ -150,7 +156,7 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
     saveBtn.disabled = true;
     saveBtn.textContent = "Enregistrement…";
 
-    const response = await sendMessage({ type: "ADD_COMPANY", company });
+    const response = await sendMessage({ "type": "ADD_COMPANY", company });
     saveBtn.disabled = false;
     saveBtn.textContent = "Enregistrer";
 
@@ -161,6 +167,12 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
 
     closeModal();
     options.onSaved(company);
+  }
+
+  form.addEventListener("submit", (event) => {
+    handleSubmit(event).catch((error: unknown) => {
+      console.error(error);
+    });
   });
 
   document.body.append(overlay);
@@ -169,6 +181,8 @@ export function showAddCompanyModal(options: AddCompanyModalOptions): void {
   focusCommentInput(commentInput);
   requestAnimationFrame(() => {
     focusCommentInput(commentInput);
-    window.setTimeout(() => focusCommentInput(commentInput), 50);
+    window.setTimeout(() => {
+ return focusCommentInput(commentInput);
+}, 50);
   });
 }

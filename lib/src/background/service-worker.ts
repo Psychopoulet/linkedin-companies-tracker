@@ -6,7 +6,7 @@ import {
   deleteCompany,
   getRegistry,
   replaceRegistry,
-  updateCompany,
+  updateCompany
 } from "./storage";
 import { isValidCompany } from "../types/company";
 import { REGISTRY_STORAGE_KEY } from "../storage/constants";
@@ -17,61 +17,77 @@ chrome.runtime.onMessage.addListener(
       .then(sendResponse)
       .catch((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-        sendResponse({ ok: false, error: errorMessage });
+        sendResponse({ "ok": false, "error": errorMessage });
       });
     return true;
   }
 );
 
-async function handleMessage(message: Message): Promise<MessageResponse> {
+async function handleMessage (message: Message): Promise<MessageResponse> {
+
   switch (message.type) {
+
     case "GET_REGISTRY": {
       const registry = await getRegistry();
-      return { ok: true, registry };
+      return { "ok": true, registry };
     }
+
     case "ADD_COMPANY": {
       if (!isValidCompany(message.company)) {
-        return { ok: false, error: "Données invalides : le nom est obligatoire." };
+        return { "ok": false, "error": "Données invalides : le nom est obligatoire." };
       }
       const registry = await addCompany(message.company);
       await broadcastRegistryUpdate();
-      return { ok: true, registry };
+      return { "ok": true, registry };
     }
+
     case "UPDATE_COMPANY": {
       if (!isValidCompany(message.company)) {
-        return { ok: false, error: "Données invalides : le nom est obligatoire." };
+        return { "ok": false, "error": "Données invalides : le nom est obligatoire." };
       }
       try {
         const registry = await updateCompany(message.company);
         await broadcastRegistryUpdate();
-        return { ok: true, registry };
-      } catch (error) {
+        return { "ok": true, registry };
+      }
+      catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-        return { ok: false, error: errorMessage };
+        return { "ok": false, "error": errorMessage };
       }
     }
+
     case "DELETE_COMPANY": {
       const registry = await deleteCompany(message.linkedinCode);
       await broadcastRegistryUpdate();
-      return { ok: true, registry };
+      return { "ok": true, registry };
     }
+
     case "IMPORT_REGISTRY": {
       if (!Array.isArray(message.companies) || !message.companies.every(isValidCompany)) {
-        return { ok: false, error: "Données invalides : une ou plusieurs sociétés sont incorrectes." };
+        return { "ok": false, "error": "Données invalides : une ou plusieurs sociétés sont incorrectes." };
       }
       const registry = await replaceRegistry(message.companies);
       await broadcastRegistryUpdate();
-      return { ok: true, registry };
+      return { "ok": true, registry };
     }
+
     default:
-      return { ok: false, error: "Message inconnu" };
+      return { "ok": false, "error": "Message inconnu" };
+
   }
+
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === "local" && changes[REGISTRY_STORAGE_KEY]) {
-    void broadcastRegistryUpdate();
+
+  if ("local" === areaName && REGISTRY_STORAGE_KEY in changes) {
+
+    broadcastRegistryUpdate().catch(() => {
+      // Ignore broadcast failures.
+    });
+
   }
+
 });
 
 chrome.runtime.onInstalled.addListener(() => {

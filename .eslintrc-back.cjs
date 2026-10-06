@@ -8,6 +8,19 @@
 
 module.exports = defineConfig([
     {
+        "files": [ "lib/src/**/*.ts" ],
+        "languageOptions": {
+            "globals": {
+                "chrome": "readonly",
+                "window": "readonly",
+                "document": "readonly",
+                "history": "readonly",
+                "confirm": "readonly",
+                "requestAnimationFrame": "readonly"
+            }
+        }
+    },
+    {
         "plugins": {
             personnallinter
         },

@@ -4,33 +4,36 @@ const COMPANY_TITLE_SELECTORS = [
   "h1.org-top-card-summary__title",
   "h1.org-top-card-summary-info-list__info-item",
   "h1[class*='org-top-card']",
-  "main h1",
+  "main h1"
 ];
 
-export function getLinkedinCodeFromUrl(url = window.location.href): string | null {
+export function getLinkedinCodeFromUrl (url = window.location.href): string | null {
   try {
     return extractLinkedinCodeFromPathname(new URL(url).pathname);
-  } catch {
+  }
+ catch {
     return null;
   }
 }
 
-export function findCompanyTitleElement(): HTMLElement | null {
+export function findCompanyTitleElement (): HTMLElement | null {
   for (const selector of COMPANY_TITLE_SELECTORS) {
     const element = document.querySelector<HTMLElement>(selector);
-    if (element?.textContent?.trim()) {
+    if (null !== element && "" !== element.textContent.trim()) {
       return element;
     }
   }
   return null;
 }
 
-export function getCompanyNameFromElement(element: HTMLElement): string {
+export function getCompanyNameFromElement (element: HTMLElement): string {
   const clone = element.cloneNode(true) as HTMLElement;
-  clone.querySelectorAll(".li-tracker-add-btn").forEach((btn) => btn.remove());
-  return clone.textContent?.trim() ?? "";
+  clone.querySelectorAll(".li-tracker-add-btn").forEach((btn) => {
+ return btn.remove();
+});
+  return clone.textContent.trim();
 }
 
-export function isCompanyPage(): boolean {
-  return getLinkedinCodeFromUrl() !== null;
+export function isCompanyPage (): boolean {
+  return null !== getLinkedinCodeFromUrl();
 }

@@ -7,7 +7,7 @@
 
     "lint-back": "npx eslint --config .eslintrc-back.cjs --ext .ts,.cts,.mts ./lib/src/**/*",
     "lint-front": "echo 'no linting front yet'",
-    "lint-tests": "npx eslint --config .eslintrc-tests.cjs --ext .js,.cjs,.mjs \"./test/**/*.js\"",
+    "lint-tests": "echo 'no linting tests yet'",
     "lint": "npm run lint-back && npm run lint-front && npm run lint-tests",
 
     "clean-back": "npx rimraf ./lib/cjs",

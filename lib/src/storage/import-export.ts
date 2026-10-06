@@ -4,44 +4,50 @@ import {
   normalizeCompany,
   companySortRank,
   normalizeLinkedinCode,
-  readCompanyIndicators,
+  readCompanyIndicators
 } from "../types/company";
 
 export const EXPORT_VERSION = 2 as const;
 
 export interface CompanyExportFile {
-  version: typeof EXPORT_VERSION;
-  exportedAt: string;
-  companies: Company[];
+  "version": typeof EXPORT_VERSION;
+  "exportedAt": string;
+  "companies": Company[];
 }
 
-function toExportCompany(company: Company): Company {
+function toExportCompany (company: Company): Company {
   return normalizeCompany(company);
 }
 
-function compareExportedCompanies(a: Company, b: Company): number {
+function compareExportedCompanies (a: Company, b: Company): number {
   const statusDiff = companySortRank(a) - companySortRank(b);
-  if (statusDiff !== 0) return statusDiff;
+  if (0 !== statusDiff) {
+ return statusDiff;
+}
   return a.name.localeCompare(b.name, "fr");
 }
 
-export function serializeCompanies(registry: CompanyRegistry): string {
+export function serializeCompanies (registry: CompanyRegistry): string {
   const companies = Object.values(registry).map(toExportCompany).sort(compareExportedCompanies);
   const payload: CompanyExportFile = {
-    version: EXPORT_VERSION,
-    exportedAt: new Date().toISOString(),
-    companies,
+    "version": EXPORT_VERSION,
+    "exportedAt": new Date().toISOString(),
+    companies
   };
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
 
-export function parseCompaniesJson(text: string): Company[] {
-  let data: unknown;
+function parseJson (text: string): unknown {
   try {
-    data = JSON.parse(text);
-  } catch {
+    return JSON.parse(text) as unknown;
+  }
+  catch {
     throw new Error("Fichier JSON invalide.");
   }
+}
+
+export function parseCompaniesJson (text: string): Company[] {
+  const data = parseJson(text);
 
   const companies: Company[] = [];
   for (const item of extractRawCompanies(data)) {
@@ -54,11 +60,11 @@ export function parseCompaniesJson(text: string): Company[] {
   return companies;
 }
 
-function extractRawCompanies(data: unknown): unknown[] {
+function extractRawCompanies (data: unknown): unknown[] {
   if (Array.isArray(data)) {
     return data;
   }
-  if (!data || typeof data !== "object") {
+  if ("object" !== typeof data || null === data) {
     throw new Error("Fichier JSON invalide : tableau de sociétés attendu.");
   }
 
@@ -69,8 +75,10 @@ function extractRawCompanies(data: unknown): unknown[] {
 
   const values = Object.values(record);
   if (
-    values.length > 0 &&
-    values.every((value) => value && typeof value === "object" && "linkedinCode" in value)
+    0 < values.length
+    && values.every((value) => {
+ return "object" === typeof value && null !== value && "linkedinCode" in value;
+})
   ) {
     return values;
   }
@@ -78,28 +86,27 @@ function extractRawCompanies(data: unknown): unknown[] {
   throw new Error("Fichier JSON invalide : tableau de sociétés attendu.");
 }
 
-function normalizeImportedCompany(item: unknown): Company | null {
-  if (!item || typeof item !== "object") {
+function normalizeImportedCompany (item: unknown): Company | null {
+  if ("object" !== typeof item || null === item) {
     return null;
   }
 
-  const raw = item as Partial<Company> & { reason?: string; status?: unknown };
+  const raw = item as Partial<Company> & { "reason"?: string; "status"?: unknown };
   const indicators = readCompanyIndicators(raw);
-  const hasInput = Array.isArray(raw.indicators) ? raw.indicators.length > 0 : raw.status !== undefined;
-  if (hasInput && indicators.length === 0) {
+  const hasInput = Array.isArray(raw.indicators) ? 0 < raw.indicators.length : raw.status !== undefined;
+  if (hasInput && 0 === indicators.length) {
     return null;
   }
 
-  const comment =
-    (typeof raw.comment === "string" && raw.comment.trim()) ||
-    (typeof raw.reason === "string" && raw.reason.trim()) ||
-    "";
+  const rawComment = "string" === typeof raw.comment ? raw.comment.trim() : "";
+  const rawReason = "string" === typeof raw.reason ? raw.reason.trim() : "";
+  const comment = "" === rawComment ? rawReason : rawComment;
 
   const company: Company = {
-    linkedinCode: typeof raw.linkedinCode === "string" ? normalizeLinkedinCode(raw.linkedinCode) : "",
-    name: typeof raw.name === "string" ? raw.name.trim() : "",
+    "linkedinCode": "string" === typeof raw.linkedinCode ? normalizeLinkedinCode(raw.linkedinCode) : "",
+    "name": "string" === typeof raw.name ? raw.name.trim() : "",
     indicators,
-    ...(comment ? { comment } : {}),
+    ..."" === comment ? {} : { comment }
   };
 
   return isValidCompany(company) ? normalizeCompany(company) : null;

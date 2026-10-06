@@ -13,32 +13,34 @@ import {
   isJobsSearchResultsPage,
   isJobsTrackerPage,
   resolveCompanyFromContainer,
-  wrapCompanyNamePrefix,
+  wrapCompanyNamePrefix
 } from "./shared/job-dom-utils";
 import { applyCompanyHighlight } from "./shared/highlighter";
 import { isAddCompanyModalOpen } from "./shared/modal";
 import { initPageScanner } from "./shared/page-scanner";
-import { getCachedRegistry, initRegistrySync, loadRegistry, onRegistryChange } from "./shared/registry-client";
+import { getCachedRegistry, initRegistryListeners, loadRegistry, onRegistryChange } from "./shared/registry-client";
 import type { Company, CompanyRegistry } from "../types/company";
 
-function applyHighlightOnCompanyName(
+function applyHighlightOnCompanyName (
   container: ParentNode,
   registry: CompanyRegistry,
   nameElement: HTMLElement,
   company?: Company
 ): void {
-  const resolved =
-    company ??
-    resolveCompanyFromContainer(container, registry) ??
-    undefined;
+  const resolved
+    = company
+    ?? resolveCompanyFromContainer(container, registry)
+    ?? undefined;
 
   applyCompanyHighlight(nameElement, resolved, resolved?.linkedinCode ?? "unknown");
 }
 
-function applyJobCard(card: HTMLElement, registry: CompanyRegistry): void {
+function applyJobCard (card: HTMLElement, registry: CompanyRegistry): void {
   if (isJobsTrackerPage()) {
     const match = findCompanyInJobsTrackerCard(card, registry);
-    if (!match) return;
+    if (!match) {
+ return;
+}
 
     const target = wrapCompanyNamePrefix(match.element, match.displayName);
     applyCompanyHighlight(target, match.company, match.company.linkedinCode);
@@ -59,9 +61,11 @@ function applyJobCard(card: HTMLElement, registry: CompanyRegistry): void {
     }
 
     const nameElement = findCompanyNameElementInListCard(card);
-    if (!nameElement) return;
+    if (!nameElement) {
+ return;
+}
 
-    const company = findCompanyByName(registry, nameElement.textContent?.trim() ?? "");
+    const company = findCompanyByName(registry, nameElement.textContent.trim());
     applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
     return;
   }
@@ -70,12 +74,14 @@ function applyJobCard(card: HTMLElement, registry: CompanyRegistry): void {
     ? findCompanyNameElementInListCard(card)
     : findCompanyNameElement(card);
 
-  if (!nameElement) return;
+  if (!nameElement) {
+ return;
+}
 
   applyHighlightOnCompanyName(card, registry, nameElement);
 }
 
-function applyJobDetail(registry: CompanyRegistry): void {
+function applyJobDetail (registry: CompanyRegistry): void {
   if (isJobsSearchResultsPage()) {
     const detailMatch = findCompanyInSearchResultsDetail(registry);
     if (detailMatch) {
@@ -89,7 +95,9 @@ function applyJobDetail(registry: CompanyRegistry): void {
   }
 
   const container = findJobViewContainer();
-  if (!container) return;
+  if (!container) {
+ return;
+}
 
   const panelMatch = findCompanyInJobDetailPanel(container, registry);
   if (panelMatch) {
@@ -101,23 +109,31 @@ function applyJobDetail(registry: CompanyRegistry): void {
     return;
   }
 
-  const nameElement =
-    findCompanyNameElement(container) ?? findCompanyNameElementInListCard(container);
-  if (!nameElement) return;
+  const nameElement
+    = findCompanyNameElement(container) ?? findCompanyNameElementInListCard(container);
+  if (!nameElement) {
+ return;
+}
 
-  const company =
-    findCompanyByName(registry, nameElement.textContent?.trim() ?? "") ??
-    resolveCompanyFromContainer(container, registry);
+  const company
+    = findCompanyByName(registry, nameElement.textContent.trim())
+    ?? resolveCompanyFromContainer(container, registry);
 
   applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
 }
 
-function applyJobsPage(): void {
-  if (isAddCompanyModalOpen()) return;
-  if (!isJobsPage()) return;
+function applyJobsPage (): void {
+  if (isAddCompanyModalOpen()) {
+ return;
+}
+  if (!isJobsPage()) {
+ return;
+}
 
   const registry = getCachedRegistry();
-  if (Object.keys(registry).length === 0) return;
+  if (0 === Object.keys(registry).length) {
+ return;
+}
 
   for (const card of findJobCards()) {
     applyJobCard(card, registry);
@@ -128,13 +144,17 @@ function applyJobsPage(): void {
   }
 }
 
-async function init(): Promise<void> {
-  initRegistrySync();
+async function init (): Promise<void> {
+  initRegistryListeners();
   await loadRegistry();
   applyJobsPage();
 
-  onRegistryChange(() => applyJobsPage());
+  onRegistryChange(() => {
+ return applyJobsPage();
+});
   initPageScanner(applyJobsPage);
 }
 
-void init();
+init().catch((error: unknown) => {
+  console.error(error);
+});

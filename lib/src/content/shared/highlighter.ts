@@ -6,7 +6,7 @@ const ICON_ATTR = "data-li-tracker-icon";
 
 let tooltipEl: HTMLDivElement | null = null;
 
-function ensureTooltip(): HTMLDivElement {
+function ensureTooltip (): HTMLDivElement {
   if (!tooltipEl) {
     tooltipEl = document.createElement("div");
     tooltipEl.className = "li-tracker-tooltip";
@@ -16,11 +16,11 @@ function ensureTooltip(): HTMLDivElement {
   return tooltipEl;
 }
 
-function formatTooltipContent(company: Company): string {
+function formatTooltipContent (company: Company): string {
   return formatCompanyPopupDetail(company);
 }
 
-function syncStatusIcon(element: HTMLElement, icon: string): void {
+function syncStatusIcon (element: HTMLElement, icon: string): void {
   const existing = element.querySelector<HTMLElement>(`:scope > [${ICON_ATTR}]`);
   if (!icon) {
     existing?.remove();
@@ -37,17 +37,20 @@ function syncStatusIcon(element: HTMLElement, icon: string): void {
   }
 }
 
-function removeStatusIcon(element: HTMLElement): void {
-  element.querySelectorAll(`[${ICON_ATTR}]`).forEach((node) => node.remove());
+function removeStatusIcon (element: HTMLElement): void {
+  element.querySelectorAll(`[${ICON_ATTR}]`).forEach((node) => {
+ return node.remove();
+});
 }
 
-function positionTooltip(target: HTMLElement, tooltip: HTMLDivElement): void {
+function positionTooltip (target: HTMLElement, tooltip: HTMLDivElement): void {
   const rect = target.getBoundingClientRect();
-  tooltip.style.left = `${rect.left + rect.width / 2}px`;
+  const halfWidth = rect.width / 2;
+  tooltip.style.left = `${rect.left + halfWidth}px`;
   tooltip.style.top = `${rect.bottom + 8}px`;
 }
 
-export function clearElementHighlight(element: HTMLElement): void {
+export function clearElementHighlight (element: HTMLElement): void {
   element.removeAttribute("data-li-tracker-highlighted");
   element.removeAttribute("data-li-tracker-applied");
   element.classList.remove(HIGHLIGHT_CLASS);
@@ -55,15 +58,17 @@ export function clearElementHighlight(element: HTMLElement): void {
   removeStatusIcon(element);
 }
 
-const elementControllers = new WeakMap<HTMLElement, AbortController>();
+const elementControllers: WeakMap<HTMLElement, AbortController> = new WeakMap();
 
-export function applyCompanyHighlight(
+export function applyCompanyHighlight (
   element: HTMLElement,
   company: Company | undefined,
   linkedinCode: string
 ): void {
   const targetKey = company ? `${linkedinCode}:${company.indicators.join(",")}:icon` : "none";
-  if (element.getAttribute("data-li-tracker-applied") === targetKey) return;
+  if (element.getAttribute("data-li-tracker-applied") === targetKey) {
+ return;
+}
 
   elementControllers.get(element)?.abort();
   clearElementHighlight(element);
@@ -79,17 +84,19 @@ export function applyCompanyHighlight(
   element.setAttribute("data-li-tracker-applied", targetKey);
 }
 
-export function clearHighlights(root: ParentNode = document): void {
+export function clearHighlights (root: ParentNode = document): void {
   root.querySelectorAll<HTMLElement>("[data-li-tracker-highlighted], [data-li-tracker-applied]").forEach((element) => {
     elementControllers.get(element)?.abort();
     elementControllers.delete(element);
     clearElementHighlight(element);
   });
 
-  root.querySelectorAll(".li-tracker-add-btn").forEach((button) => button.remove());
+  root.querySelectorAll(".li-tracker-add-btn").forEach((button) => {
+ return button.remove();
+});
 }
 
-export function highlightCompany(
+export function highlightCompany (
   element: HTMLElement,
   company: Company,
   signal: AbortSignal
@@ -98,38 +105,40 @@ export function highlightCompany(
   const indicators = sortIndicatorsByCriticityDesc(company.indicators);
   element.classList.add(HIGHLIGHT_CLASS);
   const color = getIndicatorsColor(company.indicators);
-  if (color) {
+  if (undefined !== color) {
     element.style.setProperty("--li-tracker-color", color);
   }
-  syncStatusIcon(element, indicators.map((indicator) => indicator.icon).join(""));
+  syncStatusIcon(element, indicators.map((indicator) => {
+ return indicator.icon;
+}).join(""));
 
   const tooltip = ensureTooltip();
 
-  const showTooltip = () => {
+  function showTooltip (): void {
     tooltip.textContent = formatTooltipContent(company);
     tooltip.hidden = false;
     positionTooltip(element, tooltip);
-  };
+  }
 
-  const hideTooltip = () => {
+  function hideTooltip (): void {
     tooltip.hidden = true;
-  };
+  }
 
-  const reposition = () => {
+  function reposition (): void {
     if (!tooltip.hidden) {
       positionTooltip(element, tooltip);
     }
-  };
+  }
 
   element.addEventListener("mouseenter", showTooltip, { signal });
   element.addEventListener("mouseleave", hideTooltip, { signal });
   element.addEventListener("focus", showTooltip, { signal });
   element.addEventListener("blur", hideTooltip, { signal });
-  window.addEventListener("scroll", reposition, { signal, capture: true });
+  window.addEventListener("scroll", reposition, { signal, "capture": true });
   window.addEventListener("resize", reposition, { signal });
 }
 
-export function createAddButton(
+export function createAddButton (
   onClick: () => void,
   signal: AbortSignal
 ): HTMLButtonElement {

@@ -2,32 +2,37 @@ import { debounce } from "./debounce";
 
 type HistoryStateMethod = typeof history.pushState;
 
-export function initPageScanner(apply: () => void, debounceMs = 300): void {
+export function initPageScanner (apply: () => void, debounceMs = 300): void {
   const debouncedApply = debounce(apply, debounceMs);
 
-  const startObserver = () => {
+  function startObserver (): void {
     const observer = new MutationObserver(debouncedApply);
-    observer.observe(document.body, { childList: true, subtree: true });
-  };
+    observer.observe(document.body, { "childList": true, "subtree": true });
+  }
 
-  if (document.body) {
+  // `document.body` peut être null avant la fin du parsing du document.
+  if (null !== (document.body as HTMLElement | null)) {
     startObserver();
-  } else {
-    window.addEventListener("DOMContentLoaded", startObserver, { once: true });
+  }
+  else {
+    window.addEventListener("DOMContentLoaded", startObserver, { "once": true });
   }
 
   window.addEventListener("popstate", debouncedApply);
   hookHistoryNavigation(debouncedApply);
 }
 
-function hookHistoryNavigation(onNavigate: () => void): void {
-  const wrap =
-    (original: HistoryStateMethod) =>
-    (...args: Parameters<HistoryStateMethod>) => {
-      original.apply(history, args);
-      onNavigate();
-    };
+function wrapHistoryMethod (original: HistoryStateMethod, onNavigate: () => void): HistoryStateMethod {
+  return (...args: Parameters<HistoryStateMethod>): void => {
+    original.apply(history, args);
+    onNavigate();
+  };
+}
 
-  history.pushState = wrap(history.pushState);
-  history.replaceState = wrap(history.replaceState);
+function hookHistoryNavigation (onNavigate: () => void): void {
+  const originalPushState: HistoryStateMethod = history.pushState.bind(history);
+  const originalReplaceState: HistoryStateMethod = history.replaceState.bind(history);
+
+  history.pushState = wrapHistoryMethod(originalPushState, onNavigate);
+  history.replaceState = wrapHistoryMethod(originalReplaceState, onNavigate);
 }
