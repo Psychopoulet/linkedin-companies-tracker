@@ -125,7 +125,7 @@ export function highlightCompany (
   }
 
   function reposition (): void {
-    if (!tooltip.hidden) {
+    if (false === tooltip.hidden) {
       positionTooltip(element, tooltip);
     }
   }
