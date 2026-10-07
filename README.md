@@ -27,7 +27,7 @@ npm run build
 Webpack writes the extension into `lib/dist/`. Reload it in `chrome://extensions` after each build.
 
 ```bash
-npm run zip
+npm run build-zip
 ```
 
 Packages `lib/dist/` into `lib/build/`. Run `npm run build` first.

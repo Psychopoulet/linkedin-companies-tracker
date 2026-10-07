@@ -127,8 +127,5 @@ jobs:
   #     - name: Run build
   #       run: npm run build
 
-  #     - name: Zip the extension
-  #       run: npm run zip
-
   #     - name: Publish to npm
   #       run: npm publish --provenance --access public

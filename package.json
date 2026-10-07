@@ -1,8 +1,11 @@
 {
-  "name": "linkedin-company-tracker",
+
+  "name": "linkedin-companies-tracker",
   "version": "1.1.1",
-  "private": true,
+  "description": "Track linkedin companies with warning/validation indicators.",
+
   "type": "module",
+
   "scripts": {
 
     "lint-back": "npx eslint --config .eslintrc-back.cjs --ext .ts,.cts,.mts ./lib/src/**/*",
@@ -11,12 +14,14 @@
     "lint": "npm run lint-back && npm run lint-front && npm run lint-tests",
 
     "clean-back": "npx rimraf ./lib/cjs",
+    "clean-zip": "npx rimraf ./lib/build",
     "clean-front": "npx rimraf ./public/dist",
-    "clean": "npm run clean-back && npm run clean-front",
+    "clean": "npm run clean-back && npm run clean-zip && npm run clean-front",
 
     "build-back": "npm run clean-back && npx webpack",
+    "build-zip": "npx web-ext build --source-dir ./lib/dist --artifacts-dir ./lib/build --overwrite-dest --no-input",
     "build-front": "echo 'no build front yet'",
-    "build": "npm run build-back && npm run build-front",
+    "build": "npm run build-back && npm run build-zip && npm run build-front",
 
     "check-node-engine": "npx check-node-engine",
     "check-requires": "npx used-deps-analyzer ./package.json ./lib/src --no-dev",
@@ -24,9 +29,7 @@
     "unit-tests": "node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
     "unit-tests-local": "npx nyc --reporter=html --reporter=text node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
 
-    "tests": "npm run lint && npm run check-node-engine && npm run check-requires && npm run check-updates && npm run build && npm run unit-tests-local",
-
-    "zip": "npx web-ext build --source-dir ./lib/dist --artifacts-dir ./lib/build --overwrite-dest --no-input"
+    "tests": "npm run lint && npm run check-node-engine && npm run check-requires && npm run check-updates && npm run build && npm run unit-tests-local"
 
   },
 
@@ -70,13 +73,13 @@
   "contributors": [],
   "license": "ISC",
 
-  "homepage": "https://github.com/Psychopoulet/linkedin-company-tracker#readme",
+  "homepage": "https://github.com/Psychopoulet/linkedin-companies-tracker#readme",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Psychopoulet/linkedin-company-tracker"
+    "url": "git://github.com/Psychopoulet/linkedin-companies-tracker"
   },
   "bugs": {
-    "url": "https://github.com/Psychopoulet/linkedin-company-tracker/issues"
+    "url": "https://github.com/Psychopoulet/linkedin-companies-tracker/issues"
   }
 
 }

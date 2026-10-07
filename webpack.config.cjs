@@ -96,7 +96,7 @@ module.exports = {
                     "to": "popup/popup.css"
                 },
                 {
-                    "from": join(__dirname, "icons"),
+                    "from": join(__dirname, "public", "icons"),
                     "to": "icons"
                 }
             ]

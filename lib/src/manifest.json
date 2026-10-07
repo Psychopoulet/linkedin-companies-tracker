@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LinkedIn Company Tracker",
-  "version": "1.0.0",
-  "description": "Suivi des sociétés LinkedIn avec indicateurs de criticité.",
+  "name": "linkedin-companies-tracker",
+  "version": "1.1.1",
+  "description": "Track linkedin companies with warning/validation indicators.",
   "permissions": ["storage"],
   "host_permissions": ["https://www.linkedin.com/*"],
   "background": {
@@ -10,7 +10,7 @@
   },
   "action": {
     "default_popup": "popup/index.html",
-    "default_title": "Sociétés LinkedIn"
+    "default_title": "LinkedIn Companies Tracker"
   },
   "icons": {
     "16": "icons/icon16.png",
