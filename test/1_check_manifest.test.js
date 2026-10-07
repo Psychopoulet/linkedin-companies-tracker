@@ -1,14 +1,14 @@
 // deps
 
     // natives
-    const { join } = require("node:path");
-    const { readFile, lstat } = require("node:fs/promises");
-    const { equal } = require("node:assert");
+    import { join } from "node:path";
+    import { readFile, lstat } from "node:fs/promises";
+    import { equal } from "node:assert";
 
 // consts
 
-    const MANIFEST_FILE = join(__dirname, "..", "lib", "src", "manifest.json");
-    const PACKAGE_FILE = join(__dirname, "..", "package.json");
+    const MANIFEST_FILE = join(import.meta.dirname, "..", "lib", "src", "manifest.json");
+    const PACKAGE_FILE = join(import.meta.dirname, "..", "package.json");
 
 // tests
 
