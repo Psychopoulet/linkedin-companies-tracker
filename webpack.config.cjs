@@ -4,6 +4,8 @@
     const { join } = require("node:path");
 
     // externals
+    const CopyPlugin = require("copy-webpack-plugin");
+    const HtmlWebpackPlugin = require("html-webpack-plugin");
     const TerserPlugin = require("terser-webpack-plugin");
 
 // consts
@@ -68,6 +70,36 @@ module.exports = {
 
     "resolve": {
         "extensions": [ ".ts", ".js" ]
-    }
+    },
+
+    "plugins": [
+        new CopyPlugin({
+            "patterns": [
+                {
+                    "from": join(SRC, "manifest.json"),
+                    "to": "manifest.json"
+                },
+                {
+                    "from": join(SRC, "styles", "content.css"),
+                    "to": "styles/content.css"
+                },
+                {
+                    "from": join(SRC, "popup", "popup.css"),
+                    "to": "popup/popup.css"
+                },
+                {
+                    "from": join(__dirname, "icons"),
+                    "to": "icons"
+                }
+            ]
+        }),
+        new HtmlWebpackPlugin({
+            "template": join(SRC, "popup", "index.html"),
+            "filename": "popup/index.html",
+            "chunks": [ "popup/popup" ],
+            "inject": "body",
+            "scriptLoading": "blocking"
+        })
+    ]
 
 };
