@@ -16,15 +16,21 @@ npm run build
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
-3. Click **Load unpacked** and select the `dist/` folder
+3. Click **Load unpacked** and select the `lib/dist/` folder
 
 ## Development
 
 ```bash
-npm run dev
+npm run build
 ```
 
-Vite rebuilds `dist/` on every change. Reload the extension in `chrome://extensions` if needed.
+Webpack writes the extension into `lib/dist/`. Reload it in `chrome://extensions` after each build.
+
+```bash
+npm run build-zip
+```
+
+Packages `lib/dist/` into `lib/build/`. Run `npm run build` first.
 
 ## Supported pages
 
@@ -50,14 +56,16 @@ A company can have several indicators. The displayed color is the one of the mos
 | Icon | Code | Criticity | Description |
 |------|------|-----------|-------------|
 | ✅ | `WANTED` | OK (green) | Wanted company |
+| 💵 | `SALARY_AND_ADVANTAGES` | GOOD (green) | Shows salary and benefits |
 | 💼 | `IT_SERVICES_COMPANY` | INFO (blue) | IT services company (ESN / SSI) |
 | 👨‍💼 | `HEADHUNTER` | INFO (blue) | Recruiter / placement agency |
+| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | WARNING (yellow) | Does not show salary or benefits |
 | ⚠️ | `SUSPECT` | WARNING (yellow) | Suspect company |
 | ❌ | `BANNED` | DANGER (red) | Company to avoid |
 | 🚫 | `DONT_ANSWER` | DANGER (red) | Never answers |
 | ⚠️ | `FREELANCE` | WARNING (yellow) | Freelance |
 
-Indicators are defined in [`src/types/indicator.ts`](./src/types/indicator.ts).
+Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
 
 ## Manual testing
 
