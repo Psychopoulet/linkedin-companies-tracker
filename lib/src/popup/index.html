@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,67 +10,67 @@
   <body>
     <header>
       <h1>LinkedIn Companies Tracker</h1>
-      <p class="subtitle">Liste locale des sociétés suivies par indicateur de criticité.</p>
+      <p class="subtitle">Local list of tracked companies, grouped by criticity indicator.</p>
     </header>
 
     <section class="filters">
       <input
         id="search"
         type="search"
-        placeholder="Rechercher par nom ou code…"
+        placeholder="Search by name or code…"
         autocomplete="off"
       />
       <select id="status-filter">
-        <option value="">Tous les statuts</option>
+        <option value="">All statuses</option>
       </select>
     </section>
 
     <section class="io-section" id="io-section">
       <div class="io-actions">
-        <button type="button" id="export-btn" class="secondary">Exporter JSON</button>
-        <button type="button" id="import-btn" class="secondary">Importer JSON</button>
+        <button type="button" id="export-btn" class="secondary">Export JSON</button>
+        <button type="button" id="import-btn" class="secondary">Import JSON</button>
       </div>
       <input id="import-file" type="file" accept="application/json,.json" hidden />
-      <p class="io-hint">Ou déposez un fichier JSON ici.</p>
+      <p class="io-hint">Or drop a JSON file here.</p>
       <p id="io-message" class="io-message" hidden></p>
     </section>
 
     <section class="form-section">
-      <h2 id="form-title">Ajouter une société</h2>
+      <h2 id="form-title">Add a company</h2>
       <form id="company-form">
         <input type="hidden" id="edit-mode" value="add" />
         <label>
-          Nom <span class="required">*</span>
+          Name <span class="required">*</span>
           <input id="name" type="text" required placeholder="Ex. Capgemini" />
         </label>
         <label>
-          Code LinkedIn <span class="required">*</span>
+          LinkedIn code <span class="required">*</span>
           <input
             id="linkedin-code"
             type="text"
             required
             placeholder="Ex. capgemini"
             pattern="[^\s]+"
-            title="Slug utilisé dans l'URL /company/{code}/"
+            title="Slug used in the URL /company/{code}/"
           />
         </label>
         <fieldset id="indicators" class="indicators"></fieldset>
         <label>
-          Commentaire (facultatif)
-          <textarea id="comment" rows="3" placeholder="Pourquoi ce statut ?"></textarea>
+          Comment (optional)
+          <textarea id="comment" rows="3" placeholder="Why this status?"></textarea>
         </label>
         <div class="form-actions">
-          <button type="submit" id="submit-btn">Ajouter</button>
-          <button type="button" id="cancel-edit" class="secondary" hidden>Annuler</button>
+          <button type="submit" id="submit-btn">Add</button>
+          <button type="button" id="cancel-edit" class="secondary" hidden>Cancel</button>
         </div>
       </form>
       <p id="form-error" class="error" hidden></p>
     </section>
 
     <section class="list-section">
-      <h2>Sociétés enregistrées (<span id="count">0</span>)</h2>
+      <h2>Saved companies (<span id="count">0</span>)</h2>
       <ul id="company-list"></ul>
-      <p id="empty-state" class="empty">Aucune société enregistrée.</p>
+      <p id="empty-state" class="empty">No companies saved.</p>
     </section>
   </body>
 </html>

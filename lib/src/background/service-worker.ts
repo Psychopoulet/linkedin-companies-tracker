@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
     handleMessage(message)
       .then(sendResponse)
       .catch((error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
         sendResponse({ "ok": false, "error": errorMessage });
       });
     return true;
@@ -34,7 +34,7 @@ async function handleMessage (message: Message): Promise<MessageResponse> {
 
     case "ADD_COMPANY": {
       if (!isValidCompany(message.company)) {
-        return { "ok": false, "error": "Données invalides : le nom est obligatoire." };
+        return { "ok": false, "error": "Invalid data: name is required." };
       }
       const registry = await addCompany(message.company);
       await broadcastRegistryUpdate();
@@ -43,7 +43,7 @@ async function handleMessage (message: Message): Promise<MessageResponse> {
 
     case "UPDATE_COMPANY": {
       if (!isValidCompany(message.company)) {
-        return { "ok": false, "error": "Données invalides : le nom est obligatoire." };
+        return { "ok": false, "error": "Invalid data: name is required." };
       }
       try {
         const registry = await updateCompany(message.company);
@@ -51,7 +51,7 @@ async function handleMessage (message: Message): Promise<MessageResponse> {
         return { "ok": true, registry };
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
         return { "ok": false, "error": errorMessage };
       }
     }
@@ -64,7 +64,7 @@ async function handleMessage (message: Message): Promise<MessageResponse> {
 
     case "IMPORT_REGISTRY": {
       if (!Array.isArray(message.companies) || !message.companies.every(isValidCompany)) {
-        return { "ok": false, "error": "Données invalides : une ou plusieurs sociétés sont incorrectes." };
+        return { "ok": false, "error": "Invalid data: one or more companies are incorrect." };
       }
       const registry = await replaceRegistry(message.companies);
       await broadcastRegistryUpdate();
@@ -72,7 +72,7 @@ async function handleMessage (message: Message): Promise<MessageResponse> {
     }
 
     default:
-      return { "ok": false, "error": "Message inconnu" };
+      return { "ok": false, "error": "Unknown message" };
 
   }
 
@@ -91,5 +91,5 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.info(`[${REGISTRY_UPDATED}] Extension installée`);
+  console.info(`[${REGISTRY_UPDATED}] Extension installed`);
 });

@@ -34,7 +34,7 @@ export async function updateCompany (company: Company): Promise<CompanyRegistry>
   const registry = await getRegistry();
   const next = normalizeCompany(company);
   if (!Object.hasOwn(registry, next.linkedinCode)) {
-    throw new Error(`Société introuvable : ${next.linkedinCode}`);
+    throw new Error(`Company not found: ${next.linkedinCode}`);
   }
   registry[next.linkedinCode] = next;
   await saveRegistry(registry);

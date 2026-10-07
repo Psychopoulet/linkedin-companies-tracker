@@ -20,7 +20,7 @@ function getCriticity (code: Criticity): { "code": Criticity; "order": number; "
     return criticity.code === code;
   });
   if (found === undefined) {
-    throw new Error(`Criticité inconnue : ${code}`);
+    throw new Error(`Unknown criticity: ${code}`);
   }
   return found;
 }
@@ -34,49 +34,49 @@ export const INDICATORS = [
     "icon": "✅",
     "criticity": "OK",
     "code": "WANTED",
-    "description": "Société souhaitée"
+    "description": "Desired company"
   },
   {
     "icon": "💵",
     "criticity": "GOOD",
     "code": "SALARY_AND_ADVANTAGES",
-    "description": "Affiche salaire et avantages"
+    "description": "Shows salary and benefits"
   },
   {
     "icon": "💼",
     "criticity": "INFO",
     "code": "IT_SERVICES_COMPANY",
-    "description": "ESN / SSI"
+    "description": "IT services company"
   },
   {
     "icon": "👨‍💼",
     "criticity": "INFO",
     "code": "HEADHUNTER",
-    "description": "recruteur / société de placement"
+    "description": "Recruiter / staffing agency"
   },
   {
     "icon": "💸",
     "criticity": "WARNING",
     "code": "WITHOUT_SALARY_NOR_ADVANTAGES",
-    "description": "Ne montre pas le salaire ou les avantages"
+    "description": "Does not show salary or benefits"
   },
   {
     "icon": "⚠️",
     "criticity": "WARNING",
     "code": "SUSPECT",
-    "description": "Suspecte"
+    "description": "Suspicious"
   },
   {
     "icon": "❌",
     "criticity": "DANGER",
     "code": "BANNED",
-    "description": "Société à éviter"
+    "description": "Company to avoid"
   },
   {
     "icon": "🚫",
     "criticity": "DANGER",
     "code": "DONT_ANSWER",
-    "description": "Ne répond pas"
+    "description": "Does not reply"
   },
   {
     "icon": "⚠️",

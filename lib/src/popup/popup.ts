@@ -62,12 +62,12 @@ function fillStatusSelects (): void {
   statusFilter.replaceChildren();
   const allOption = document.createElement("option");
   allOption.value = "";
-  allOption.textContent = "Tous les indicateurs";
+  allOption.textContent = "All indicators";
   statusFilter.append(allOption);
 
   indicatorsField.replaceChildren();
   const legend = document.createElement("legend");
-  legend.textContent = "Indicateurs";
+  legend.textContent = "Indicators";
   indicatorsField.append(legend);
   indicatorInputs.length = 0;
   for (const indicator of indicators) {
@@ -179,7 +179,7 @@ function renderList (): void {
 
     const editBtn = document.createElement("button");
     editBtn.type = "button";
-    editBtn.textContent = "Modifier";
+    editBtn.textContent = "Edit";
     editBtn.addEventListener("click", () => {
  return startEdit(company);
 });
@@ -187,7 +187,7 @@ function renderList (): void {
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "danger";
-    deleteBtn.textContent = "Supprimer";
+    deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => {
       deleteCompany(company.linkedinCode).catch(reportError);
     });
@@ -204,8 +204,8 @@ function reportError (error: unknown): void {
 
 function resetForm (): void {
   editModeInput.value = "add";
-  formTitle.textContent = "Ajouter une société";
-  submitBtn.textContent = "Ajouter";
+  formTitle.textContent = "Add a company";
+  submitBtn.textContent = "Add";
   linkedinCodeInput.disabled = false;
   cancelEditBtn.hidden = true;
   companyForm.reset();
@@ -214,8 +214,8 @@ function resetForm (): void {
 
 function startEdit (company: Company): void {
   editModeInput.value = "edit";
-  formTitle.textContent = "Modifier une société";
-  submitBtn.textContent = "Enregistrer";
+  formTitle.textContent = "Edit company";
+  submitBtn.textContent = "Save";
   nameInput.value = company.name;
   linkedinCodeInput.value = company.linkedinCode;
   linkedinCodeInput.disabled = true;
@@ -240,7 +240,7 @@ async function loadRegistry (): Promise<void> {
 
 async function deleteCompany (linkedinCode: string): Promise<void> {
   // eslint-disable-next-line no-alert
-  if (!confirm(`Supprimer ${linkedinCode} ?`)) {
+  if (!confirm(`Delete ${linkedinCode}?`)) {
     return;
   }
 
@@ -274,7 +274,7 @@ async function handleCompanySubmit (event: Event): Promise<void> {
   });
 
   if (!company.name) {
-    showError("Le nom est obligatoire.");
+    showError("Name is required.");
     return;
   }
 
@@ -314,8 +314,8 @@ function exportRegistry (): void {
   const count = Object.keys(registry).length;
   showIoMessage(
     0 === count
-      ? "Liste vide exportée."
-      : `${count} société${1 < count ? "s" : ""} exportée${1 < count ? "s" : ""}.`,
+      ? "Empty list exported."
+      : `${count} ${1 === count ? "company" : "companies"} exported.`,
     "success"
   );
 }
@@ -325,7 +325,7 @@ function parseCompaniesOrReport (text: string): Company[] | null {
     return parseCompaniesJson(text);
   }
   catch (error) {
-    showIoMessage(error instanceof Error ? error.message : "Fichier JSON invalide.", "error");
+    showIoMessage(error instanceof Error ? error.message : "Invalid JSON file.", "error");
     return null;
   }
 }
@@ -344,10 +344,11 @@ async function importFromText (text: string): Promise<void> {
 
   const currentCount = Object.keys(registry).length;
   const importedCount = companies.length;
+  const importedLabel = `${importedCount} ${1 === importedCount ? "company" : "companies"}`;
   const confirmMessage
     = 0 === currentCount
-      ? `Importer ${importedCount} société${1 < importedCount ? "s" : ""} ?`
-      : `Remplacer la liste actuelle (${currentCount}) par ${importedCount} société${1 < importedCount ? "s" : ""} ?`;
+      ? `Import ${importedLabel}?`
+      : `Replace the current list (${currentCount}) with ${importedLabel}?`;
 
   // eslint-disable-next-line no-alert
   if (!confirm(confirmMessage)) {
@@ -364,14 +365,14 @@ async function importFromText (text: string): Promise<void> {
   resetForm();
   renderList();
   showIoMessage(
-    `${importedCount} société${1 < importedCount ? "s" : ""} importée${1 < importedCount ? "s" : ""}.`,
+    `${importedCount} ${1 === importedCount ? "company" : "companies"} imported.`,
     "success"
   );
 }
 
 async function importFromFile (file: File): Promise<void> {
   if (!file.name.toLowerCase().endsWith(".json") && "application/json" !== file.type) {
-    showIoMessage("Choisissez un fichier JSON.", "error");
+    showIoMessage("Choose a JSON file.", "error");
     return;
   }
   await importFromText(await file.text());
