@@ -42,13 +42,13 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
 
   const title = document.createElement("h2");
   title.id = "li-tracker-modal-title";
-  title.textContent = "Ajouter une société";
+  title.textContent = "Add a company";
 
   const form = document.createElement("form");
   form.className = "li-tracker-modal-form";
 
   const nameLabel = document.createElement("label");
-  nameLabel.textContent = "Nom *";
+  nameLabel.textContent = "Name *";
   const nameInput = document.createElement("input");
   nameInput.type = "text";
   nameInput.required = true;
@@ -57,7 +57,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   nameLabel.append(nameInput);
 
   const codeLabel = document.createElement("label");
-  codeLabel.textContent = "Code LinkedIn";
+  codeLabel.textContent = "LinkedIn code";
   const codeInput = document.createElement("input");
   codeInput.type = "text";
   codeInput.readOnly = true;
@@ -67,7 +67,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   const indicatorsField = document.createElement("fieldset");
   indicatorsField.className = "li-tracker-modal-indicators";
   const indicatorsLegend = document.createElement("legend");
-  indicatorsLegend.textContent = "Indicateurs";
+  indicatorsLegend.textContent = "Indicators";
   indicatorsField.append(indicatorsLegend);
   // Boutons à bascule plutôt que des cases à cocher natives : LinkedIn restyle les
   // <input type="checkbox"> et les rend non cliquables dans nos éléments injectés.
@@ -95,7 +95,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   }
 
   const commentLabel = document.createElement("label");
-  commentLabel.textContent = "Commentaire (facultatif)";
+  commentLabel.textContent = "Comment (optional)";
   const commentInput = document.createElement("textarea");
   commentInput.rows = 3;
   commentInput.value = options.comment ?? "";
@@ -112,12 +112,12 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   const cancelBtn = document.createElement("button");
   cancelBtn.type = "button";
   cancelBtn.className = "li-tracker-modal-btn li-tracker-modal-btn--secondary";
-  cancelBtn.textContent = "Annuler";
+  cancelBtn.textContent = "Cancel";
 
   const saveBtn = document.createElement("button");
   saveBtn.type = "submit";
   saveBtn.className = "li-tracker-modal-btn";
-  saveBtn.textContent = "Enregistrer";
+  saveBtn.textContent = "Save";
 
   actions.append(cancelBtn, saveBtn);
   form.append(nameLabel, codeLabel, indicatorsField, commentLabel, errorEl, actions);
@@ -148,17 +148,17 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     });
 
     if (!company.name) {
-      showError("Le nom est obligatoire.");
+      showError("Name is required.");
       nameInput.focus();
       return;
     }
 
     saveBtn.disabled = true;
-    saveBtn.textContent = "Enregistrement…";
+    saveBtn.textContent = "Saving…";
 
     const response = await sendMessage({ "type": "ADD_COMPANY", company });
     saveBtn.disabled = false;
-    saveBtn.textContent = "Enregistrer";
+    saveBtn.textContent = "Save";
 
     if (!response.ok) {
       showError(response.error);
@@ -177,7 +177,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
 
   document.body.append(overlay);
 
-  // LinkedIn reprend le focus au tick suivant : on force plusieurs fois sur "Commentaire (facultatif)".
+  // LinkedIn reprend le focus au tick suivant : on force plusieurs fois sur "Comment (optional)".
   focusCommentInput(commentInput);
   requestAnimationFrame(() => {
     focusCommentInput(commentInput);

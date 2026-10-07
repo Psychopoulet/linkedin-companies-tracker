@@ -145,8 +145,8 @@ export function createAddButton (
   const button = document.createElement("button");
   button.type = "button";
   button.className = "li-tracker-add-btn";
-  button.title = "Ajouter à la liste";
-  button.setAttribute("aria-label", "Ajouter cette société à la liste");
+  button.title = "Add to the list";
+  button.setAttribute("aria-label", "Add this company to the list");
   button.textContent = "+";
   button.addEventListener("click", (event) => {
     event.preventDefault();

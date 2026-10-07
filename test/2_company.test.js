@@ -119,7 +119,7 @@ describe("import and export", () => {
 
             parseCompaniesJson("{");
 
-        }, { "message": "Fichier JSON invalide." });
+        }, { "message": "Invalid JSON file." });
 
     });
 

@@ -42,7 +42,7 @@ function parseJson (text: string): unknown {
     return JSON.parse(text) as unknown;
   }
   catch {
-    throw new Error("Fichier JSON invalide.");
+    throw new Error("Invalid JSON file.");
   }
 }
 
@@ -53,7 +53,7 @@ export function parseCompaniesJson (text: string): Company[] {
   for (const item of extractRawCompanies(data)) {
     const company = normalizeImportedCompany(item);
     if (!company) {
-      throw new Error("Fichier JSON invalide : une ou plusieurs sociétés sont incorrectes.");
+      throw new Error("Invalid JSON file: one or more companies are incorrect.");
     }
     companies.push(company);
   }
@@ -65,7 +65,7 @@ function extractRawCompanies (data: unknown): unknown[] {
     return data;
   }
   if ("object" !== typeof data || null === data) {
-    throw new Error("Fichier JSON invalide : tableau de sociétés attendu.");
+    throw new Error("Invalid JSON file: a company array was expected.");
   }
 
   const record = data as Record<string, unknown>;
@@ -83,7 +83,7 @@ function extractRawCompanies (data: unknown): unknown[] {
     return values;
   }
 
-  throw new Error("Fichier JSON invalide : tableau de sociétés attendu.");
+  throw new Error("Invalid JSON file: a company array was expected.");
 }
 
 function normalizeImportedCompany (item: unknown): Company | null {
