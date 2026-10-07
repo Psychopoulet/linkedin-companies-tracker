@@ -6,5 +6,5 @@ lib/cjs/
 node_modules/
 exports/
 examples/
-dist/
+lib/dist/
 *.local

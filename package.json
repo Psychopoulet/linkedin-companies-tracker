@@ -21,8 +21,8 @@
     "check-node-engine": "npx check-node-engine",
     "check-requires": "npx used-deps-analyzer ./package.json ./lib/src --no-dev",
     "check-updates": "npx check-version-modules --no-fail-at-major --fail-at-minor --fail-at-patch",
-    "unit-tests": "npx mocha",
-    "unit-tests-local": "npx nyc --reporter=html --reporter=text mocha",
+    "unit-tests": "node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
+    "unit-tests-local": "npx nyc --reporter=html --reporter=text node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
 
     "tests": "npm run lint && npm run check-node-engine && npm run check-requires && npm run check-updates && npm run build && npm run unit-tests-local"
 
