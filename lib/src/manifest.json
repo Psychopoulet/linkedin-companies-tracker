@@ -6,11 +6,10 @@
   "permissions": ["storage"],
   "host_permissions": ["https://www.linkedin.com/*"],
   "background": {
-    "service_worker": "src/background/service-worker.ts",
-    "type": "module"
+    "service_worker": "background/service-worker.js"
   },
   "action": {
-    "default_popup": "src/popup/index.html",
+    "default_popup": "popup/index.html",
     "default_title": "Sociétés LinkedIn"
   },
   "icons": {
@@ -21,8 +20,8 @@
   "content_scripts": [
     {
       "matches": ["https://www.linkedin.com/company/*"],
-      "js": ["src/content/linkedin-company.ts"],
-      "css": ["src/styles/content.css"]
+      "js": ["content/linkedin-company.js"],
+      "css": ["styles/content.css"]
     },
     {
       "matches": [
@@ -33,8 +32,8 @@
         "https://www.linkedin.com/jobs-tracker",
         "https://www.linkedin.com/jobs-tracker/*"
       ],
-      "js": ["src/content/linkedin-jobs.ts"],
-      "css": ["src/styles/content.css"]
+      "js": ["content/linkedin-jobs.js"],
+      "css": ["styles/content.css"]
     }
   ]
 }

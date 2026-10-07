@@ -8,6 +8,9 @@
     const HtmlWebpackPlugin = require("html-webpack-plugin");
     const TerserPlugin = require("terser-webpack-plugin");
 
+    // locals
+    const { version } = require(join(__dirname, "package.json"));
+
 // consts
 
     const SRC = join(__dirname, "lib", "src");
@@ -77,7 +80,12 @@ module.exports = {
             "patterns": [
                 {
                     "from": join(SRC, "manifest.json"),
-                    "to": "manifest.json"
+                    "to": "manifest.json",
+                    "transform" (content) {
+                        const manifest = JSON.parse(content.toString());
+                        manifest.version = version;
+                        return JSON.stringify(manifest, null, 2);
+                    }
                 },
                 {
                     "from": join(SRC, "styles", "content.css"),
