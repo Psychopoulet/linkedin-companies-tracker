@@ -19,7 +19,7 @@
     "build": "npm run build-back && npm run build-front",
 
     "check-node-engine": "npx check-node-engine",
-    "check-requires": "npx used-deps-analyzer ./package.json ./lib/src --no-dev --overkill fs-extra node-promfs --misscalled \"{\\\"module\\\":\\\"drizzle-orm\\\",\\\"call\\\":\\\"drizzle-orm/libsql\\\"}\" \"{\\\"module\\\":\\\"drizzle-orm\\\",\\\"call\\\":\\\"drizzle-orm/sqlite-core\\\"}\" \"{\\\"module\\\":\\\"drizzle-orm\\\",\\\"call\\\":\\\"drizzle-orm/batch\\\"}\"",
+    "check-requires": "npx used-deps-analyzer ./package.json ./lib/src --no-dev",
     "check-updates": "npx check-version-modules --no-fail-at-major --fail-at-minor --fail-at-patch",
     "unit-tests": "npx mocha",
     "unit-tests-local": "npx nyc --reporter=html --reporter=text mocha",
