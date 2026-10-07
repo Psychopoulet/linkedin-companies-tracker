@@ -14,7 +14,7 @@
     "clean-front": "npx rimraf ./public/dist",
     "clean": "npm run clean-back && npm run clean-front",
 
-    "build-back": "node scripts/generate-icons.mjs && npm run clean-back && npx tsc --project ./tsconfig.json",
+    "build-back": "npm run clean-back && npx webpack",
     "build-front": "echo 'no build front yet'",
     "build": "npm run build-back && npm run build-front",
 
@@ -24,7 +24,9 @@
     "unit-tests": "node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
     "unit-tests-local": "npx nyc --reporter=html --reporter=text node --import ./test/register.js ./node_modules/mocha/bin/mocha.js \"test/**/*.test.js\"",
 
-    "tests": "npm run lint && npm run check-node-engine && npm run check-requires && npm run check-updates && npm run build && npm run unit-tests-local"
+    "tests": "npm run lint && npm run check-node-engine && npm run check-requires && npm run check-updates && npm run build && npm run unit-tests-local",
+
+    "zip": "npx web-ext build --source-dir ./lib/dist --artifacts-dir ./lib/build --overwrite-dest --no-input"
 
   },
 
