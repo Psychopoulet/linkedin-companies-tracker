@@ -1,25 +1,33 @@
-import type { Message, MessageResponse } from "../messages";
-import { REGISTRY_UPDATED } from "../messages";
-import {
-  addCompany,
-  broadcastRegistryUpdate,
-  deleteCompany,
-  getRegistry,
-  replaceRegistry,
-  updateCompany
-} from "./storage";
-import { isValidCompany } from "../types/company";
-import { REGISTRY_STORAGE_KEY } from "../storage/constants";
+// deps
+
+  // locals
+  import type { Message, MessageResponse } from "../messages";
+  import { REGISTRY_UPDATED } from "../messages";
+  import {
+    addCompany,
+    broadcastRegistryUpdate,
+    deleteCompany,
+    getRegistry,
+    replaceRegistry,
+    updateCompany
+  } from "./storage";
+  import { isValidCompany } from "../types/company";
+  import { REGISTRY_STORAGE_KEY } from "../storage/constants";
+
+// module
 
 chrome.runtime.onMessage.addListener(
   (message: Message, _sender, sendResponse: (response: MessageResponse) => void) => {
+
     handleMessage(message)
       .then(sendResponse)
       .catch((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         sendResponse({ "ok": false, "error": errorMessage });
       });
+
     return true;
+
   }
 );
 
