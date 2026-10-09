@@ -6,6 +6,7 @@
 // consts
 
   const COMPANY_TITLE_SELECTORS = [
+    "[id^='pages.topCard'] h2",
     "h1.org-top-card-summary__title",
     "h1.org-top-card-summary-info-list__info-item",
     "h1[class*='org-top-card']",
