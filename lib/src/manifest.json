@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "linkedin-companies-tracker",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Track linkedin companies with warning/validation indicators.",
   "permissions": ["storage"],
   "host_permissions": ["https://www.linkedin.com/*"],

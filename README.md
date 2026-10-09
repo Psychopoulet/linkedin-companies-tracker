@@ -3,7 +3,7 @@
 > **Disclaimer: this project was quickly vibe-coded. It is not a polished product.**
 > LinkedIn changes its markup often, and the DOM selectors are fragile. Unit tests cover the manifest and the company model, not the page scrapers. There is no guarantee of maintenance. Use at your own risk.
 
-Chrome extension (Manifest V3, version 1.2.1) to keep track of LinkedIn companies and flag them with **indicators** (wanted, IT services company, headhunter, suspect, banned, ...). Flagged company names are highlighted directly on LinkedIn pages, with a tooltip.
+Chrome extension (Manifest V3, version 1.2.2) to keep track of LinkedIn companies and flag them with **indicators** (wanted, IT services company, headhunter, suspect, banned, ...). Flagged company names are highlighted directly on LinkedIn pages, with a tooltip.
 
 All data stays in the browser (`chrome.storage.local`, key `companyRegistry`). Nothing is sent to a server.
 
