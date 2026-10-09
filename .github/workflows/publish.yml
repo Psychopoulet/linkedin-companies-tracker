@@ -104,7 +104,7 @@ jobs:
     if: needs.publish-tag-if-new-version.outputs.tag_created == 'true'
 
     permissions:
-      contents: read
+      contents: write                       # Required to create the GitHub Release and upload the zip
 
     steps:
 
@@ -133,6 +133,14 @@ jobs:
 
       - name: Run build
         run: npm run build
+
+      - name: Attach the zip to the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          gh release create "${VERSION}" lib/build/*.zip --title "Release ${VERSION}" --notes "Release ${VERSION}"
 
       - name: Publish to the Chrome Web Store
         uses: mnao305/chrome-extension-upload@f549d5d654694a7722d6abfa64c97409ad5e64c1 # curl -s https://api.github.com/repos/mnao305/chrome-extension-upload/commits/v7.0.0 | jq -r .sha
