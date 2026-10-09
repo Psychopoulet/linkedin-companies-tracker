@@ -1,13 +1,24 @@
 // deps
 
   // locals
-  import type { Company, CompanyRegistry } from "../types/company";
   import { normalizeCompany, normalizeLinkedinCode, normalizeRegistry } from "../types/company";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
 
+// types & interfaces
+
+  // locals
+  import type { Company, CompanyRegistry } from "../types/company";
+
 // consts
 
-const STORAGE_KEY = REGISTRY_STORAGE_KEY;
+  const STORAGE_KEY = REGISTRY_STORAGE_KEY;
+
+// private
+
+  // methods
+  async function _saveRegistry (registry: CompanyRegistry): Promise<void> {
+    await chrome.storage.local.set({ [STORAGE_KEY]: registry });
+  }
 
 // module
 
@@ -23,15 +34,11 @@ export async function getRegistry (): Promise<CompanyRegistry> {
   const { "registry": normalized, changed } = normalizeRegistry(registry as CompanyRegistry);
 
   if (changed) {
-    await saveRegistry(normalized);
+    await _saveRegistry(normalized);
   }
 
   return normalized;
 
-}
-
-async function saveRegistry (registry: CompanyRegistry): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE_KEY]: registry });
 }
 
 export async function addCompany (company: Company): Promise<CompanyRegistry> {
@@ -41,7 +48,7 @@ export async function addCompany (company: Company): Promise<CompanyRegistry> {
 
   registry[next.linkedinCode] = next;
 
-  await saveRegistry(registry);
+  await _saveRegistry(registry);
 
   return registry;
 
@@ -58,7 +65,7 @@ export async function updateCompany (company: Company): Promise<CompanyRegistry>
 
   registry[next.linkedinCode] = next;
 
-  await saveRegistry(registry);
+  await _saveRegistry(registry);
 
   return registry;
 
@@ -71,7 +78,7 @@ export async function deleteCompany (linkedinCode: string): Promise<CompanyRegis
 
   Reflect.deleteProperty(registry, code); // = delete registry[code]
 
-  await saveRegistry(registry);
+  await _saveRegistry(registry);
 
   return registry;
 
@@ -86,7 +93,7 @@ export async function replaceRegistry (companies: Company[]): Promise<CompanyReg
     registry[next.linkedinCode] = next;
   }
 
-  await saveRegistry(registry);
+  await _saveRegistry(registry);
 
   return registry;
 

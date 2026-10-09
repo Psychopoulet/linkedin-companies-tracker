@@ -5,7 +5,31 @@
 
 // types & interfaces
 
-type HistoryStateMethod = typeof history.pushState;
+  // locals
+  type HistoryStateMethod = typeof history.pushState;
+
+// private
+
+  // methods
+
+  function _wrapHistoryMethod (original: HistoryStateMethod, onNavigate: () => void): HistoryStateMethod {
+
+    return (...args: Parameters<HistoryStateMethod>): void => {
+      original.apply(history, args);
+      onNavigate();
+    };
+
+  }
+
+  function _hookHistoryNavigation (onNavigate: () => void): void {
+
+    const originalPushState: HistoryStateMethod = history.pushState.bind(history);
+    const originalReplaceState: HistoryStateMethod = history.replaceState.bind(history);
+
+    history.pushState = _wrapHistoryMethod(originalPushState, onNavigate);
+    history.replaceState = _wrapHistoryMethod(originalReplaceState, onNavigate);
+
+  }
 
 // module
 
@@ -27,25 +51,6 @@ export function initPageScanner (apply: () => void, debounceMs = 300): void {
   }
 
   window.addEventListener("popstate", debouncedApply);
-  hookHistoryNavigation(debouncedApply);
-
-}
-
-function wrapHistoryMethod (original: HistoryStateMethod, onNavigate: () => void): HistoryStateMethod {
-
-  return (...args: Parameters<HistoryStateMethod>): void => {
-    original.apply(history, args);
-    onNavigate();
-  };
-
-}
-
-function hookHistoryNavigation (onNavigate: () => void): void {
-
-  const originalPushState: HistoryStateMethod = history.pushState.bind(history);
-  const originalReplaceState: HistoryStateMethod = history.replaceState.bind(history);
-
-  history.pushState = wrapHistoryMethod(originalPushState, onNavigate);
-  history.replaceState = wrapHistoryMethod(originalReplaceState, onNavigate);
+  _hookHistoryNavigation(debouncedApply);
 
 }

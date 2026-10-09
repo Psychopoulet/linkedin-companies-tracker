@@ -2,24 +2,44 @@
 
   // locals
   import { REGISTRY_UPDATED } from "../../messages";
-  import type { CompanyRegistry } from "../../types/company";
   import { REGISTRY_STORAGE_KEY } from "../../storage/constants";
   import { sendMessage } from "./messaging";
 
 // types & interfaces
 
   // locals
+  import type { CompanyRegistry } from "../../types/company";
+
   type RegistryListener = (registry: CompanyRegistry) => void;
 
 // consts
 
   const listeners: Set<RegistryListener> = new Set();
-  let registry: CompanyRegistry = {};
+
+// private
+
+  // attributes
+  let _registry: CompanyRegistry = {};
+
+  // methods
+
+  function _notifyListeners (): void {
+
+    for (const listener of listeners) {
+      listener(_registry);
+    }
+
+  }
+
+  function _setRegistry (next: CompanyRegistry): void {
+    _registry = next;
+    _notifyListeners();
+  }
 
 // module
 
 export function getCachedRegistry (): CompanyRegistry {
-  return registry;
+  return _registry;
 }
 
 export function onRegistryChange (listener: RegistryListener): () => void {
@@ -32,28 +52,15 @@ export function onRegistryChange (listener: RegistryListener): () => void {
 
 }
 
-function notifyListeners (): void {
-
-  for (const listener of listeners) {
-    listener(registry);
-  }
-
-}
-
-function setRegistry (next: CompanyRegistry): void {
-  registry = next;
-  notifyListeners();
-}
-
 export async function loadRegistry (): Promise<CompanyRegistry> {
 
   const response = await sendMessage({ "type": "GET_REGISTRY" });
 
   if (response.ok) {
-    setRegistry(response.registry);
+    _setRegistry(response.registry);
   }
 
-  return registry;
+  return _registry;
 
 }
 
@@ -78,7 +85,7 @@ export function initRegistryListeners (): void {
     }
 
     const next: unknown = changes[REGISTRY_STORAGE_KEY].newValue;
-    setRegistry("object" === typeof next && null !== next ? (next as CompanyRegistry) : {});
+    _setRegistry("object" === typeof next && null !== next ? (next as CompanyRegistry) : {});
 
   });
 

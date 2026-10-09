@@ -1,4 +1,4 @@
-// deps
+// types & interfaces
 
   // locals
   import type { Message, MessageResponse } from "../../messages";

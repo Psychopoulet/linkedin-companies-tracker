@@ -1,160 +1,197 @@
-import {
-  findCompanyByName,
-  findCompanyElementInCardByTextMatch,
-  findCompanyInJobDetailPanel,
-  findCompanyInJobsTrackerCard,
-  findCompanyInSearchResultsDetail,
-  findCompanyInSduiCard,
-  findCompanyNameElement,
-  findCompanyNameElementInListCard,
-  findJobCards,
-  findJobViewContainer,
-  isJobsPage,
-  isJobsSearchResultsPage,
-  isJobsTrackerPage,
-  resolveCompanyFromContainer,
-  wrapCompanyNamePrefix
-} from "./shared/job-dom-utils";
-import { applyCompanyHighlight } from "./shared/highlighter";
-import { isAddCompanyModalOpen } from "./shared/modal";
-import { initPageScanner } from "./shared/page-scanner";
-import { getCachedRegistry, initRegistryListeners, loadRegistry, onRegistryChange } from "./shared/registry-client";
-import type { Company, CompanyRegistry } from "../types/company";
+// deps
 
-function applyHighlightOnCompanyName (
-  container: ParentNode,
-  registry: CompanyRegistry,
-  nameElement: HTMLElement,
-  company?: Company
-): void {
-  const resolved
-    = company
-    ?? resolveCompanyFromContainer(container, registry)
-    ?? undefined;
+  // locals
+  import {
+    findCompanyByName,
+    findCompanyElementInCardByTextMatch,
+    findCompanyInJobDetailPanel,
+    findCompanyInJobsTrackerCard,
+    findCompanyInSearchResultsDetail,
+    findCompanyInSduiCard,
+    findCompanyNameElement,
+    findCompanyNameElementInListCard,
+    findJobCards,
+    findJobViewContainer,
+    isJobsPage,
+    isJobsSearchResultsPage,
+    isJobsTrackerPage,
+    resolveCompanyFromContainer,
+    wrapCompanyNamePrefix
+  } from "./shared/job-dom-utils";
+  import { applyCompanyHighlight } from "./shared/highlighter";
+  import { isAddCompanyModalOpen } from "./shared/modal";
+  import { initPageScanner } from "./shared/page-scanner";
+  import { getCachedRegistry, initRegistryListeners, loadRegistry, onRegistryChange } from "./shared/registry-client";
 
-  applyCompanyHighlight(nameElement, resolved, resolved?.linkedinCode ?? "unknown");
-}
+// types & interfaces
 
-function applyJobCard (card: HTMLElement, registry: CompanyRegistry): void {
-  if (isJobsTrackerPage()) {
-    const match = findCompanyInJobsTrackerCard(card, registry);
-    if (!match) {
- return;
-}
+  // locals
+  import type { Company, CompanyRegistry } from "../types/company";
 
-    const target = wrapCompanyNamePrefix(match.element, match.displayName);
-    applyCompanyHighlight(target, match.company, match.company.linkedinCode);
-    return;
+// private
+
+  // methods
+
+  function _applyHighlightOnCompanyName (
+    container: ParentNode,
+    registry: CompanyRegistry,
+    nameElement: HTMLElement,
+    company?: Company
+  ): void {
+
+    const resolved
+      = company
+      ?? resolveCompanyFromContainer(container, registry)
+      ?? undefined;
+
+    applyCompanyHighlight(nameElement, resolved, resolved?.linkedinCode ?? "unknown");
+
   }
 
-  if (isJobsSearchResultsPage()) {
-    const sduiMatch = findCompanyInSduiCard(card, registry);
-    if (sduiMatch) {
-      applyCompanyHighlight(sduiMatch.element, sduiMatch.company, sduiMatch.company.linkedinCode);
+  function _applyJobCard (card: HTMLElement, registry: CompanyRegistry): void {
+
+    if (isJobsTrackerPage()) {
+
+      const match = findCompanyInJobsTrackerCard(card, registry);
+      if (!match) {
+        return;
+      }
+
+      const target = wrapCompanyNamePrefix(match.element, match.displayName);
+      applyCompanyHighlight(target, match.company, match.company.linkedinCode);
+
       return;
+
     }
 
-    const textMatch = findCompanyElementInCardByTextMatch(card, registry);
-    if (textMatch) {
-      applyCompanyHighlight(textMatch.element, textMatch.company, textMatch.company.linkedinCode);
+    if (isJobsSearchResultsPage()) {
+
+      const sduiMatch = findCompanyInSduiCard(card, registry);
+      if (sduiMatch) {
+        applyCompanyHighlight(sduiMatch.element, sduiMatch.company, sduiMatch.company.linkedinCode);
+        return;
+      }
+
+      const textMatch = findCompanyElementInCardByTextMatch(card, registry);
+      if (textMatch) {
+        applyCompanyHighlight(textMatch.element, textMatch.company, textMatch.company.linkedinCode);
+        return;
+      }
+
+      const nameElement = findCompanyNameElementInListCard(card);
+      if (!nameElement) {
+        return;
+      }
+
+      const company = findCompanyByName(registry, nameElement.textContent.trim());
+      applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
+
       return;
+
     }
 
-    const nameElement = findCompanyNameElementInListCard(card);
+    const nameElement = isJobsSearchResultsPage()
+      ? findCompanyNameElementInListCard(card)
+      : findCompanyNameElement(card);
+
     if (!nameElement) {
- return;
-}
+      return;
+    }
 
-    const company = findCompanyByName(registry, nameElement.textContent.trim());
-    applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
-    return;
+    _applyHighlightOnCompanyName(card, registry, nameElement);
+
   }
 
-  const nameElement = isJobsSearchResultsPage()
-    ? findCompanyNameElementInListCard(card)
-    : findCompanyNameElement(card);
+  function _applyJobDetail (registry: CompanyRegistry): void {
 
-  if (!nameElement) {
- return;
-}
+    if (isJobsSearchResultsPage()) {
 
-  applyHighlightOnCompanyName(card, registry, nameElement);
-}
+      const detailMatch = findCompanyInSearchResultsDetail(registry);
+      if (detailMatch) {
 
-function applyJobDetail (registry: CompanyRegistry): void {
-  if (isJobsSearchResultsPage()) {
-    const detailMatch = findCompanyInSearchResultsDetail(registry);
-    if (detailMatch) {
+        applyCompanyHighlight(
+          detailMatch.element,
+          detailMatch.company,
+          detailMatch.company.linkedinCode
+        );
+
+        return;
+
+      }
+
+    }
+
+    const container = findJobViewContainer();
+    if (!container) {
+      return;
+    }
+
+    const panelMatch = findCompanyInJobDetailPanel(container, registry);
+    if (panelMatch) {
       applyCompanyHighlight(
-        detailMatch.element,
-        detailMatch.company,
-        detailMatch.company.linkedinCode
+        panelMatch.element,
+        panelMatch.company,
+        panelMatch.company.linkedinCode
       );
       return;
     }
+
+    const nameElement
+      = findCompanyNameElement(container) ?? findCompanyNameElementInListCard(container);
+
+    if (!nameElement) {
+      return;
+    }
+
+    const company
+      = findCompanyByName(registry, nameElement.textContent.trim())
+      ?? resolveCompanyFromContainer(container, registry);
+
+    applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
+
   }
 
-  const container = findJobViewContainer();
-  if (!container) {
- return;
-}
+  function _applyJobsPage (): void {
 
-  const panelMatch = findCompanyInJobDetailPanel(container, registry);
-  if (panelMatch) {
-    applyCompanyHighlight(
-      panelMatch.element,
-      panelMatch.company,
-      panelMatch.company.linkedinCode
-    );
-    return;
+    if (isAddCompanyModalOpen()) {
+      return;
+    }
+
+    if (!isJobsPage()) {
+      return;
+    }
+
+    const registry = getCachedRegistry();
+    if (0 === Object.keys(registry).length) {
+      return;
+    }
+
+    for (const card of findJobCards()) {
+      _applyJobCard(card, registry);
+    }
+
+    if (!isJobsTrackerPage()) {
+      _applyJobDetail(registry);
+    }
+
   }
 
-  const nameElement
-    = findCompanyNameElement(container) ?? findCompanyNameElementInListCard(container);
-  if (!nameElement) {
- return;
-}
+  async function _init (): Promise<void> {
 
-  const company
-    = findCompanyByName(registry, nameElement.textContent.trim())
-    ?? resolveCompanyFromContainer(container, registry);
+    initRegistryListeners();
+    await loadRegistry();
+    _applyJobsPage();
 
-  applyCompanyHighlight(nameElement, company, company?.linkedinCode ?? "unknown");
-}
+    onRegistryChange(() => {
+      return _applyJobsPage();
+    });
 
-function applyJobsPage (): void {
-  if (isAddCompanyModalOpen()) {
- return;
-}
-  if (!isJobsPage()) {
- return;
-}
+    initPageScanner(_applyJobsPage);
 
-  const registry = getCachedRegistry();
-  if (0 === Object.keys(registry).length) {
- return;
-}
-
-  for (const card of findJobCards()) {
-    applyJobCard(card, registry);
   }
 
-  if (!isJobsTrackerPage()) {
-    applyJobDetail(registry);
-  }
-}
+// module
 
-async function init (): Promise<void> {
-  initRegistryListeners();
-  await loadRegistry();
-  applyJobsPage();
-
-  onRegistryChange(() => {
- return applyJobsPage();
-});
-  initPageScanner(applyJobsPage);
-}
-
-init().catch((error: unknown) => {
+_init().catch((error: unknown) => {
   console.error(error);
 });

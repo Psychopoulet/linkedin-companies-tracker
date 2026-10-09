@@ -1,71 +1,82 @@
 // deps
 
   // locals
-  import { formatCompanyPopupDetail, type Company } from "../../types/company";
+  import { formatCompanyPopupDetail } from "../../types/company";
   import { getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+
+// types & interfaces
+
+  // locals
+  import type { Company } from "../../types/company";
 
 // consts
 
   const HIGHLIGHT_CLASS = "li-tracker--highlighted";
   const ICON_ATTR = "data-li-tracker-icon";
+  const elementControllers: WeakMap<HTMLElement, AbortController> = new WeakMap();
+
+// private
+
+  // attributes
+  let _tooltipEl: HTMLDivElement | null = null;
+
+  // methods
+
+  function _ensureTooltip (): HTMLDivElement {
+
+    if (!_tooltipEl) {
+      _tooltipEl = document.createElement("div");
+      _tooltipEl.className = "li-tracker-tooltip";
+      _tooltipEl.hidden = true;
+      document.body.append(_tooltipEl);
+    }
+
+    return _tooltipEl;
+
+  }
+
+  function _formatTooltipContent (company: Company): string {
+    return formatCompanyPopupDetail(company);
+  }
+
+  function _syncStatusIcon (element: HTMLElement, icon: string): void {
+
+    const existing = element.querySelector<HTMLElement>(`:scope > [${ICON_ATTR}]`);
+    if (!icon) {
+      existing?.remove();
+      return;
+    }
+
+    const iconEl = existing ?? element.ownerDocument.createElement("span");
+    iconEl.setAttribute(ICON_ATTR, "true");
+    iconEl.className = "li-tracker-icon";
+    iconEl.setAttribute("aria-hidden", "true");
+    iconEl.textContent = icon;
+
+    if (!existing) {
+      element.insertBefore(iconEl, element.firstChild);
+    }
+
+  }
+
+  function _removeStatusIcon (element: HTMLElement): void {
+
+    element.querySelectorAll(`[${ICON_ATTR}]`).forEach((node) => {
+      node.remove();
+    });
+
+  }
+
+  function _positionTooltip (target: HTMLElement, tooltip: HTMLDivElement): void {
+
+    const rect = target.getBoundingClientRect();
+    const halfWidth = rect.width / 2;
+    tooltip.style.left = `${rect.left + halfWidth}px`;
+    tooltip.style.top = `${rect.bottom + 8}px`;
+
+  }
 
 // module
-
-let tooltipEl: HTMLDivElement | null = null;
-
-function ensureTooltip (): HTMLDivElement {
-
-  if (!tooltipEl) {
-    tooltipEl = document.createElement("div");
-    tooltipEl.className = "li-tracker-tooltip";
-    tooltipEl.hidden = true;
-    document.body.append(tooltipEl);
-  }
-
-  return tooltipEl;
-
-}
-
-function formatTooltipContent (company: Company): string {
-  return formatCompanyPopupDetail(company);
-}
-
-function syncStatusIcon (element: HTMLElement, icon: string): void {
-
-  const existing = element.querySelector<HTMLElement>(`:scope > [${ICON_ATTR}]`);
-  if (!icon) {
-    existing?.remove();
-    return;
-  }
-
-  const iconEl = existing ?? element.ownerDocument.createElement("span");
-  iconEl.setAttribute(ICON_ATTR, "true");
-  iconEl.className = "li-tracker-icon";
-  iconEl.setAttribute("aria-hidden", "true");
-  iconEl.textContent = icon;
-
-  if (!existing) {
-    element.insertBefore(iconEl, element.firstChild);
-  }
-
-}
-
-function removeStatusIcon (element: HTMLElement): void {
-
-  element.querySelectorAll(`[${ICON_ATTR}]`).forEach((node) => {
-    node.remove();
-  });
-
-}
-
-function positionTooltip (target: HTMLElement, tooltip: HTMLDivElement): void {
-
-  const rect = target.getBoundingClientRect();
-  const halfWidth = rect.width / 2;
-  tooltip.style.left = `${rect.left + halfWidth}px`;
-  tooltip.style.top = `${rect.bottom + 8}px`;
-
-}
 
 export function clearElementHighlight (element: HTMLElement): void {
 
@@ -74,11 +85,9 @@ export function clearElementHighlight (element: HTMLElement): void {
   element.classList.remove(HIGHLIGHT_CLASS);
   element.style.removeProperty("--li-tracker-color");
 
-  removeStatusIcon(element);
+  _removeStatusIcon(element);
 
 }
-
-const elementControllers: WeakMap<HTMLElement, AbortController> = new WeakMap();
 
 export function applyCompanyHighlight (
   element: HTMLElement,
@@ -136,16 +145,16 @@ export function highlightCompany (
     element.style.setProperty("--li-tracker-color", color);
   }
 
-  syncStatusIcon(element, indicators.map((indicator) => {
+  _syncStatusIcon(element, indicators.map((indicator) => {
     return indicator.icon;
   }).join(""));
 
-  const tooltip = ensureTooltip();
+  const tooltip = _ensureTooltip();
 
   function showTooltip (): void {
-    tooltip.textContent = formatTooltipContent(company);
+    tooltip.textContent = _formatTooltipContent(company);
     tooltip.hidden = false;
-    positionTooltip(element, tooltip);
+    _positionTooltip(element, tooltip);
   }
 
   function hideTooltip (): void {
@@ -155,7 +164,7 @@ export function highlightCompany (
   function reposition (): void {
 
     if (false === tooltip.hidden) {
-      positionTooltip(element, tooltip);
+      _positionTooltip(element, tooltip);
     }
 
   }

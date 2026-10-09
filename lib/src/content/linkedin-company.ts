@@ -1,77 +1,100 @@
-import { initPageScanner } from "./shared/page-scanner";
-import {
-  findCompanyTitleElement,
-  getCompanyNameFromElement,
-  getLinkedinCodeFromUrl,
-  isCompanyPage
-} from "./shared/dom-utils";
-import { clearHighlights, createAddButton, applyCompanyHighlight } from "./shared/highlighter";
-import { showAddCompanyModal, isAddCompanyModalOpen } from "./shared/modal";
-import type { Company } from "../types/company";
-import { getCachedRegistry, initRegistryListeners, loadRegistry, onRegistryChange } from "./shared/registry-client";
+// deps
 
-let scanController = new AbortController();
+  // locals
+  import { initPageScanner } from "./shared/page-scanner";
+  import {
+    findCompanyTitleElement,
+    getCompanyNameFromElement,
+    getLinkedinCodeFromUrl,
+    isCompanyPage
+  } from "./shared/dom-utils";
+  import { clearHighlights, createAddButton, applyCompanyHighlight } from "./shared/highlighter";
+  import { showAddCompanyModal, isAddCompanyModalOpen } from "./shared/modal";
+  import { getCachedRegistry, initRegistryListeners, loadRegistry, onRegistryChange } from "./shared/registry-client";
 
-function resetScan (): void {
-  scanController.abort();
-  scanController = new AbortController();
-  clearHighlights();
-}
+// types & interfaces
 
-function applyCompanyPage (): void {
-  if (isAddCompanyModalOpen()) {
- return;
-}
-  if (!isCompanyPage()) {
- return;
-}
+  // locals
+  import type { Company } from "../types/company";
 
-  const linkedinCode = getLinkedinCodeFromUrl();
-  const titleElement = findCompanyTitleElement();
-  if (null === linkedinCode || "" === linkedinCode || null === titleElement) {
-    return;
+// private
+
+  // attributes
+  let _scanController = new AbortController();
+
+  // methods
+
+  function _resetScan (): void {
+
+    _scanController.abort();
+    _scanController = new AbortController();
+
+    clearHighlights();
+
   }
 
-  resetScan();
-  const { signal } = scanController;
-  const company = getCachedRegistry()[linkedinCode] as Company | undefined;
+  function _applyCompanyPage (): void {
 
-  // Une société sans indicateur n'est pas stylée : on garde le bouton "+" pour en ajouter.
-  if (undefined !== company && 0 < company.indicators.length) {
-    applyCompanyHighlight(titleElement, company, linkedinCode);
-    return;
+    if (isAddCompanyModalOpen()) {
+      return;
+    }
+
+    if (!isCompanyPage()) {
+      return;
+    }
+
+    const linkedinCode = getLinkedinCodeFromUrl();
+    const titleElement = findCompanyTitleElement();
+    if (null === linkedinCode || "" === linkedinCode || null === titleElement) {
+      return;
+    }
+
+    _resetScan();
+    const { signal } = _scanController;
+    const company = getCachedRegistry()[linkedinCode] as Company | undefined;
+
+    // Une société sans indicateur n'est pas stylée : on garde le bouton "+" pour en ajouter.
+    if (undefined !== company && 0 < company.indicators.length) {
+      applyCompanyHighlight(titleElement, company, linkedinCode);
+      return;
+    }
+
+    if (null !== titleElement.querySelector(".li-tracker-add-btn")) {
+      return;
+    }
+
+    const companyName = getCompanyNameFromElement(titleElement);
+    const addButton = createAddButton(() => {
+      showAddCompanyModal({
+        linkedinCode,
+        "name": companyName,
+        "comment": company?.comment,
+        "onSaved": () => {
+          return _applyCompanyPage();
+        }
+      });
+    }, signal);
+
+    titleElement.append(addButton);
+
   }
 
-  if (null !== titleElement.querySelector(".li-tracker-add-btn")) {
- return;
-}
+  async function _init (): Promise<void> {
 
-  const companyName = getCompanyNameFromElement(titleElement);
-  const addButton = createAddButton(() => {
-    showAddCompanyModal({
-      linkedinCode,
-      "name": companyName,
-      "comment": company?.comment,
-      "onSaved": () => {
- return applyCompanyPage();
-}
+    initRegistryListeners();
+    await loadRegistry();
+    _applyCompanyPage();
+
+    onRegistryChange(() => {
+      return _applyCompanyPage();
     });
-  }, signal);
 
-  titleElement.append(addButton);
-}
+    initPageScanner(_applyCompanyPage);
 
-async function init (): Promise<void> {
-  initRegistryListeners();
-  await loadRegistry();
-  applyCompanyPage();
+  }
 
-  onRegistryChange(() => {
- return applyCompanyPage();
-});
-  initPageScanner(applyCompanyPage);
-}
+// module
 
-init().catch((error: unknown) => {
+_init().catch((error: unknown) => {
   console.error(error);
 });

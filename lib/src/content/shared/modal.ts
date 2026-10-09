@@ -1,44 +1,57 @@
 // deps
 
   // locals
-  import { normalizeCompany, type Company, type CompanyStatus } from "../../types/company";
+  import { normalizeCompany } from "../../types/company";
   import { formatIndicatorLabel, getIndicators } from "../../types/indicator";
   import { sendMessage } from "./messaging";
 
+// types & interfaces
+
+  // locals
+  import type {
+    Company,
+    CompanyStatus
+  } from "../../types/company";
+
+  export interface AddCompanyModalOptions {
+    "linkedinCode": string;
+    "name": string;
+    "comment"?: string;
+    "onSaved": (company: Company) => void;
+  }
+
+// private
+
+  // attributes
+  let _activeModal: HTMLDivElement | null = null;
+  let _modalOpen = false;
+
+  // methods
+
+  function _closeModal (): void {
+    _modalOpen = false;
+    _activeModal?.remove();
+    _activeModal = null;
+  }
+
+  function _focusCommentInput (commentInput: HTMLTextAreaElement): void {
+    commentInput.focus({ "preventScroll": true });
+  }
+
 // module
 
-export interface AddCompanyModalOptions {
-  "linkedinCode": string;
-  "name": string;
-  "comment"?: string;
-  "onSaved": (company: Company) => void;
-}
-
-let activeModal: HTMLDivElement | null = null;
-let modalOpen = false;
-
 export function isAddCompanyModalOpen (): boolean {
-  return modalOpen;
-}
-
-function closeModal (): void {
-  modalOpen = false;
-  activeModal?.remove();
-  activeModal = null;
-}
-
-function focusCommentInput (commentInput: HTMLTextAreaElement): void {
-  commentInput.focus({ "preventScroll": true });
+  return _modalOpen;
 }
 
 export function showAddCompanyModal (options: AddCompanyModalOptions): void {
 
-  closeModal();
-  modalOpen = true;
+  _closeModal();
+  _modalOpen = true;
 
   const overlay = document.createElement("div");
   overlay.className = "li-tracker-modal-overlay";
-  activeModal = overlay;
+  _activeModal = overlay;
 
   const dialog = document.createElement("div");
   dialog.className = "li-tracker-modal";
@@ -147,11 +160,11 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     errorEl.hidden = false;
   }
 
-  cancelBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", _closeModal);
 
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
-      closeModal();
+      _closeModal();
     }
   });
 
@@ -186,7 +199,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
       return;
     }
 
-    closeModal();
+    _closeModal();
     options.onSaved(company);
 
   }
@@ -202,14 +215,14 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   document.body.append(overlay);
 
   // LinkedIn reprend le focus au tick suivant : on force plusieurs fois sur "Comment (optional)".
-  focusCommentInput(commentInput);
+  _focusCommentInput(commentInput);
 
   requestAnimationFrame(() => {
 
-    focusCommentInput(commentInput);
+    _focusCommentInput(commentInput);
 
     window.setTimeout(() => {
-      return focusCommentInput(commentInput);
+      return _focusCommentInput(commentInput);
     }, 50);
 
   });

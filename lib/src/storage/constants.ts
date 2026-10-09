@@ -1,1 +1,3 @@
-export const REGISTRY_STORAGE_KEY = "companyRegistry";
+// consts
+
+  export const REGISTRY_STORAGE_KEY = "companyRegistry";
