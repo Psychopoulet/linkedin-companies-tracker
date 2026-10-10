@@ -19,7 +19,7 @@
     "clean": "npm run clean-back && npm run clean-zip && npm run clean-front",
 
     "build-back": "npm run clean-back && npx webpack",
-    "build-zip": "npx web-ext build --source-dir ./lib/dist --artifacts-dir ./lib/build --overwrite-dest --no-input",
+    "build-zip": "npm run clean-zip && npx web-ext build --source-dir ./lib/dist --artifacts-dir ./lib/build --overwrite-dest --no-input",
     "build-front": "echo 'no build front yet'",
     "build": "npm run build-back && npm run build-zip && npm run build-front",
 
