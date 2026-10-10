@@ -1,43 +1,61 @@
-import { getIndicatorByCode, getIndicators, type IndicatorCode } from "./indicator";
+// deps
 
-export type CompanyStatus = IndicatorCode;
+  // locals
+  import {
+    getIndicatorByCode,
+    getIndicators
+  } from "./indicator";
 
-export interface Company {
-  "linkedinCode": string;
-  "name": string;
-  "indicators": CompanyStatus[];
-  "comment"?: string;
-}
+// types & interfaces
 
-type CompanyInput = Partial<Company> & { "reason"?: string; "status"?: unknown };
+  // locals
+  import type { IndicatorCode } from "./indicator";
 
-function readCompanyComment (company: CompanyInput): string | undefined {
-  const value = company.comment ?? company.reason;
-  const trimmed = "string" === typeof value ? value.trim() : "";
-  return trimmed || undefined;
-}
+  export type CompanyStatus = IndicatorCode;
 
-export type CompanyRegistry = Record<string, Company>;
+  export interface Company {
+    "linkedinCode": string;
+    "name": string;
+    "indicators": CompanyStatus[];
+    "comment"?: string;
+  }
 
-export const COMPANY_STATUSES: CompanyStatus[] = getIndicators().map(
-  (indicator) => {
- return indicator.code as CompanyStatus;
-}
-);
+  type CompanyInput = Partial<Company> & { "reason"?: string; "status"?: unknown };
 
-export const STATUS_SORT_ORDER = Object.fromEntries(
-  COMPANY_STATUSES.map((code, index) => {
- return [ code, index ];
-})
-) as Partial<Record<CompanyStatus, number>>;
+  export type CompanyRegistry = Record<string, Company>;
 
-const LEGACY_STATUS_MAP: Partial<Record<string, CompanyStatus>> = {
-  "banni": "BANNED",
-  "esn": "IT_SERVICES_COMPANY",
-  "suspect": "SUSPECT",
-  "désiré": "WANTED",
-  "desire": "WANTED"
-};
+// consts
+
+  export const COMPANY_STATUSES: CompanyStatus[] = getIndicators().map(
+    (indicator) => {
+      return indicator.code as CompanyStatus;
+    }
+  );
+
+  export const STATUS_SORT_ORDER = Object.fromEntries(
+    COMPANY_STATUSES.map((code, index) => {
+      return [ code, index ];
+    })
+  ) as Partial<Record<CompanyStatus, number>>;
+
+  const LEGACY_STATUS_MAP: Partial<Record<string, CompanyStatus>> = {
+    "banni": "BANNED",
+    "esn": "IT_SERVICES_COMPANY",
+    "suspect": "SUSPECT",
+    "désiré": "WANTED",
+    "desire": "WANTED"
+  };
+
+// private
+
+  // methods
+  function _readCompanyComment (company: CompanyInput): string | undefined {
+    const value = company.comment ?? company.reason;
+    const trimmed = "string" === typeof value ? value.trim() : "";
+    return trimmed || undefined;
+  }
+
+// module
 
 export function normalizeLinkedinCode (code: string): string {
   return code.trim().toLowerCase().replace(/\/+$/, "");
@@ -49,12 +67,12 @@ export function companyLinkedinUrl (linkedinCode: string): string {
 
 export function normalizeCompanyStatus (status: unknown): CompanyStatus | null {
   if ("string" !== typeof status) {
- return null;
-}
+    return null;
+  }
   const trimmed = status.trim();
   if (!trimmed) {
- return null;
-}
+    return null;
+  }
 
   const indicator
     = getIndicatorByCode(trimmed) ?? getIndicatorByCode(trimmed.toUpperCase());
@@ -67,14 +85,14 @@ export function normalizeCompanyStatus (status: unknown): CompanyStatus | null {
 
 export function normalizeCompanyIndicators (indicators: unknown): CompanyStatus[] {
   if (!Array.isArray(indicators)) {
- return [];
-}
+    return [];
+  }
   const result: CompanyStatus[] = [];
   for (const value of indicators) {
     const code = normalizeCompanyStatus(value);
     if (code && !result.includes(code)) {
- result.push(code);
-}
+      result.push(code);
+    }
   }
   return result;
 }
@@ -89,16 +107,16 @@ export function readCompanyIndicators (company: CompanyInput): CompanyStatus[] {
 
 export function companySortRank (company: Pick<Company, "indicators">): number {
   if (0 === company.indicators.length) {
- return 99;
-}
+    return 99;
+  }
   return Math.max(...company.indicators.map((code) => {
- return STATUS_SORT_ORDER[code] ?? 0;
-}));
+    return STATUS_SORT_ORDER[code] ?? 0;
+  }));
 }
 
 export function normalizeCompany (company: CompanyInput & Pick<Company, "linkedinCode" | "name">): Company {
   const indicators = readCompanyIndicators(company);
-  const comment = readCompanyComment(company);
+  const comment = _readCompanyComment(company);
   const next: Company = {
     "linkedinCode": normalizeLinkedinCode(company.linkedinCode),
     "name": company.name.trim(),
@@ -123,7 +141,7 @@ export function normalizeRegistry (registry: CompanyRegistry): {
       "status" in raw
       || JSON.stringify(normalized.indicators) !== JSON.stringify(company.indicators)
       || normalized.linkedinCode !== company.linkedinCode
-      || readCompanyComment(raw) !== normalized.comment
+      || _readCompanyComment(raw) !== normalized.comment
       || "reason" in raw
     ) {
       changed = true;
