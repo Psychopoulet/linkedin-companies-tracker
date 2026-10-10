@@ -43,7 +43,7 @@
 
   "dependencies": {},
   "devDependencies": {
-    "@types/chrome": "0.3.4",
+    "@types/chrome": "0.3.5",
     "check-node-engine": "1.2.0",
     "check-version-modules": "2.5.0",
     "copy-webpack-plugin": "14.0.0",
