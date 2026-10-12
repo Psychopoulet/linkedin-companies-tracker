@@ -11,7 +11,7 @@
         normalizeCompanyStatus,
         normalizeLinkedinCode
     } from "../lib/src/types/company.ts";
-    import { getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
+    import { getIndicatorByCode, getIndicatorColor, getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
     import { extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
 
@@ -71,6 +71,16 @@ describe("company", () => {
 });
 
 describe("indicators", () => {
+
+    it("returns the criticity color of one indicator", () => {
+
+        const banned = getIndicatorByCode("BANNED");
+        const salary = getIndicatorByCode("SALARY_AND_ADVANTAGES");
+
+        equal(banned === undefined ? undefined : getIndicatorColor(banned), "#dc2626");
+        equal(salary === undefined ? undefined : getIndicatorColor(salary), undefined);
+
+    });
 
     it("returns the color of the highest criticity", () => {
 

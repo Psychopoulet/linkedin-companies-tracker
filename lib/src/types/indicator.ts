@@ -102,8 +102,9 @@
 
 // module
 
-export function getIndicatorColor (indicator: Indicator): string {
-  return _getCriticity(indicator.criticity).color;
+export function getIndicatorColor (indicator: Indicator): string | undefined {
+  const { color } = _getCriticity(indicator.criticity);
+  return SAME_COLOR === color ? undefined : color;
 }
 
 export function getIndicators (): Indicator[] {
@@ -137,7 +138,7 @@ export function getIndicatorsColor (codes: readonly string[]): string | undefine
 
   for (const indicator of indicators) {
     const color = getIndicatorColor(indicator);
-    if (SAME_COLOR !== color) {
+    if (undefined !== color) {
       return color;
     }
   }

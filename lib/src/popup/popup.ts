@@ -2,7 +2,7 @@
 
   // locals
   import { companyLinkedinUrl, formatCompanyPopupDetail, normalizeCompany, normalizeLinkedinCode, normalizeRegistry, companySortRank } from "../types/company";
-  import { formatIndicatorLabel, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
   import { parseCompaniesJson, serializeCompanies } from "../storage/import-export";
 
@@ -10,6 +10,7 @@
 
   // locals
   import type { Company, CompanyRegistry, CompanyStatus } from "../types/company";
+  import type { Indicator } from "../types/indicator";
   import type { Message, MessageResponse } from "../messages";
 
 // consts
@@ -70,6 +71,13 @@
     ioMessage.classList.add(type);
   }
 
+  function _applyIndicatorColor (element: HTMLElement, indicator: Indicator): void {
+    const color = getIndicatorColor(indicator);
+    if (undefined !== color) {
+      element.style.color = color;
+    }
+  }
+
   function _fillStatusSelects (): void {
     const indicators = getIndicators();
 
@@ -88,6 +96,7 @@
       const filterOption = document.createElement("option");
       filterOption.value = indicator.code;
       filterOption.textContent = formatIndicatorLabel(indicator);
+      _applyIndicatorColor(filterOption, indicator);
       statusFilter.append(filterOption);
 
       const option = document.createElement("label");
@@ -96,7 +105,10 @@
       checkbox.type = "checkbox";
       checkbox.value = indicator.code;
       indicatorInputs.push(checkbox);
-      option.append(checkbox, ` ${indicator.icon} ${formatIndicatorLabel(indicator)}`);
+      const optionLabel = document.createElement("span");
+      optionLabel.textContent = `${indicator.icon} ${formatIndicatorLabel(indicator)}`;
+      _applyIndicatorColor(optionLabel, indicator);
+      option.append(checkbox, optionLabel);
       indicatorsField.append(option);
     }
   }
@@ -153,15 +165,19 @@
         chrome.tabs.create({ "url": companyUrl }).catch(_reportError);
       });
 
+      if (undefined !== color) {
+        label.style.color = color;
+      }
+
       if (0 < indicators.length) {
-        if (undefined !== color) {
-          name.style.color = color;
-        }
         const icon = document.createElement("span");
         icon.className = "company-icon";
-        icon.textContent = indicators.map((indicator) => {
-          return indicator.icon;
-        }).join("");
+        for (const indicator of indicators) {
+          const glyph = document.createElement("span");
+          glyph.textContent = indicator.icon;
+          _applyIndicatorColor(glyph, indicator);
+          icon.append(glyph);
+        }
         name.append(icon, label);
       }
       else {
@@ -174,11 +190,14 @@
 
       const badge = document.createElement("span");
       badge.className = "badge";
-      badge.textContent = indicators.map((indicator) => {
-        return indicator.code;
-      }).join(", ");
-      if (undefined !== color) {
-        badge.style.color = color;
+      for (const [ index, indicator ] of indicators.entries()) {
+        if (0 < index) {
+          badge.append(", ");
+        }
+        const badgeCode = document.createElement("span");
+        badgeCode.textContent = indicator.code;
+        _applyIndicatorColor(badgeCode, indicator);
+        badge.append(badgeCode);
       }
 
       info.append(name, code);
