@@ -2,9 +2,15 @@
 .li-tracker--highlighted *,
 .li-tracker--highlighted strong,
 .li-tracker--highlighted span {
-  color: var(--li-tracker-color, #374151) !important;
-  -webkit-text-fill-color: var(--li-tracker-color) !important;
   font-weight: 600 !important;
+}
+
+.li-tracker--colored,
+.li-tracker--colored *,
+.li-tracker--colored strong,
+.li-tracker--colored span {
+  color: var(--li-tracker-color) !important;
+  -webkit-text-fill-color: var(--li-tracker-color) !important;
 }
 
 .li-tracker-icon,

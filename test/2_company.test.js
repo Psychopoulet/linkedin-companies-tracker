@@ -79,6 +79,24 @@ describe("indicators", () => {
 
     });
 
+    it("keeps the last color when a criticity is same", () => {
+
+        equal(getIndicatorsColor([ "BANNED", "SALARY_AND_ADVANTAGES" ]), "#dc2626");
+        equal(getIndicatorsColor([ "SALARY_AND_ADVANTAGES", "IT_SERVICES_COMPANY" ]), "#009dcf");
+        equal(getIndicatorsColor([ "WANTED", "WITHOUT_SALARY_NOR_ADVANTAGES" ]), "#16a34a");
+
+    });
+
+    it("applies no color when every criticity is same", () => {
+
+        equal(getIndicatorsColor([ "SALARY_AND_ADVANTAGES" ]), undefined);
+        equal(
+            getIndicatorsColor([ "SALARY_AND_ADVANTAGES", "WITHOUT_SALARY_NOR_ADVANTAGES" ]),
+            undefined
+        );
+
+    });
+
     it("strips a leading indicator icon", () => {
 
         equal(stripLeadingIndicatorIcon("✅ Acme"), "Acme");

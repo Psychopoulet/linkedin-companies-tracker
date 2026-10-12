@@ -14,8 +14,11 @@
 
 // consts
 
+  const SAME_COLOR = "same";
+
   export const CRITICITIES = [
     { "code": "GOOD", "order": 0, "color": "#16a34a" },
+    { "code": "DATA", "order": 0, "color": SAME_COLOR },
     { "code": "INFO", "order": 1, "color": "#009dcf" },
     { "code": "WARNING", "order": 2, "color": "#ca8a04" },
     { "code": "DANGER", "order": 3, "color": "#dc2626" },
@@ -31,9 +34,15 @@
     },
     {
       "icon": "💵",
-      "criticity": "GOOD",
+      "criticity": "DATA",
       "code": "SALARY_AND_ADVANTAGES",
       "description": "Shows salary and benefits"
+    },
+    {
+      "icon": "💸",
+      "criticity": "DATA",
+      "code": "WITHOUT_SALARY_NOR_ADVANTAGES",
+      "description": "Does not show salary or benefits"
     },
     {
       "icon": "💼",
@@ -46,12 +55,6 @@
       "criticity": "INFO",
       "code": "HEADHUNTER",
       "description": "Recruiter / staffing agency"
-    },
-    {
-      "icon": "💸",
-      "criticity": "WARNING",
-      "code": "WITHOUT_SALARY_NOR_ADVANTAGES",
-      "description": "Does not show salary or benefits"
     },
     {
       "icon": "⚠️",
@@ -129,10 +132,18 @@ export function sortIndicatorsByCriticityDesc (codes: readonly string[]): Indica
 }
 
 export function getIndicatorsColor (codes: readonly string[]): string | undefined {
-  const [ top ] = sortIndicatorsByCriticityDesc(codes);
-  // Le tableau peut être vide : `top` est alors indéfini malgré le typage.
-  const first = top as Indicator | undefined;
-  return first === undefined ? undefined : getIndicatorColor(first);
+
+  const indicators = sortIndicatorsByCriticityDesc(codes);
+
+  for (const indicator of indicators) {
+    const color = getIndicatorColor(indicator);
+    if (SAME_COLOR !== color) {
+      return color;
+    }
+  }
+
+  return undefined;
+
 }
 
 export function formatIndicatorLabel (indicator: Indicator): string {
