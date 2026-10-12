@@ -12,6 +12,7 @@
 // consts
 
   const HIGHLIGHT_CLASS = "li-tracker--highlighted";
+  const COLOR_CLASS = "li-tracker--colored";
   const ICON_ATTR = "data-li-tracker-icon";
   const elementControllers: WeakMap<HTMLElement, AbortController> = new WeakMap();
 
@@ -82,7 +83,7 @@ export function clearElementHighlight (element: HTMLElement): void {
 
   element.removeAttribute("data-li-tracker-highlighted");
   element.removeAttribute("data-li-tracker-applied");
-  element.classList.remove(HIGHLIGHT_CLASS);
+  element.classList.remove(HIGHLIGHT_CLASS, COLOR_CLASS);
   element.style.removeProperty("--li-tracker-color");
 
   _removeStatusIcon(element);
@@ -142,6 +143,7 @@ export function highlightCompany (
 
   const color = getIndicatorsColor(company.indicators);
   if (undefined !== color) {
+    element.classList.add(COLOR_CLASS);
     element.style.setProperty("--li-tracker-color", color);
   }
 

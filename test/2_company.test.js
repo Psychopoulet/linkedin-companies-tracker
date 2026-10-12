@@ -11,7 +11,7 @@
         normalizeCompanyStatus,
         normalizeLinkedinCode
     } from "../lib/src/types/company.ts";
-    import { getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
+    import { getIndicatorByCode, getIndicatorColor, getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
     import { extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
 
@@ -72,10 +72,38 @@ describe("company", () => {
 
 describe("indicators", () => {
 
+    it("returns the criticity color of one indicator", () => {
+
+        const banned = getIndicatorByCode("BANNED");
+        const salary = getIndicatorByCode("SALARY_AND_ADVANTAGES");
+
+        equal(banned === undefined ? undefined : getIndicatorColor(banned), "#dc2626");
+        equal(salary === undefined ? undefined : getIndicatorColor(salary), undefined);
+
+    });
+
     it("returns the color of the highest criticity", () => {
 
         equal(getIndicatorsColor([ "BANNED" ]), "#dc2626");
         equal(getIndicatorsColor([]), undefined);
+
+    });
+
+    it("keeps the last color when a criticity is same", () => {
+
+        equal(getIndicatorsColor([ "BANNED", "SALARY_AND_ADVANTAGES" ]), "#dc2626");
+        equal(getIndicatorsColor([ "SALARY_AND_ADVANTAGES", "IT_SERVICES_COMPANY" ]), "#009dcf");
+        equal(getIndicatorsColor([ "WANTED", "WITHOUT_SALARY_NOR_ADVANTAGES" ]), "#16a34a");
+
+    });
+
+    it("applies no color when every criticity is same", () => {
+
+        equal(getIndicatorsColor([ "SALARY_AND_ADVANTAGES" ]), undefined);
+        equal(
+            getIndicatorsColor([ "SALARY_AND_ADVANTAGES", "WITHOUT_SALARY_NOR_ADVANTAGES" ]),
+            undefined
+        );
 
     });
 
