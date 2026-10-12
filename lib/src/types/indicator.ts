@@ -69,7 +69,7 @@
       "description": "Company to avoid"
     },
     {
-      "icon": "🚫",
+      "icon": "📞",
       "criticity": "DANGER",
       "code": "DONT_ANSWER",
       "description": "Does not reply"
