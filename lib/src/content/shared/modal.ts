@@ -2,7 +2,7 @@
 
   // locals
   import { normalizeCompany } from "../../types/company";
-  import { formatIndicatorLabel, getIndicators } from "../../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators } from "../../types/indicator";
   import { sendMessage } from "./messaging";
 
 // types & interfaces
@@ -102,6 +102,11 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     option.className = "li-tracker-modal-indicator";
     option.setAttribute("aria-pressed", "false");
     option.textContent = `${indicator.icon} ${formatIndicatorLabel(indicator)}`;
+
+    const color = getIndicatorColor(indicator);
+    if (undefined !== color) {
+      option.style.color = color;
+    }
 
     option.addEventListener("click", (event) => {
 
