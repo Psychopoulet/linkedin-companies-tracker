@@ -50,6 +50,7 @@
     "eslint-plugin-personnallinter": "git+ssh://git@github.com/Psychopoulet/eslint-plugin-personnallinter",
     "html-webpack-plugin": "5.6.8",
     "husky": "9.1.7",
+    "jsdom": "30.1.2",
     "c8": "12.0.0",
     "mocha": "12.0.3",
     "rimraf": "6.1.3",
