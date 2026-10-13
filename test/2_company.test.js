@@ -463,6 +463,174 @@ describe("import and export", () => {
 
     });
 
+    it("reads a bare company array", () => {
+
+        deepEqual(parseCompaniesJson(JSON.stringify([
+            {
+                "linkedinCode": "Acme/",
+                "names": [ "Acme" ],
+                "indicators": [ "WANTED" ],
+                "comment": "  from comment  ",
+                "reason": "from reason"
+            }
+        ])), [
+            {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": [ "WANTED" ],
+                "comment": "from comment"
+            }
+        ]);
+
+    });
+
+    it("reads a registry-shaped object and a legacy status", () => {
+
+        deepEqual(parseCompaniesJson(JSON.stringify({
+            "acme": {
+                "linkedinCode": "acme",
+                "name": "Acme",
+                "status": "désiré",
+                "reason": "  from reason  "
+            }
+        })), [
+            {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": [ "WANTED" ],
+                "comment": "from reason"
+            }
+        ]);
+
+    });
+
+    it("uses reason when comment is blank and ignores a non-string comment", () => {
+
+        deepEqual(parseCompaniesJson(JSON.stringify([
+            {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": [],
+                "comment": "   ",
+                "reason": "from reason"
+            }
+        ])), [
+            {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": [],
+                "comment": "from reason"
+            }
+        ]);
+
+        deepEqual(parseCompaniesJson(JSON.stringify([
+            {
+                "linkedinCode": "acme",
+                "names": [ 1 ],
+                "name": "Legacy",
+                "indicators": [],
+                "comment": 1,
+                "reason": 2
+            }
+        ])), [
+            {
+                "linkedinCode": "acme",
+                "names": [ "Legacy" ],
+                "indicators": []
+            }
+        ]);
+
+    });
+
+    it("rejects a company that is not an object or has no usable indicator", () => {
+
+        const message = "Invalid JSON file: one or more companies are incorrect.";
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify([ null ]));
+
+        }, { message });
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify([
+                {
+                    "linkedinCode": 1,
+                    "names": [ "Acme" ],
+                    "indicators": []
+                }
+            ]));
+
+        }, { message });
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify([
+                {
+                    "linkedinCode": "acme",
+                    "names": [ "Acme" ],
+                    "indicators": [ "NOPE" ]
+                }
+            ]));
+
+        }, { message });
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify([
+                {
+                    "linkedinCode": "acme",
+                    "names": [ "Acme" ],
+                    "status": "nope"
+                }
+            ]));
+
+        }, { message });
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify([
+                {
+                    "linkedinCode": "acme",
+                    "names": [ 1 ],
+                    "indicators": []
+                }
+            ]));
+
+        }, { message });
+
+    });
+
+    it("rejects a file that is not a company list", () => {
+
+        const message = "Invalid JSON file: a company array was expected.";
+
+        for (const text of [ "null", "1", "{}", JSON.stringify({ "version": 3 }) ]) {
+
+            throws(() => {
+
+                parseCompaniesJson(text);
+
+            }, { message });
+
+        }
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify({
+                "acme": {
+                    "linkedinCode": "acme",
+                    "names": [ "Acme" ],
+                    "indicators": []
+                },
+                "count": 2
+            }));
+
+        }, { message });
+
+    });
+
     it("serializes a registry with version 3", () => {
 
         const payload = JSON.parse(serializeCompanies({
@@ -485,6 +653,52 @@ describe("import and export", () => {
         deepEqual(payload.companies[0].names, [ "Acme" ]);
         equal("name" in payload.companies[0], false);
         deepEqual(payload.companies[1].names, [ "Zeta", "Zeta Alias" ]);
+
+    });
+
+    it("sorts by status, then by French name", () => {
+
+        const payload = JSON.parse(serializeCompanies({
+            "zebra": {
+                "linkedinCode": "zebra",
+                "names": [ "Zèbre" ],
+                "indicators": [ "WANTED" ]
+            },
+            "alpha": {
+                "linkedinCode": "alpha",
+                "names": [ "Alpha" ],
+                "indicators": [ "WANTED" ]
+            },
+            "salary": {
+                "linkedinCode": "salary",
+                "names": [ "Salaire" ],
+                "indicators": [ "SALARY_AND_ADVANTAGES" ]
+            },
+            "blank": {
+                "linkedinCode": "blank",
+                "names": [],
+                "indicators": []
+            },
+            "alsoBlank": {
+                "linkedinCode": "also-blank",
+                "names": [],
+                "indicators": []
+            }
+        }));
+        const codes = payload.companies.map((company) => {
+            return company.linkedinCode;
+        });
+        const wantedNames = payload.companies.filter((company) => {
+            return company.indicators.includes("WANTED");
+        }).map((company) => {
+            return company.names[0];
+        });
+
+        equal(codes[0], "salary");
+        deepEqual(codes.slice(-2), [ "blank", "also-blank" ]);
+        deepEqual(wantedNames, [ ...wantedNames ].sort((left, right) => {
+            return left.localeCompare(right, "fr");
+        }));
 
     });
 
