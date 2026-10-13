@@ -9,7 +9,8 @@
         isValidCompany,
         normalizeCompany,
         normalizeCompanyStatus,
-        normalizeLinkedinCode
+        normalizeLinkedinCode,
+        normalizeRegistry
     } from "../lib/src/types/company.ts";
     import { getIndicatorByCode, getIndicatorColor, getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
@@ -122,6 +123,48 @@ describe("company", () => {
             "linkedinCode": "acme",
             "indicators": []
         }), false);
+
+    });
+
+    it("rewrites a legacy name and drops a company with none", () => {
+
+        const { registry, changed } = normalizeRegistry({
+            "acme": {
+                "linkedinCode": "acme",
+                "name": " Acme ",
+                "indicators": []
+            },
+            "blank": {
+                "linkedinCode": "blank",
+                "name": " ",
+                "indicators": []
+            }
+        });
+
+        equal(changed, true);
+        deepEqual(registry, {
+            "acme": {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": []
+            }
+        });
+
+    });
+
+    it("leaves a normalized registry unchanged", () => {
+
+        const stored = {
+            "acme": {
+                "linkedinCode": "acme",
+                "names": [ "Acme" ],
+                "indicators": [ "WANTED" ]
+            }
+        };
+        const { registry, changed } = normalizeRegistry(stored);
+
+        equal(changed, false);
+        deepEqual(registry, stored);
 
     });
 

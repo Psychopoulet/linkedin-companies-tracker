@@ -1,7 +1,7 @@
 // deps
 
   // locals
-  import { normalizeCompany, normalizeLinkedinCode, normalizeRegistry } from "../types/company";
+  import { isValidCompany, normalizeCompany, normalizeLinkedinCode, normalizeRegistry } from "../types/company";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
 
 // types & interfaces
@@ -18,6 +18,14 @@
   // methods
   async function _saveRegistry (registry: CompanyRegistry): Promise<void> {
     await chrome.storage.local.set({ [STORAGE_KEY]: registry });
+  }
+
+  function _requireValidCompany (company: Company): Company {
+    const next = normalizeCompany(company);
+    if (!isValidCompany(next)) {
+      throw new Error("Invalid data: name is required.");
+    }
+    return next;
   }
 
 // module
@@ -44,7 +52,7 @@ export async function getRegistry (): Promise<CompanyRegistry> {
 export async function addCompany (company: Company): Promise<CompanyRegistry> {
 
   const registry = await getRegistry();
-  const next = normalizeCompany(company);
+  const next = _requireValidCompany(company);
 
   registry[next.linkedinCode] = next;
 
@@ -57,7 +65,7 @@ export async function addCompany (company: Company): Promise<CompanyRegistry> {
 export async function updateCompany (company: Company): Promise<CompanyRegistry> {
 
   const registry = await getRegistry();
-  const next = normalizeCompany(company);
+  const next = _requireValidCompany(company);
 
   if (!Object.hasOwn(registry, next.linkedinCode)) {
     throw new Error(`Company not found: ${next.linkedinCode}`);

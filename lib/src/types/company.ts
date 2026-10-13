@@ -94,6 +94,17 @@
     });
   }
 
+  function _storedCompanyChanged (company: CompanyInput, normalized: Company): boolean {
+    return "name" in company
+      || !Array.isArray(company.names)
+      || JSON.stringify(normalized.names) !== JSON.stringify(company.names)
+      || "status" in company
+      || JSON.stringify(normalized.indicators) !== JSON.stringify(company.indicators)
+      || normalized.linkedinCode !== company.linkedinCode
+      || _readCompanyComment(company) !== normalized.comment
+      || "reason" in company;
+  }
+
 // module
 
 export function normalizeCompanyName (name: string): string {
@@ -180,16 +191,12 @@ export function normalizeRegistry (registry: CompanyRegistry): {
   for (const [ key, company ] of Object.entries(registry)) {
     const normalized = normalizeCompany(company);
     const raw = company as CompanyInput;
-    if (
-      "status" in raw
-      || JSON.stringify(normalized.indicators) !== JSON.stringify(company.indicators)
-      || normalized.linkedinCode !== company.linkedinCode
-      || _readCompanyComment(raw) !== normalized.comment
-      || "reason" in raw
-    ) {
+    if (0 === normalized.names.length || _storedCompanyChanged(raw, normalized)) {
       changed = true;
     }
-    next[key] = normalized;
+    if (0 < normalized.names.length) {
+      next[key] = normalized;
+    }
   }
   return { "registry": next, changed };
 }
