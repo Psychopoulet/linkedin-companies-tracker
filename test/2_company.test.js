@@ -51,10 +51,58 @@ describe("company", () => {
             "reason": "  note  "
         }), {
             "linkedinCode": "acme",
-            "name": "Acme",
+            "names": [ "Acme" ],
             "indicators": [ "WANTED", "IT_SERVICES_COMPANY" ],
             "comment": "note"
         });
+
+    });
+
+    it("keeps several names and drops blanks and duplicates", () => {
+
+        deepEqual(normalizeCompany({
+            "linkedinCode": "decathlondigital",
+            "names": [
+                " Decathlon Digital ",
+                "Decathlon Technology",
+                "decathlon digital",
+                " ",
+                "Décathlon Digital"
+            ],
+            "indicators": []
+        }).names, [ "Decathlon Digital", "Decathlon Technology" ]);
+
+    });
+
+    it("prefers a non-empty names array over the legacy name", () => {
+
+        deepEqual(normalizeCompany({
+            "linkedinCode": "decathlondigital",
+            "name": "Ignored",
+            "names": [ "Decathlon Digital" ],
+            "indicators": []
+        }).names, [ "Decathlon Digital" ]);
+
+    });
+
+    it("reads the legacy name when names is empty", () => {
+
+        deepEqual(normalizeCompany({
+            "linkedinCode": "acme",
+            "name": " Acme ",
+            "names": [ " ", "" ],
+            "indicators": []
+        }).names, [ "Acme" ]);
+
+    });
+
+    it("does not invent a name", () => {
+
+        deepEqual(normalizeCompany({
+            "linkedinCode": "acme",
+            "names": [ " " ],
+            "indicators": []
+        }).names, []);
 
     });
 
@@ -62,7 +110,16 @@ describe("company", () => {
 
         equal(isValidCompany({
             "linkedinCode": "acme",
-            "name": " ",
+            "names": [ " " ],
+            "indicators": []
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [],
+            "indicators": []
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
             "indicators": []
         }), false);
 
@@ -134,7 +191,7 @@ describe("import and export", () => {
         deepEqual(companies, [
             {
                 "linkedinCode": "acme",
-                "name": "Acme",
+                "names": [ "Acme" ],
                 "indicators": [ "WANTED" ]
             }
         ]);

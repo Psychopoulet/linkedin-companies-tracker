@@ -164,13 +164,15 @@ Indicator catalog and criticity.
 
 #### `types/company.ts`
 
-A company has a `linkedinCode` (URL slug, e.g. `capgemini`), a `name`, an `indicators` array, and an optional `comment`. The registry is a dictionary keyed by that code.
+A company has a `linkedinCode` (URL slug, e.g. `capgemini`), a `names` array of display names (at least one; the first is the display name), an `indicators` array, and an optional `comment`. The registry is a dictionary keyed by that code.
 
 `normalizeLinkedinCode` lowercases the code and strips a trailing slash. `companyLinkedinUrl` rebuilds `https://www.linkedin.com/company/{code}/`.
 
 Normalization also accepts the legacy shape described in [Import / export](#import--export). `normalizeRegistry` rewrites the registry and reports whether it changed, so storage can persist the migration.
 
-`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `GOOD` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, a name, recognized indicators, and a comment that is either absent or a string.
+`normalizeCompanyName` trims, lowercases, strips accents, and collapses whitespace for comparison. `normalizeCompany` trims each name, drops blanks, and drops later duplicates under that comparison. A non-empty `names` array wins over a legacy `name` string; otherwise `name` becomes `names`. It does not invent a placeholder.
+
+`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `GOOD` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, at least one non-blank name, recognized indicators, and a comment that is either absent or a string. A missing `names` array, an empty array, or an array of blank strings is invalid.
 
 ### `storage/`
 

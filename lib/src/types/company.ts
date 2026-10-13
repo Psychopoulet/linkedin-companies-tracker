@@ -15,12 +15,17 @@
 
   export interface Company {
     "linkedinCode": string;
-    "name": string;
+    "names": string[];
     "indicators": CompanyStatus[];
     "comment"?: string;
   }
 
-  type CompanyInput = Partial<Company> & { "reason"?: string; "status"?: unknown };
+  type CompanyInput = Omit<Partial<Company>, "names"> & {
+    "reason"?: string;
+    "status"?: unknown;
+    "name"?: string;
+    "names"?: unknown;
+  };
 
   export type CompanyRegistry = Record<string, Company>;
 
@@ -55,7 +60,45 @@
     return trimmed || undefined;
   }
 
+  function _normalizeCompanyName (name: string): string {
+    return name
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ");
+  }
+
+  function _trimName (value: unknown): string {
+    return "string" === typeof value ? value.trim() : "";
+  }
+
+  function _trimmedNames (value: unknown): string[] {
+    const values = Array.isArray(value) ? value : [ value ];
+    return values.map(_trimName).filter((name) => {
+      return "" !== name;
+    });
+  }
+
+  function _readCompanyNames (company: CompanyInput): string[] {
+    const listed = _trimmedNames(company.names);
+    const source = 0 < listed.length ? listed : _trimmedNames(company.name);
+    const seen: Set<string> = new Set();
+    return source.filter((name) => {
+      const key = _normalizeCompanyName(name);
+      if ("" === key || seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+
 // module
+
+export function normalizeCompanyName (name: string): string {
+  return _normalizeCompanyName(name);
+}
 
 export function normalizeLinkedinCode (code: string): string {
   return code.trim().toLowerCase().replace(/\/+$/, "");
@@ -114,12 +157,12 @@ export function companySortRank (company: Pick<Company, "indicators">): number {
   }));
 }
 
-export function normalizeCompany (company: CompanyInput & Pick<Company, "linkedinCode" | "name">): Company {
+export function normalizeCompany (company: CompanyInput & Pick<Company, "linkedinCode">): Company {
   const indicators = readCompanyIndicators(company);
   const comment = _readCompanyComment(company);
   const next: Company = {
     "linkedinCode": normalizeLinkedinCode(company.linkedinCode),
-    "name": company.name.trim(),
+    "names": _readCompanyNames(company),
     indicators
   };
   if (undefined !== comment) {
@@ -173,8 +216,13 @@ export function isValidCompany (company: Partial<Company>): company is Company {
   return (
     "string" === typeof company.linkedinCode
     && 0 < company.linkedinCode.trim().length
-    && "string" === typeof company.name
-    && 0 < company.name.trim().length
+    && Array.isArray(company.names)
+    && company.names.every((name) => {
+      return "string" === typeof name;
+    })
+    && company.names.some((name) => {
+      return 0 < name.trim().length;
+    })
     && Array.isArray(company.indicators)
     && company.indicators.length === normalizeCompanyIndicators(company.indicators).length
     && (company.comment === undefined || "string" === typeof company.comment)

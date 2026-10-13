@@ -1,14 +1,10 @@
 // deps
 
   // locals
+  import { normalizeCompanyName, type Company, type CompanyRegistry } from "../../types/company";
   import { stripLeadingIndicatorIcon } from "../../types/indicator";
   import { extractLinkedinCodeFromHref } from "./linkedin-url";
   import { queryAllDeep, queryDeep } from "./dom-query";
-
-// types & interfaces
-
-  // locals
-  import type { Company, CompanyRegistry } from "../../types/company";
 
 // consts
 
@@ -90,15 +86,8 @@
 
   // methods
 
-  function _normalizeCompanyName (name: string): string {
-
-    return name
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, " ");
-
+  function _firstCompanyName (company: Company): string {
+    return company.names[0] ?? "";
   }
 
   function _trimmedText (element: Element | null | undefined): string {
@@ -882,14 +871,14 @@ export function findCompanyByName (
   name: string
 ): Company | undefined {
 
-  const normalized = _normalizeCompanyName(stripLeadingIndicatorIcon(name));
+  const normalized = normalizeCompanyName(stripLeadingIndicatorIcon(name));
   if (!normalized) {
     return undefined;
   }
 
   return Object.values(registry).find(
     (company) => {
-      return _normalizeCompanyName(company.name) === normalized;
+      return normalizeCompanyName(_firstCompanyName(company)) === normalized;
     }
   );
 
@@ -1193,7 +1182,7 @@ export function findCompanyInJobDetailPanel (
   const titleForTextMatch = _findJobTitleInContainer(panel) ?? _findSduiJobTitleInCard(panel);
   for (const company of Object.values(registry)) {
 
-    const target = _normalizeCompanyName(company.name);
+    const target = normalizeCompanyName(_firstCompanyName(company));
     const walker = document.createTreeWalker(panel, NodeFilter.SHOW_TEXT);
     let textNode: Node | null = walker.nextNode();
 
@@ -1203,7 +1192,7 @@ export function findCompanyInJobDetailPanel (
       const parent = textNode.parentElement;
 
       if (
-        _normalizeCompanyName(text) === target
+        normalizeCompanyName(text) === target
         && null !== parent
         && !_isInsideListJobCard(parent)
         && !(titleForTextMatch && (titleForTextMatch.contains(parent) || parent.contains(titleForTextMatch)))
@@ -1231,7 +1220,7 @@ export function findCompanyElementInCardByTextMatch (
 
   for (const company of Object.values(registry)) {
 
-    const target = _normalizeCompanyName(company.name);
+    const target = normalizeCompanyName(_firstCompanyName(company));
     const walker = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
 
     let textNode: Node | null = walker.nextNode();
@@ -1241,7 +1230,7 @@ export function findCompanyElementInCardByTextMatch (
       const text = _collapseText(textNode.textContent ?? "");
       const parent = textNode.parentElement;
       if (
-        _normalizeCompanyName(text) === target
+        normalizeCompanyName(text) === target
         && null !== parent
         && !(title && (title.contains(parent) || parent.contains(title)))
         && null === parent.closest("a[href*=\"/jobs/view/\"]")

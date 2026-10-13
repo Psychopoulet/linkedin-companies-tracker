@@ -37,7 +37,7 @@
     if (0 !== statusDiff) {
       return statusDiff;
     }
-    return a.name.localeCompare(b.name, "fr");
+    return (a.names[0] ?? "").localeCompare(b.names[0] ?? "", "fr");
   }
 
   function _parseJson (text: string): unknown {
@@ -80,7 +80,11 @@
       return null;
     }
 
-    const raw = item as Partial<Company> & { "reason"?: string; "status"?: unknown };
+    const raw = item as Partial<Company> & {
+      "reason"?: string;
+      "status"?: unknown;
+      "name"?: string;
+    };
     const indicators = readCompanyIndicators(raw);
     const hasInput = Array.isArray(raw.indicators) ? 0 < raw.indicators.length : raw.status !== undefined;
     if (hasInput && 0 === indicators.length) {
@@ -91,9 +95,10 @@
     const rawReason = "string" === typeof raw.reason ? raw.reason.trim() : "";
     const comment = "" === rawComment ? rawReason : rawComment;
 
+    const legacyName = "string" === typeof raw.name ? raw.name.trim() : "";
     const company: Company = {
       "linkedinCode": "string" === typeof raw.linkedinCode ? normalizeLinkedinCode(raw.linkedinCode) : "",
-      "name": "string" === typeof raw.name ? raw.name.trim() : "",
+      "names": "" === legacyName ? [] : [ legacyName ],
       indicators,
       ..."" === comment ? {} : { comment }
     };

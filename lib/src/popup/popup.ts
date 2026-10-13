@@ -120,9 +120,10 @@
     return Object.values(_registry)
       .filter((company) => {
         const matchesStatus = !status || company.indicators.includes(status);
+        const displayName = company.names[0] ?? "";
         const matchesQuery
           = !query
-          || company.name.toLowerCase().includes(query)
+          || displayName.toLowerCase().includes(query)
           || company.linkedinCode.toLowerCase().includes(query);
         return matchesStatus && matchesQuery;
       })
@@ -131,7 +132,7 @@
         if (0 !== statusDiff) {
           return statusDiff;
         }
-        return a.name.localeCompare(b.name, "fr");
+        return (a.names[0] ?? "").localeCompare(b.names[0] ?? "", "fr");
       });
   }
 
@@ -159,7 +160,7 @@
       label.className = "company-name-link";
       const companyUrl = companyLinkedinUrl(company.linkedinCode);
       label.href = companyUrl;
-      label.textContent = company.name;
+      label.textContent = company.names[0] ?? "";
       label.addEventListener("click", (event) => {
         event.preventDefault();
         chrome.tabs.create({ "url": companyUrl }).catch(_reportError);
@@ -249,7 +250,7 @@
     editModeInput.value = "edit";
     formTitle.textContent = "Edit company";
     submitBtn.textContent = "Save";
-    nameInput.value = company.name;
+    nameInput.value = company.names[0] ?? "";
     linkedinCodeInput.value = company.linkedinCode;
     linkedinCodeInput.disabled = true;
     for (const input of indicatorInputs) {
@@ -306,7 +307,7 @@
       "comment": commentInput.value
     });
 
-    if (!company.name) {
+    if (0 === company.names.length) {
       _showError("Name is required.");
       return;
     }

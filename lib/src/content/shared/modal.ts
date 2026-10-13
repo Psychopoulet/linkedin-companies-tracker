@@ -186,7 +186,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
       "comment": commentInput.value
     });
 
-    if (!company.name) {
+    if (0 === company.names.length) {
       _showError("Name is required.");
       nameInput.focus();
       return;
