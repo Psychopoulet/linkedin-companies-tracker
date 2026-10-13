@@ -75,15 +75,28 @@
     throw new Error("Invalid JSON file: a company array was expected.");
   }
 
+  function _importedNameFields (raw: { "names"?: unknown; "name"?: unknown }): { "names": string[] } | { "name": string } {
+    if (
+      Array.isArray(raw.names)
+      && raw.names.every((entry) => {
+        return "string" === typeof entry;
+      })
+    ) {
+      return { "names": raw.names };
+    }
+    return { "name": "string" === typeof raw.name ? raw.name : "" };
+  }
+
   function _normalizeImportedCompany (item: unknown): Company | null {
     if ("object" !== typeof item || null === item) {
       return null;
     }
 
-    const raw = item as Partial<Company> & {
+    const raw = item as Omit<Partial<Company>, "names"> & {
       "reason"?: string;
       "status"?: unknown;
       "name"?: string;
+      "names"?: unknown;
     };
     const indicators = readCompanyIndicators(raw);
     const hasInput = Array.isArray(raw.indicators) ? 0 < raw.indicators.length : raw.status !== undefined;
@@ -95,15 +108,14 @@
     const rawReason = "string" === typeof raw.reason ? raw.reason.trim() : "";
     const comment = "" === rawComment ? rawReason : rawComment;
 
-    const legacyName = "string" === typeof raw.name ? raw.name.trim() : "";
-    const company: Company = {
+    const company = normalizeCompany({
       "linkedinCode": "string" === typeof raw.linkedinCode ? normalizeLinkedinCode(raw.linkedinCode) : "",
-      "names": "" === legacyName ? [] : [ legacyName ],
+      ..._importedNameFields(raw),
       indicators,
       ..."" === comment ? {} : { comment }
-    };
+    });
 
-    return isValidCompany(company) ? normalizeCompany(company) : null;
+    return isValidCompany(company) ? company : null;
   }
 
 // module

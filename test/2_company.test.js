@@ -241,6 +241,64 @@ describe("import and export", () => {
 
     });
 
+    it("reads several names from an export file", () => {
+
+        const companies = parseCompaniesJson(JSON.stringify({
+            "version": 2,
+            "companies": [
+                {
+                    "linkedinCode": "decathlondigital",
+                    "name": "Ignored",
+                    "names": [ " Decathlon Digital ", "Decathlon Technology", "decathlon digital" ],
+                    "indicators": []
+                }
+            ]
+        }));
+
+        deepEqual(companies, [
+            {
+                "linkedinCode": "decathlondigital",
+                "names": [ "Decathlon Digital", "Decathlon Technology" ],
+                "indicators": []
+            }
+        ]);
+
+    });
+
+    it("rejects a company with no usable name", () => {
+
+        const message = "Invalid JSON file: one or more companies are incorrect.";
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify({
+                "companies": [
+                    {
+                        "linkedinCode": "acme",
+                        "name": " ",
+                        "indicators": []
+                    }
+                ]
+            }));
+
+        }, { message });
+
+        throws(() => {
+
+            parseCompaniesJson(JSON.stringify({
+                "companies": [
+                    {
+                        "linkedinCode": "acme",
+                        "names": [ " " ],
+                        "indicators": []
+                    }
+                ]
+            }));
+
+        }, { message });
+
+    });
+
     it("rejects invalid JSON", () => {
 
         throws(() => {
