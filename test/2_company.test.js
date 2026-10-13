@@ -20,7 +20,8 @@
     } from "../lib/src/types/company.ts";
     import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
-    import { extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
+    import { debounce } from "../lib/src/content/shared/debounce.ts";
+    import { extractLinkedinCodeFromHref, extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
 
 // tests
 
@@ -709,7 +710,67 @@ describe("linkedin url", () => {
     it("reads the company code from a pathname", () => {
 
         equal(extractLinkedinCodeFromPathname("/company/CapGemini/about"), "capgemini");
+        equal(extractLinkedinCodeFromPathname("/company/%ZZ/about"), "%zz");
         equal(extractLinkedinCodeFromPathname("/jobs/view/1"), null);
+
+    });
+
+    it("reads the company code from an href", () => {
+
+        const previousWindow = globalThis.window;
+        globalThis.window = { "location": { "origin": "https://www.linkedin.com" } };
+
+        try {
+
+            equal(
+                extractLinkedinCodeFromHref("https://www.linkedin.com/company/CapGemini/about"),
+                "capgemini"
+            );
+            equal(extractLinkedinCodeFromHref("/jobs/view/1"), null);
+            equal(extractLinkedinCodeFromHref("http://[/company/Acme"), "acme");
+
+        }
+        finally {
+
+            if (undefined === previousWindow) {
+
+                delete globalThis.window;
+
+            }
+            else {
+
+                globalThis.window = previousWindow;
+
+            }
+
+        }
+
+    });
+
+});
+
+describe("debounce", () => {
+
+    it("runs only the last call after a short delay", async () => {
+
+        const calls = [];
+        const debounced = debounce((value) => {
+
+            calls.push(value);
+
+        }, 15);
+
+        debounced("first");
+        debounced("second");
+        equal(calls.length, 0);
+
+        await new Promise((resolve) => {
+
+            setTimeout(resolve, 40);
+
+        });
+
+        deepEqual(calls, [ "second" ]);
 
     });
 
