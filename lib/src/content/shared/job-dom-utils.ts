@@ -86,8 +86,13 @@
 
   // methods
 
-  function _firstCompanyName (company: Company): string {
-    return company.names[0] ?? "";
+  function _matchesStoredName (company: Company, normalizedName: string): boolean {
+    if ("" === normalizedName) {
+      return false;
+    }
+    return company.names.some((stored) => {
+      return normalizeCompanyName(stored) === normalizedName;
+    });
   }
 
   function _trimmedText (element: Element | null | undefined): string {
@@ -878,7 +883,7 @@ export function findCompanyByName (
 
   return Object.values(registry).find(
     (company) => {
-      return normalizeCompanyName(_firstCompanyName(company)) === normalized;
+      return _matchesStoredName(company, normalized);
     }
   );
 
@@ -1182,7 +1187,6 @@ export function findCompanyInJobDetailPanel (
   const titleForTextMatch = _findJobTitleInContainer(panel) ?? _findSduiJobTitleInCard(panel);
   for (const company of Object.values(registry)) {
 
-    const target = normalizeCompanyName(_firstCompanyName(company));
     const walker = document.createTreeWalker(panel, NodeFilter.SHOW_TEXT);
     let textNode: Node | null = walker.nextNode();
 
@@ -1192,7 +1196,7 @@ export function findCompanyInJobDetailPanel (
       const parent = textNode.parentElement;
 
       if (
-        normalizeCompanyName(text) === target
+        _matchesStoredName(company, normalizeCompanyName(text))
         && null !== parent
         && !_isInsideListJobCard(parent)
         && !(titleForTextMatch && (titleForTextMatch.contains(parent) || parent.contains(titleForTextMatch)))
@@ -1220,7 +1224,6 @@ export function findCompanyElementInCardByTextMatch (
 
   for (const company of Object.values(registry)) {
 
-    const target = normalizeCompanyName(_firstCompanyName(company));
     const walker = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
 
     let textNode: Node | null = walker.nextNode();
@@ -1230,7 +1233,7 @@ export function findCompanyElementInCardByTextMatch (
       const text = _collapseText(textNode.textContent ?? "");
       const parent = textNode.parentElement;
       if (
-        normalizeCompanyName(text) === target
+        _matchesStoredName(company, normalizeCompanyName(text))
         && null !== parent
         && !(title && (title.contains(parent) || parent.contains(title)))
         && null === parent.closest("a[href*=\"/jobs/view/\"]")

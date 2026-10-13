@@ -180,7 +180,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     errorEl.hidden = true;
 
     const company = normalizeCompany({
-      "name": nameInput.value.trim(),
+      "names": [ nameInput.value.trim() ],
       "linkedinCode": options.linkedinCode,
       "indicators": [ ...selectedIndicators ],
       "comment": commentInput.value
