@@ -20,7 +20,8 @@
   const companyForm = document.getElementById("company-form") as HTMLFormElement;
   const formTitle = document.getElementById("form-title") as HTMLHeadingElement;
   const editModeInput = document.getElementById("edit-mode") as HTMLInputElement;
-  const nameInput = document.getElementById("name") as HTMLInputElement;
+  const nameRows = document.getElementById("name-rows") as HTMLDivElement;
+  const addNameBtn = document.getElementById("add-name") as HTMLButtonElement;
   const linkedinCodeInput = document.getElementById("linkedin-code") as HTMLInputElement;
   const indicatorsField = document.getElementById("indicators") as HTMLFieldSetElement;
   const indicatorInputs: HTMLInputElement[] = [];
@@ -46,6 +47,59 @@
 
   async function _sendMessage (message: Message): Promise<MessageResponse> {
     return chrome.runtime.sendMessage(message);
+  }
+
+  function _nameInputs (): HTMLInputElement[] {
+    return Array.from(nameRows.querySelectorAll<HTMLInputElement>(".name-input"));
+  }
+
+  function _syncNameRemoveButtons (): void {
+    const rows = Array.from(nameRows.querySelectorAll<HTMLElement>(".name-row"));
+    const hideRemove = 1 >= rows.length;
+    for (const row of rows) {
+      const button = row.querySelector<HTMLButtonElement>(".name-remove");
+      if (null !== button) {
+        button.hidden = hideRemove;
+      }
+    }
+  }
+
+  function _createNameRow (value: string): HTMLDivElement {
+    const row = document.createElement("div");
+    row.className = "name-row";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "name-input";
+    input.placeholder = "Ex. Capgemini";
+    input.value = value;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "secondary name-remove";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      row.remove();
+      _syncNameRemoveButtons();
+    });
+
+    row.append(input, remove);
+    return row;
+  }
+
+  function _setNameRows (names: string[]): void {
+    const values = 0 < names.length ? names : [ "" ];
+    nameRows.replaceChildren();
+    for (const value of values) {
+      nameRows.append(_createNameRow(value));
+    }
+    _syncNameRemoveButtons();
+  }
+
+  function _readNames (): string[] {
+    return _nameInputs().map((input) => {
+      return input.value.trim();
+    });
   }
 
   function _hideError (): void {
@@ -243,6 +297,7 @@
     linkedinCodeInput.disabled = false;
     cancelEditBtn.hidden = true;
     companyForm.reset();
+    _setNameRows([ "" ]);
     _hideError();
   }
 
@@ -250,7 +305,7 @@
     editModeInput.value = "edit";
     formTitle.textContent = "Edit company";
     submitBtn.textContent = "Save";
-    nameInput.value = company.names[0] ?? "";
+    _setNameRows(company.names);
     linkedinCodeInput.value = company.linkedinCode;
     linkedinCodeInput.disabled = true;
     for (const input of indicatorInputs) {
@@ -259,7 +314,7 @@
     commentInput.value = company.comment ?? "";
     cancelEditBtn.hidden = false;
     _hideError();
-    nameInput.focus();
+    _nameInputs()[0]?.focus();
   }
 
   async function _loadRegistry (): Promise<void> {
@@ -295,7 +350,7 @@
     _hideError();
 
     const company = normalizeCompany({
-      "name": nameInput.value.trim(),
+      "names": _readNames(),
       "linkedinCode": normalizeLinkedinCode(linkedinCodeInput.value),
       "indicators": indicatorInputs
         .filter((input) => {
@@ -414,6 +469,13 @@ companyForm.addEventListener("submit", (event) => {
   _handleCompanySubmit(event).catch(_reportError);
 });
 
+addNameBtn.addEventListener("click", () => {
+  const row = _createNameRow("");
+  nameRows.append(row);
+  _syncNameRemoveButtons();
+  row.querySelector<HTMLInputElement>(".name-input")?.focus();
+});
+
 cancelEditBtn.addEventListener("click", _resetForm);
 
 searchInput.addEventListener("input", _renderList);
@@ -454,6 +516,7 @@ document.addEventListener("drop", (event) => {
   }
 });
 
+_setNameRows([ "" ]);
 _fillStatusSelects();
 
 _loadRegistry().catch(_reportError);

@@ -220,6 +220,34 @@ button:hover {
   background: #f3f4f6;
 }
 
+.names {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+}
+
+.names legend {
+  padding: 0;
+}
+
+.name-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.name-remove {
+  padding: 8px 10px;
+}
+
 .indicators {
   display: grid;
   gap: 4px;

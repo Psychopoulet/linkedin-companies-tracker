@@ -39,10 +39,11 @@
       <h2 id="form-title">Add a company</h2>
       <form id="company-form">
         <input type="hidden" id="edit-mode" value="add" />
-        <label>
-          Name <span class="required">*</span>
-          <input id="name" type="text" required placeholder="Ex. Capgemini" />
-        </label>
+        <fieldset id="names" class="names">
+          <legend>Names <span class="required">*</span></legend>
+          <div id="name-rows" class="name-rows"></div>
+          <button type="button" id="add-name" class="secondary">Add a name</button>
+        </fieldset>
         <label>
           LinkedIn code <span class="required">*</span>
           <input
