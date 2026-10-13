@@ -167,6 +167,17 @@
     }
   }
 
+  function _insertExtraNames (info: HTMLElement, company: Company, before: HTMLElement): void {
+    const aliases = company.names.slice(1);
+    if (0 === aliases.length) {
+      return;
+    }
+    const extra = document.createElement("div");
+    extra.className = "company-aliases";
+    extra.textContent = aliases.join(", ");
+    info.insertBefore(extra, before);
+  }
+
   function _getFilteredCompanies (): Company[] {
     const query = searchInput.value.trim().toLowerCase();
     const status = statusFilter.value as CompanyStatus | "";
@@ -174,10 +185,11 @@
     return Object.values(_registry)
       .filter((company) => {
         const matchesStatus = !status || company.indicators.includes(status);
-        const displayName = company.names[0] ?? "";
         const matchesQuery
           = !query
-          || displayName.toLowerCase().includes(query)
+          || company.names.some((stored) => {
+            return stored.toLowerCase().includes(query);
+          })
           || company.linkedinCode.toLowerCase().includes(query);
         return matchesStatus && matchesQuery;
       })
@@ -256,6 +268,7 @@
       }
 
       info.append(name, code);
+      _insertExtraNames(info, company, code);
       header.append(info, badge);
 
       const detail = document.createElement("div");

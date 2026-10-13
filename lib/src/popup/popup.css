@@ -194,6 +194,12 @@ button:hover {
   line-height: 1;
 }
 
+.company-aliases {
+  font-size: 12px;
+  font-weight: 400;
+  color: #4b5563;
+}
+
 .company-code {
   font-size: 12px;
   color: #6b7280;
