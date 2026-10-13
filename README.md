@@ -93,19 +93,19 @@ A company can have several indicators. The displayed color is the one with the *
 
 ## Import / export
 
-Export downloads `linkedin-companies-YYYY-MM-DD.json` (format version 2):
+Export downloads `linkedin-companies-YYYY-MM-DD.json` (format version 3):
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "exportedAt": "…",
   "companies": []
 }
 ```
 
-Companies are normalized, then sorted by criticity rank, then by name (`fr` locale).
+Companies are normalized, then sorted by criticity rank, then by the first display name (`fr` locale). Each company is written with `names` and without a legacy `name`.
 
-Import accepts three shapes: a raw array, `{ "companies": [ ... ] }`, or an object whose values are companies with `linkedinCode`. Legacy fields are still read: `status` becomes `indicators`, `reason` becomes `comment`, and old French labels (`banni`, `esn`, `suspect`, `désiré`, `desire`) map to the current codes. One unreadable indicator fails the whole file. The popup asks for confirmation before replacing the current list. Drop a `.json` file on the popup, or use the Import button.
+Import accepts three shapes: a raw array, `{ "companies": [ ... ] }`, or an object whose values are companies with `linkedinCode`. Legacy fields are still read: a `name` string becomes `names` when `names` is not an array of strings, `status` becomes `indicators`, `reason` becomes `comment`, and old French labels (`banni`, `esn`, `suspect`, `désiré`, `desire`) map to the current codes. A company with no usable name fails the whole file, as does one unreadable indicator. The popup asks for confirmation before replacing the current list. Drop a `.json` file on the popup, or use the Import button.
 
 ## Manual testing
 
@@ -182,7 +182,7 @@ One constant: `REGISTRY_STORAGE_KEY = "companyRegistry"`.
 
 #### `storage/import-export.ts`
 
-JSON import and export, version 2. See [Import / export](#import--export).
+JSON import and export, version 3. See [Import / export](#import--export).
 
 ### `background/`
 

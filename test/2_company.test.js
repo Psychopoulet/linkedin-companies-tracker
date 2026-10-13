@@ -309,9 +309,14 @@ describe("import and export", () => {
 
     });
 
-    it("serializes a registry with version 2", () => {
+    it("serializes a registry with version 3", () => {
 
         const payload = JSON.parse(serializeCompanies({
+            "zeta": {
+                "linkedinCode": "zeta",
+                "names": [ "Zeta", "Zeta Alias" ],
+                "indicators": [ "WANTED" ]
+            },
             "acme": {
                 "linkedinCode": "acme",
                 "name": "Acme",
@@ -319,8 +324,13 @@ describe("import and export", () => {
             }
         }));
 
-        equal(payload.version, 2);
-        equal(payload.companies[0].linkedinCode, "acme");
+        equal(payload.version, 3);
+        deepEqual(payload.companies.map((company) => {
+            return company.linkedinCode;
+        }), [ "acme", "zeta" ]);
+        deepEqual(payload.companies[0].names, [ "Acme" ]);
+        equal("name" in payload.companies[0], false);
+        deepEqual(payload.companies[1].names, [ "Zeta", "Zeta Alias" ]);
 
     });
 

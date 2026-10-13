@@ -22,7 +22,7 @@
 
 // consts
 
-  export const EXPORT_VERSION = 2 as const;
+  export const EXPORT_VERSION = 3 as const;
 
 // private
 
