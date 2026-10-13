@@ -6,13 +6,19 @@
     // locals
     import {
         companyLinkedinUrl,
+        companySortRank,
+        normalizeCompanyName,
+        formatCompanyPopupDetail,
         isValidCompany,
         normalizeCompany,
+        normalizeCompanyIndicators,
         normalizeCompanyStatus,
         normalizeLinkedinCode,
-        normalizeRegistry
+        normalizeRegistry,
+        readCompanyIndicators,
+        STATUS_SORT_ORDER
     } from "../lib/src/types/company.ts";
-    import { getIndicatorByCode, getIndicatorColor, getIndicatorsColor, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
+    import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
     import { extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
 
@@ -23,6 +29,12 @@ describe("company", () => {
     it("normalizes a LinkedIn code", () => {
 
         equal(normalizeLinkedinCode("  CapGemini/ "), "capgemini");
+
+    });
+
+    it("normalizes a company name for comparison", () => {
+
+        equal(normalizeCompanyName("  Décathlon   Digital "), "decathlon digital");
 
     });
 
@@ -39,7 +51,41 @@ describe("company", () => {
 
         equal(normalizeCompanyStatus("désiré"), "WANTED");
         equal(normalizeCompanyStatus("esn"), "IT_SERVICES_COMPANY");
+        equal(normalizeCompanyStatus("ESN"), "IT_SERVICES_COMPANY");
+        equal(normalizeCompanyStatus("wanted"), "WANTED");
         equal(normalizeCompanyStatus("unknown"), null);
+        equal(normalizeCompanyStatus("  "), null);
+        equal(normalizeCompanyStatus(1), null);
+
+    });
+
+    it("drops indicators that are not a list of known codes", () => {
+
+        deepEqual(normalizeCompanyIndicators("WANTED"), []);
+        deepEqual(normalizeCompanyIndicators([ "WANTED", "WANTED", "nope", null ]), [ "WANTED" ]);
+
+    });
+
+    it("reads a legacy status when indicators are absent", () => {
+
+        deepEqual(readCompanyIndicators({ "status": "désiré" }), [ "WANTED" ]);
+        deepEqual(readCompanyIndicators({ "status": "nope" }), []);
+        deepEqual(readCompanyIndicators({
+            "indicators": [ "BANNED" ],
+            "status": "désiré"
+        }), [ "BANNED" ]);
+
+    });
+
+    it("ranks an empty indicator list last and an unknown code first", () => {
+
+        equal(companySortRank({ "indicators": [] }), 99);
+        equal(companySortRank({ "indicators": [ "WANTED" ] }), STATUS_SORT_ORDER.WANTED);
+        equal(
+            companySortRank({ "indicators": [ "BANNED", "WANTED" ] }),
+            STATUS_SORT_ORDER.WANTED
+        );
+        equal(companySortRank({ "indicators": [ "NOPE" ] }), 0);
 
     });
 
@@ -123,6 +169,64 @@ describe("company", () => {
             "linkedinCode": "acme",
             "indicators": []
         }), false);
+
+    });
+
+    it("rejects a company with a bad code, name, indicator, or comment", () => {
+
+        equal(isValidCompany({
+            "linkedinCode": "  ",
+            "names": [ "Acme" ],
+            "indicators": []
+        }), false);
+        equal(isValidCompany({
+            "names": [ "Acme" ],
+            "indicators": []
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [ "Acme", 2 ],
+            "indicators": []
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "WANTED", "NOPE" ]
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": "WANTED"
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [],
+            "comment": 1
+        }), false);
+        equal(isValidCompany({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "WANTED" ],
+            "comment": "note"
+        }), true);
+
+    });
+
+    it("formats the popup detail from descriptions and the comment", () => {
+
+        equal(formatCompanyPopupDetail({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "WANTED", "NOPE" ],
+            "comment": "  note  "
+        }), "Desired company\nNOPE\nnote: note");
+        equal(formatCompanyPopupDetail({
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "BANNED" ],
+            "comment": "   "
+        }), "Company to avoid");
 
     });
 
@@ -211,6 +315,56 @@ describe("indicators", () => {
 
         equal(stripLeadingIndicatorIcon("✅ Acme"), "Acme");
         equal(stripLeadingIndicatorIcon("Acme"), "Acme");
+
+    });
+
+    it("lists indicators from the lowest criticity to the highest", () => {
+
+        const indicators = getIndicators();
+
+        equal(indicators[0].code, "SALARY_AND_ADVANTAGES");
+        equal(indicators.at(-1).code, "WANTED");
+        equal(indicators.length, 9);
+
+    });
+
+    it("sorts codes by descending criticity and drops unknown codes", () => {
+
+        deepEqual(sortIndicatorsByCriticityDesc([
+            "SALARY_AND_ADVANTAGES",
+            "NOPE",
+            "WANTED"
+        ]).map((indicator) => {
+            return indicator.code;
+        }), [ "WANTED", "SALARY_AND_ADVANTAGES" ]);
+
+    });
+
+    it("formats a label with the description", () => {
+
+        const banned = getIndicatorByCode("BANNED");
+
+        equal(formatIndicatorLabel(banned), "BANNED — Company to avoid");
+        equal(formatIndicatorLabel({
+            "icon": "",
+            "criticity": "INFO",
+            "code": "PLAIN",
+            "description": ""
+        }), "PLAIN");
+
+    });
+
+    it("rejects an unknown criticity", () => {
+
+        throws(() => {
+
+            getIndicatorColor({
+                "icon": "",
+                "criticity": "NOPE",
+                "code": "X"
+            });
+
+        }, { "message": "Unknown criticity: NOPE" });
 
     });
 
