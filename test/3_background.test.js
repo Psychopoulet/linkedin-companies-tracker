@@ -15,6 +15,13 @@
         replaceRegistry,
         updateCompany
     } from "../lib/src/background/storage.ts";
+    import { sendMessage } from "../lib/src/content/shared/messaging.ts";
+    import {
+        getCachedRegistry,
+        initRegistryListeners,
+        loadRegistry,
+        onRegistryChange
+    } from "../lib/src/content/shared/registry-client.ts";
 
 // consts
 
@@ -389,6 +396,151 @@ describe("service worker", () => {
         }
 
         deepEqual(messages, [ `[${REGISTRY_UPDATED}] Extension installed` ]);
+
+    });
+
+});
+
+describe("registry client", () => {
+
+    const added = { "message": [], "storage": [] };
+
+    before(() => {
+
+        const addMessage = chrome.runtime.onMessage.addListener;
+        const addStorage = chrome.storage.onChanged.addListener;
+
+        chrome.runtime.onMessage.addListener = (listener) => {
+
+            added.message.push(listener);
+            addMessage(listener);
+
+        };
+        chrome.storage.onChanged.addListener = (listener) => {
+
+            added.storage.push(listener);
+            addStorage(listener);
+
+        };
+
+        initRegistryListeners();
+
+        chrome.runtime.onMessage.addListener = addMessage;
+        chrome.storage.onChanged.addListener = addStorage;
+
+    });
+
+    beforeEach(() => {
+
+        mock.reset();
+        added.storage[0]({ [REGISTRY_STORAGE_KEY]: { "newValue": null } }, "local");
+
+    });
+
+    it("loads the registry and notifies subscribers", async () => {
+
+        const seen = [];
+        const stop = onRegistryChange((registry) => {
+
+            seen.push(registry);
+
+        });
+
+        deepEqual(await sendMessage({ "type": "GET_REGISTRY" }), {
+            "ok": true,
+            "registry": {}
+        });
+        deepEqual(await loadRegistry(), {});
+        deepEqual(getCachedRegistry(), {});
+        deepEqual(seen, [ {} ]);
+
+        stop();
+        await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: { "acme": acme } });
+        await loadRegistry();
+
+        deepEqual(seen, [ {} ]);
+        deepEqual(getCachedRegistry(), { "acme": acme });
+
+    });
+
+    it("keeps the cache when the response fails", async () => {
+
+        const original = chrome.runtime.sendMessage;
+        const seen = [];
+        const stop = onRegistryChange(() => {
+
+            seen.push("called");
+
+        });
+        chrome.runtime.sendMessage = async () => {
+
+            return { "ok": false, "error": "nope" };
+
+        };
+
+        try {
+
+            deepEqual(await loadRegistry(), {});
+            equal(seen.length, 0);
+
+        }
+        finally {
+
+            stop();
+            chrome.runtime.sendMessage = original;
+
+        }
+
+    });
+
+    it("reloads on a registry update and applies storage changes", async () => {
+
+        const messageListener = added.message[0];
+        const storageListener = added.storage[0];
+
+        messageListener({ "type": "NOPE" });
+        storageListener({ "other": { "newValue": 1 } }, "local");
+        storageListener({ [REGISTRY_STORAGE_KEY]: { "newValue": { "acme": acme } } }, "sync");
+        deepEqual(getCachedRegistry(), {});
+
+        await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: { "acme": acme } });
+        storageListener({ [REGISTRY_STORAGE_KEY]: { "newValue": null } }, "local");
+        deepEqual(getCachedRegistry(), {});
+
+        messageListener({ "type": REGISTRY_UPDATED });
+        await _flush();
+        deepEqual(getCachedRegistry(), { "acme": acme });
+
+        storageListener({ [REGISTRY_STORAGE_KEY]: { "newValue": "nope" } }, "local");
+        deepEqual(getCachedRegistry(), {});
+
+        const original = chrome.runtime.sendMessage;
+        const errors = [];
+        const error = console.error;
+        console.error = (value) => {
+
+            errors.push(value);
+
+        };
+        chrome.runtime.sendMessage = async () => {
+
+            throw new Error("fail");
+
+        };
+
+        try {
+
+            messageListener({ "type": REGISTRY_UPDATED });
+            await _flush();
+            equal(errors[0].message, "fail");
+
+        }
+        finally {
+
+            console.error = error;
+            chrome.runtime.sendMessage = original;
+
+        }
 
     });
 

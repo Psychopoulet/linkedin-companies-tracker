@@ -76,13 +76,27 @@ export function installChromeMock () {
 
                 for (const listener of [ ...messageListeners ]) {
 
-                    response = await new Promise((resolve) => {
+                    await new Promise((resolve) => {
 
-                        const pending = listener(message, {}, resolve);
+                        let settled = false;
+                        const pending = listener(message, {}, (value) => {
 
-                        if (true !== pending) {
-                            resolve(undefined);
+                            if (settled) {
+                                return;
+                            }
+
+                            settled = true;
+                            response = value;
+                            resolve();
+
+                        });
+
+                        if (settled || true === pending) {
+                            return;
                         }
+
+                        settled = true;
+                        resolve();
 
                     });
 
