@@ -81,16 +81,17 @@ A company can have several indicators. The displayed color is the one with the *
 | Icon | Code | Criticity | Description |
 |------|------|-----------|-------------|
 | ✅ | `WANTED` | OK | Desired company |
-| 💵 | `SALARY_AND_ADVANTAGES` | GOOD | Shows salary and benefits |
+| 💵 | `SALARY_AND_ADVANTAGES` | DATA | Shows salary and benefits |
 | 💼 | `IT_SERVICES_COMPANY` | INFO | IT services company |
 | 👨‍💼 | `HEADHUNTER` | INFO | Recruiter / staffing agency |
-| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | WARNING | Does not show salary or benefits |
+| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits |
 | ⚠️ | `SUSPECT` | WARNING | Suspicious |
 | ❌ | `BANNED` | DANGER | Company to avoid |
-| 🚫 | `DONT_ANSWER` | DANGER | Does not reply |
+| 📞 | `ANSWER` | GOOD | Replies |
+| 📞 | `DONT_ANSWER` | DANGER | Does not reply |
 | ⚠️ | `FREELANCE` | WARNING | Freelance |
 
-`SUSPECT` and `FREELANCE` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
+`SUSPECT` and `FREELANCE` share the same icon. `ANSWER` and `DONT_ANSWER` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
 
 ## Import / export
 

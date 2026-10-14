@@ -281,9 +281,11 @@ describe("indicators", () => {
 
         const banned = getIndicatorByCode("BANNED");
         const salary = getIndicatorByCode("SALARY_AND_ADVANTAGES");
+        const answer = getIndicatorByCode("ANSWER");
 
         equal(banned === undefined ? undefined : getIndicatorColor(banned), "#dc2626");
         equal(salary === undefined ? undefined : getIndicatorColor(salary), undefined);
+        equal(answer === undefined ? undefined : getIndicatorColor(answer), "#16a34a");
 
     });
 
@@ -325,7 +327,9 @@ describe("indicators", () => {
 
         equal(indicators[0].code, "SALARY_AND_ADVANTAGES");
         equal(indicators.at(-1).code, "WANTED");
-        equal(indicators.length, 9);
+        equal(indicators.length, 10);
+        equal(indicators[2].code, "ANSWER");
+        equal(indicators[3].code, "IT_SERVICES_COMPANY");
 
     });
 

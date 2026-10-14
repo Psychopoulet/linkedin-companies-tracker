@@ -70,6 +70,12 @@
     },
     {
       "icon": "📞",
+      "criticity": "GOOD",
+      "code": "ANSWER",
+      "description": "Replies"
+    },
+    {
+      "icon": "📞",
       "criticity": "DANGER",
       "code": "DONT_ANSWER",
       "description": "Does not reply"
