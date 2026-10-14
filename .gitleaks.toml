@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "linkedin-client-secret"
+
+[[rules.allowlists]]
+description = "decathlondigital est un slug d'entreprise de test"
+condition = "AND"
+paths = ['''test/2_company\.test\.js''']
+regexes = ['''decathlondigital''']
