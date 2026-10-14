@@ -48,7 +48,7 @@ jobs:
     steps:
 
       - name: Ensure steps to avoid vulnerabilities
-        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # curl -s https://api.github.com/repos/step-security/harden-runner/commits/v2.19.3 | jq -r .sha
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # curl -s https://api.github.com/repos/step-security/harden-runner/commits/v2.22.1 | jq -r .sha
         with:
           egress-policy: audit
 
@@ -68,7 +68,7 @@ jobs:
     steps:
 
       - name: Ensure steps to avoid vulnerabilities
-        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # curl -s https://api.github.com/repos/step-security/harden-runner/commits/v2.19.3 | jq -r .sha
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # curl -s https://api.github.com/repos/step-security/harden-runner/commits/v2.22.1 | jq -r .sha
         with:
           egress-policy: audit
 
