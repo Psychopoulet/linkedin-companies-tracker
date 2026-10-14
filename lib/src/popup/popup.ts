@@ -132,6 +132,18 @@
     }
   }
 
+  function _paintAnswerGlyph (glyph: HTMLElement, indicator: Indicator): void {
+    if ("ANSWER" !== indicator.code) {
+      return;
+    }
+    const color = getIndicatorColor(indicator);
+    if (undefined === color) {
+      return;
+    }
+    glyph.style.color = color;
+    glyph.style.setProperty("-webkit-text-fill-color", color);
+  }
+
   function _fillStatusSelects (): void {
     const indicators = getIndicators();
 
@@ -159,10 +171,13 @@
       checkbox.type = "checkbox";
       checkbox.value = indicator.code;
       indicatorInputs.push(checkbox);
+      const glyph = document.createElement("span");
+      glyph.textContent = indicator.icon;
+      _paintAnswerGlyph(glyph, indicator);
       const optionLabel = document.createElement("span");
-      optionLabel.textContent = `${indicator.icon} ${formatIndicatorLabel(indicator)}`;
+      optionLabel.textContent = ` ${formatIndicatorLabel(indicator)}`;
       _applyIndicatorColor(optionLabel, indicator);
-      option.append(checkbox, optionLabel);
+      option.append(checkbox, glyph, optionLabel);
       indicatorsField.append(option);
     }
   }
@@ -243,6 +258,7 @@
           const glyph = document.createElement("span");
           glyph.textContent = indicator.icon;
           _applyIndicatorColor(glyph, indicator);
+          _paintAnswerGlyph(glyph, indicator);
           icon.append(glyph);
         }
         name.append(icon, label);

@@ -136,6 +136,29 @@ describe("highlighter", () => {
 
     });
 
+    it("paints only the ANSWER telephone green", () => {
+
+        const element = document.createElement("h1");
+        element.textContent = "Acme";
+        document.body.append(element);
+
+        applyCompanyHighlight(element, {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "ANSWER", "DONT_ANSWER" ]
+        }, "acme");
+
+        const icon = element.querySelector("[data-li-tracker-icon]");
+        const glyphs = [ ...icon.querySelectorAll(".li-tracker-icon-glyph") ];
+
+        equal(icon.textContent, "📞📞");
+        equal(glyphs.length, 2);
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--answer"), false);
+        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--answer"), true);
+        equal(glyphs[1].style.getPropertyValue("--li-tracker-glyph-color"), "#16a34a");
+
+    });
+
     it("shows and hides the tooltip", () => {
 
         const element = document.createElement("h1");
@@ -323,8 +346,21 @@ describe("add company modal", () => {
 
         });
 
+        const answerButton = [ ...document.querySelectorAll(".li-tracker-modal-indicator") ].find((button) => {
+
+            return button.textContent.includes("ANSWER — Replies");
+
+        });
+        const quietButton = [ ...document.querySelectorAll(".li-tracker-modal-indicator") ].find((button) => {
+
+            return button.textContent.includes("DONT_ANSWER");
+
+        });
+
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
+        equal(answerButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(22, 163, 74)");
+        equal(quietButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "");
 
         bannedButton.click();
         equal(bannedButton.getAttribute("aria-pressed"), "true");

@@ -418,6 +418,11 @@ describe("popup list", () => {
                     "names": [ "Pay Co" ],
                     "indicators": [ "SALARY_AND_ADVANTAGES" ]
                 },
+                "reply": {
+                    "linkedinCode": "reply",
+                    "names": [ "Reply Co" ],
+                    "indicators": [ "ANSWER" ]
+                },
                 "plain": {
                     "linkedinCode": "plain",
                     "names": [ "Plain Co" ],
@@ -430,11 +435,25 @@ describe("popup list", () => {
             return _names().includes("Plain Co");
 
         });
-        deepEqual(_names(), [ "Pay Co", "Acme", "Aaa", "Plain Co" ]);
+        deepEqual(_names(), [ "Pay Co", "Reply Co", "Acme", "Aaa", "Plain Co" ]);
         equal(_item("Aaa").querySelector(".company-aliases").textContent, "Aaa Inc");
         equal(_item("Aaa").querySelector(".badge").textContent.includes(","), true);
         equal(_item("Plain Co").querySelector(".company-icon"), null);
         equal(_item("Pay Co").querySelector(".company-name-link").style.color, "");
+        equal(
+            _item("Reply Co").querySelector(".company-icon span").style.getPropertyValue("-webkit-text-fill-color"),
+            "rgb(22, 163, 74)"
+        );
+        equal(
+            [ ..._item("Aaa").querySelectorAll(".company-icon span") ].every((glyph) => {
+                return "" === glyph.style.getPropertyValue("-webkit-text-fill-color");
+            }),
+            true
+        );
+        equal(
+            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("-webkit-text-fill-color"),
+            "rgb(22, 163, 74)"
+        );
 
         _item("Plain Co").querySelector("button").click();
         equal(document.getElementById("comment").value, "");
@@ -447,7 +466,7 @@ describe("popup list", () => {
 
         };
         document.getElementById("export-btn").click();
-        equal(document.getElementById("io-message").textContent, "4 companies exported.");
+        equal(document.getElementById("io-message").textContent, "5 companies exported.");
 
         await _chooseFile(_file("bad.json", "application/json", "{"));
         await _until(() => {
