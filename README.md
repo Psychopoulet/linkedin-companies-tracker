@@ -3,7 +3,7 @@
 > **Disclaimer: this project was quickly vibe-coded. It is not a polished product.**
 > LinkedIn changes its markup often, and the DOM selectors are fragile. Unit tests cover the manifest and the company model, not the page scrapers. There is no guarantee of maintenance. Use at your own risk.
 
-Chrome extension (Manifest V3, version 1.2.3) to keep track of LinkedIn companies and flag them with **indicators** (wanted, IT services company, headhunter, suspect, banned, ...). Flagged company names are highlighted directly on LinkedIn pages, with a tooltip.
+Chrome extension (Manifest V3, version 1.3.0) to keep track of LinkedIn companies and flag them with **indicators** (wanted, IT services company, headhunter, suspect, banned, ...). Flagged company names are highlighted directly on LinkedIn pages, with a tooltip.
 
 All data stays in the browser (`chrome.storage.local`, key `companyRegistry`). Nothing is sent to a server.
 
@@ -71,41 +71,43 @@ A company can have several indicators. The displayed color is the one with the *
 
 | Order | Criticity | Color |
 |------:|-----------|-------|
-| 0 | `GOOD` | `#16a34a` green |
-| 1 | `INFO` | `#009dcf` blue |
-| 2 | `WARNING` | `#ca8a04` yellow |
-| 3 | `DANGER` | `#dc2626` red |
-| 4 | `OK` | `#16a34a` green |
+| 0 | `DATA` | no color |
+| 1 | `GOOD` | `#16a34a` green |
+| 2 | `INFO` | `#009dcf` blue |
+| 3 | `WARNING` | `#ca8a04` yellow |
+| 4 | `DANGER` | `#dc2626` red |
+| 5 | `OK` | `#16a34a` green |
 
 | Icon | Code | Criticity | Description |
 |------|------|-----------|-------------|
 | ✅ | `WANTED` | OK | Desired company |
-| 💵 | `SALARY_AND_ADVANTAGES` | GOOD | Shows salary and benefits |
+| 💵 | `SALARY_AND_ADVANTAGES` | DATA | Shows salary and benefits |
+| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits |
 | 💼 | `IT_SERVICES_COMPANY` | INFO | IT services company |
 | 👨‍💼 | `HEADHUNTER` | INFO | Recruiter / staffing agency |
-| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | WARNING | Does not show salary or benefits |
 | ⚠️ | `SUSPECT` | WARNING | Suspicious |
-| ❌ | `BANNED` | DANGER | Company to avoid |
-| 🚫 | `DONT_ANSWER` | DANGER | Does not reply |
 | ⚠️ | `FREELANCE` | WARNING | Freelance |
+| ❌ | `BANNED` | DANGER | Company to avoid |
+| 📞 | `ANSWER` | GOOD | Replies |
+| 📞 | `DONT_ANSWER` | DANGER | Does not reply |
 
-`SUSPECT` and `FREELANCE` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
+`SUSPECT` and `FREELANCE` share the same icon. `ANSWER` and `DONT_ANSWER` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
 
 ## Import / export
 
-Export downloads `linkedin-companies-YYYY-MM-DD.json` (format version 2):
+Export downloads `linkedin-companies-YYYY-MM-DD.json` (format version 3):
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "exportedAt": "…",
   "companies": []
 }
 ```
 
-Companies are normalized, then sorted by criticity rank, then by name (`fr` locale).
+Companies are normalized, then sorted by criticity rank, then by the first display name (`fr` locale). Each company is written with `names` and without a legacy `name`.
 
-Import accepts three shapes: a raw array, `{ "companies": [ ... ] }`, or an object whose values are companies with `linkedinCode`. Legacy fields are still read: `status` becomes `indicators`, `reason` becomes `comment`, and old French labels (`banni`, `esn`, `suspect`, `désiré`, `desire`) map to the current codes. One unreadable indicator fails the whole file. The popup asks for confirmation before replacing the current list. Drop a `.json` file on the popup, or use the Import button.
+Import accepts three shapes: a raw array, `{ "companies": [ ... ] }`, or an object whose values are companies with `linkedinCode`. Legacy fields are still read: a `name` string becomes `names` when `names` is not an array of strings, `status` becomes `indicators`, `reason` becomes `comment`, and old French labels (`banni`, `esn`, `suspect`, `désiré`, `desire`) map to the current codes. A company with no usable name fails the whole file, as does one unreadable indicator. The popup asks for confirmation before replacing the current list. Drop a `.json` file on the popup, or use the Import button.
 
 ## Manual testing
 
@@ -164,13 +166,15 @@ Indicator catalog and criticity.
 
 #### `types/company.ts`
 
-A company has a `linkedinCode` (URL slug, e.g. `capgemini`), a `name`, an `indicators` array, and an optional `comment`. The registry is a dictionary keyed by that code.
+A company has a `linkedinCode` (URL slug, e.g. `capgemini`), a `names` array of display names (at least one; the first is the display name), an `indicators` array, and an optional `comment`. The registry is a dictionary keyed by that code.
 
 `normalizeLinkedinCode` lowercases the code and strips a trailing slash. `companyLinkedinUrl` rebuilds `https://www.linkedin.com/company/{code}/`.
 
 Normalization also accepts the legacy shape described in [Import / export](#import--export). `normalizeRegistry` rewrites the registry and reports whether it changed, so storage can persist the migration.
 
-`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `GOOD` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, a name, recognized indicators, and a comment that is either absent or a string.
+`normalizeCompanyName` trims, lowercases, strips accents, and collapses whitespace for comparison. `normalizeCompany` trims each name, drops blanks, and drops later duplicates under that comparison. A non-empty `names` array wins over a legacy `name` string; otherwise `name` becomes `names`. It does not invent a placeholder.
+
+`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `DATA` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, at least one non-blank name, recognized indicators, and a comment that is either absent or a string. A missing `names` array, an empty array, or an array of blank strings is invalid.
 
 ### `storage/`
 
@@ -180,7 +184,7 @@ One constant: `REGISTRY_STORAGE_KEY = "companyRegistry"`.
 
 #### `storage/import-export.ts`
 
-JSON import and export, version 2. See [Import / export](#import--export).
+JSON import and export, version 3. See [Import / export](#import--export).
 
 ### `background/`
 

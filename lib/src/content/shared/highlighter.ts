@@ -2,12 +2,13 @@
 
   // locals
   import { formatCompanyPopupDetail } from "../../types/company";
-  import { getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { getIndicatorColor, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
 
 // types & interfaces
 
   // locals
   import type { Company } from "../../types/company";
+  import type { Indicator } from "../../types/indicator";
 
 // consts
 
@@ -40,10 +41,37 @@
     return formatCompanyPopupDetail(company);
   }
 
-  function _syncStatusIcon (element: HTMLElement, icon: string): void {
+  function _answerGlyphColor (indicator: Indicator): string | undefined {
+    return "ANSWER" === indicator.code ? getIndicatorColor(indicator) : undefined;
+  }
+
+  function _fillStatusGlyphs (iconEl: HTMLElement, indicators: readonly Indicator[]): void {
+
+    iconEl.replaceChildren();
+
+    for (const indicator of indicators) {
+
+      const glyph = iconEl.ownerDocument.createElement("span");
+      const color = _answerGlyphColor(indicator);
+      glyph.className = "li-tracker-icon-glyph";
+      glyph.textContent = indicator.icon;
+
+      if (undefined !== color) {
+        glyph.classList.add("li-tracker-icon-glyph--answer");
+        glyph.style.setProperty("--li-tracker-glyph-color", color);
+        glyph.style.setProperty("font-variant-emoji", "text");
+      }
+
+      iconEl.append(glyph);
+
+    }
+
+  }
+
+  function _syncStatusIcon (element: HTMLElement, indicators: readonly Indicator[]): void {
 
     const existing = element.querySelector<HTMLElement>(`:scope > [${ICON_ATTR}]`);
-    if (!icon) {
+    if (0 === indicators.length) {
       existing?.remove();
       return;
     }
@@ -52,7 +80,7 @@
     iconEl.setAttribute(ICON_ATTR, "true");
     iconEl.className = "li-tracker-icon";
     iconEl.setAttribute("aria-hidden", "true");
-    iconEl.textContent = icon;
+    _fillStatusGlyphs(iconEl, indicators);
 
     if (!existing) {
       element.insertBefore(iconEl, element.firstChild);
@@ -147,9 +175,7 @@ export function highlightCompany (
     element.style.setProperty("--li-tracker-color", color);
   }
 
-  _syncStatusIcon(element, indicators.map((indicator) => {
-    return indicator.icon;
-  }).join(""));
+  _syncStatusIcon(element, indicators);
 
   const tooltip = _ensureTooltip();
 

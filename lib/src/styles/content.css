@@ -23,6 +23,18 @@
   font-weight: inherit !important;
 }
 
+.li-tracker-icon .li-tracker-icon-glyph {
+  color: inherit !important;
+  -webkit-text-fill-color: initial !important;
+  font-weight: inherit !important;
+}
+
+.li-tracker-icon .li-tracker-icon-glyph--answer {
+  color: var(--li-tracker-glyph-color) !important;
+  -webkit-text-fill-color: var(--li-tracker-glyph-color) !important;
+  font-variant-emoji: text !important;
+}
+
 .li-tracker-tooltip {
   position: fixed;
   z-index: 2147483646;

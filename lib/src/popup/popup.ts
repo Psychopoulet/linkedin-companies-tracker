@@ -20,7 +20,8 @@
   const companyForm = document.getElementById("company-form") as HTMLFormElement;
   const formTitle = document.getElementById("form-title") as HTMLHeadingElement;
   const editModeInput = document.getElementById("edit-mode") as HTMLInputElement;
-  const nameInput = document.getElementById("name") as HTMLInputElement;
+  const nameRows = document.getElementById("name-rows") as HTMLDivElement;
+  const addNameBtn = document.getElementById("add-name") as HTMLButtonElement;
   const linkedinCodeInput = document.getElementById("linkedin-code") as HTMLInputElement;
   const indicatorsField = document.getElementById("indicators") as HTMLFieldSetElement;
   const indicatorInputs: HTMLInputElement[] = [];
@@ -46,6 +47,59 @@
 
   async function _sendMessage (message: Message): Promise<MessageResponse> {
     return chrome.runtime.sendMessage(message);
+  }
+
+  function _nameInputs (): HTMLInputElement[] {
+    return Array.from(nameRows.querySelectorAll<HTMLInputElement>(".name-input"));
+  }
+
+  function _syncNameRemoveButtons (): void {
+    const rows = Array.from(nameRows.querySelectorAll<HTMLElement>(".name-row"));
+    const hideRemove = 1 >= rows.length;
+    for (const row of rows) {
+      const button = row.querySelector<HTMLButtonElement>(".name-remove");
+      if (null !== button) {
+        button.hidden = hideRemove;
+      }
+    }
+  }
+
+  function _createNameRow (value: string): HTMLDivElement {
+    const row = document.createElement("div");
+    row.className = "name-row";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "name-input";
+    input.placeholder = "Ex. Capgemini";
+    input.value = value;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "secondary name-remove";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      row.remove();
+      _syncNameRemoveButtons();
+    });
+
+    row.append(input, remove);
+    return row;
+  }
+
+  function _setNameRows (names: string[]): void {
+    const values = 0 < names.length ? names : [ "" ];
+    nameRows.replaceChildren();
+    for (const value of values) {
+      nameRows.append(_createNameRow(value));
+    }
+    _syncNameRemoveButtons();
+  }
+
+  function _readNames (): string[] {
+    return _nameInputs().map((input) => {
+      return input.value.trim();
+    });
   }
 
   function _hideError (): void {
@@ -78,6 +132,19 @@
     }
   }
 
+  function _paintAnswerGlyph (glyph: HTMLElement, indicator: Indicator): void {
+    if ("ANSWER" !== indicator.code) {
+      return;
+    }
+    const color = getIndicatorColor(indicator);
+    if (undefined === color) {
+      return;
+    }
+    glyph.style.color = color;
+    glyph.style.setProperty("-webkit-text-fill-color", color);
+    glyph.style.setProperty("font-variant-emoji", "text");
+  }
+
   function _fillStatusSelects (): void {
     const indicators = getIndicators();
 
@@ -105,12 +172,26 @@
       checkbox.type = "checkbox";
       checkbox.value = indicator.code;
       indicatorInputs.push(checkbox);
+      const glyph = document.createElement("span");
+      glyph.textContent = indicator.icon;
+      _paintAnswerGlyph(glyph, indicator);
       const optionLabel = document.createElement("span");
-      optionLabel.textContent = `${indicator.icon} ${formatIndicatorLabel(indicator)}`;
+      optionLabel.textContent = ` ${formatIndicatorLabel(indicator)}`;
       _applyIndicatorColor(optionLabel, indicator);
-      option.append(checkbox, optionLabel);
+      option.append(checkbox, glyph, optionLabel);
       indicatorsField.append(option);
     }
+  }
+
+  function _insertExtraNames (info: HTMLElement, company: Company, before: HTMLElement): void {
+    const aliases = company.names.slice(1);
+    if (0 === aliases.length) {
+      return;
+    }
+    const extra = document.createElement("div");
+    extra.className = "company-aliases";
+    extra.textContent = aliases.join(", ");
+    info.insertBefore(extra, before);
   }
 
   function _getFilteredCompanies (): Company[] {
@@ -122,7 +203,9 @@
         const matchesStatus = !status || company.indicators.includes(status);
         const matchesQuery
           = !query
-          || company.name.toLowerCase().includes(query)
+          || company.names.some((stored) => {
+            return stored.toLowerCase().includes(query);
+          })
           || company.linkedinCode.toLowerCase().includes(query);
         return matchesStatus && matchesQuery;
       })
@@ -131,7 +214,7 @@
         if (0 !== statusDiff) {
           return statusDiff;
         }
-        return a.name.localeCompare(b.name, "fr");
+        return (a.names[0] ?? "").localeCompare(b.names[0] ?? "", "fr");
       });
   }
 
@@ -159,7 +242,7 @@
       label.className = "company-name-link";
       const companyUrl = companyLinkedinUrl(company.linkedinCode);
       label.href = companyUrl;
-      label.textContent = company.name;
+      label.textContent = company.names[0] ?? "";
       label.addEventListener("click", (event) => {
         event.preventDefault();
         chrome.tabs.create({ "url": companyUrl }).catch(_reportError);
@@ -176,6 +259,7 @@
           const glyph = document.createElement("span");
           glyph.textContent = indicator.icon;
           _applyIndicatorColor(glyph, indicator);
+          _paintAnswerGlyph(glyph, indicator);
           icon.append(glyph);
         }
         name.append(icon, label);
@@ -201,6 +285,7 @@
       }
 
       info.append(name, code);
+      _insertExtraNames(info, company, code);
       header.append(info, badge);
 
       const detail = document.createElement("div");
@@ -242,6 +327,7 @@
     linkedinCodeInput.disabled = false;
     cancelEditBtn.hidden = true;
     companyForm.reset();
+    _setNameRows([ "" ]);
     _hideError();
   }
 
@@ -249,7 +335,7 @@
     editModeInput.value = "edit";
     formTitle.textContent = "Edit company";
     submitBtn.textContent = "Save";
-    nameInput.value = company.name;
+    _setNameRows(company.names);
     linkedinCodeInput.value = company.linkedinCode;
     linkedinCodeInput.disabled = true;
     for (const input of indicatorInputs) {
@@ -258,7 +344,7 @@
     commentInput.value = company.comment ?? "";
     cancelEditBtn.hidden = false;
     _hideError();
-    nameInput.focus();
+    _nameInputs()[0]?.focus();
   }
 
   async function _loadRegistry (): Promise<void> {
@@ -294,7 +380,7 @@
     _hideError();
 
     const company = normalizeCompany({
-      "name": nameInput.value.trim(),
+      "names": _readNames(),
       "linkedinCode": normalizeLinkedinCode(linkedinCodeInput.value),
       "indicators": indicatorInputs
         .filter((input) => {
@@ -306,7 +392,7 @@
       "comment": commentInput.value
     });
 
-    if (!company.name) {
+    if (0 === company.names.length) {
       _showError("Name is required.");
       return;
     }
@@ -413,6 +499,13 @@ companyForm.addEventListener("submit", (event) => {
   _handleCompanySubmit(event).catch(_reportError);
 });
 
+addNameBtn.addEventListener("click", () => {
+  const row = _createNameRow("");
+  nameRows.append(row);
+  _syncNameRemoveButtons();
+  row.querySelector<HTMLInputElement>(".name-input")?.focus();
+});
+
 cancelEditBtn.addEventListener("click", _resetForm);
 
 searchInput.addEventListener("input", _renderList);
@@ -453,6 +546,7 @@ document.addEventListener("drop", (event) => {
   }
 });
 
+_setNameRows([ "" ]);
 _fillStatusSelects();
 
 _loadRegistry().catch(_reportError);

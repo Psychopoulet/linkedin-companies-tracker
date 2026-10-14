@@ -22,7 +22,7 @@
 
 // consts
 
-  export const EXPORT_VERSION = 2 as const;
+  export const EXPORT_VERSION = 3 as const;
 
 // private
 
@@ -37,7 +37,7 @@
     if (0 !== statusDiff) {
       return statusDiff;
     }
-    return a.name.localeCompare(b.name, "fr");
+    return (a.names[0] ?? "").localeCompare(b.names[0] ?? "", "fr");
   }
 
   function _parseJson (text: string): unknown {
@@ -75,12 +75,29 @@
     throw new Error("Invalid JSON file: a company array was expected.");
   }
 
+  function _importedNameFields (raw: { "names"?: unknown; "name"?: unknown }): { "names": string[] } | { "name": string } {
+    if (
+      Array.isArray(raw.names)
+      && raw.names.every((entry) => {
+        return "string" === typeof entry;
+      })
+    ) {
+      return { "names": raw.names };
+    }
+    return { "name": "string" === typeof raw.name ? raw.name : "" };
+  }
+
   function _normalizeImportedCompany (item: unknown): Company | null {
     if ("object" !== typeof item || null === item) {
       return null;
     }
 
-    const raw = item as Partial<Company> & { "reason"?: string; "status"?: unknown };
+    const raw = item as Omit<Partial<Company>, "names"> & {
+      "reason"?: string;
+      "status"?: unknown;
+      "name"?: string;
+      "names"?: unknown;
+    };
     const indicators = readCompanyIndicators(raw);
     const hasInput = Array.isArray(raw.indicators) ? 0 < raw.indicators.length : raw.status !== undefined;
     if (hasInput && 0 === indicators.length) {
@@ -91,14 +108,14 @@
     const rawReason = "string" === typeof raw.reason ? raw.reason.trim() : "";
     const comment = "" === rawComment ? rawReason : rawComment;
 
-    const company: Company = {
+    const company = normalizeCompany({
       "linkedinCode": "string" === typeof raw.linkedinCode ? normalizeLinkedinCode(raw.linkedinCode) : "",
-      "name": "string" === typeof raw.name ? raw.name.trim() : "",
+      ..._importedNameFields(raw),
       indicators,
       ..."" === comment ? {} : { comment }
-    };
+    });
 
-    return isValidCompany(company) ? normalizeCompany(company) : null;
+    return isValidCompany(company) ? company : null;
   }
 
 // module
