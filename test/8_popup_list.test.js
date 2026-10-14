@@ -103,22 +103,57 @@ if ("undefined" === typeof probe) {
 
 // tests
 
+function _file (name, type, text) {
+
+        return new File([ text ], name, { type });
+
+    }
+
+    async function _chooseFile (file) {
+
+        const input = document.getElementById("import-file");
+        Object.defineProperty(input, "files", {
+            "configurable": true,
+            "get": () => {
+
+                return [ file ];
+
+            }
+        });
+        input.dispatchEvent(new window.Event("change"));
+
+    }
+
 describe("popup list", () => {
+
+    before(async () => {
+
+        _install();
+        URL.createObjectURL = () => {
+
+            return "blob:companies";
+
+        };
+        URL.revokeObjectURL = () => {};
+        await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: { "acme": acme } });
+        await import("../lib/src/popup/popup.ts");
+        await _until(() => {
+
+            return _names().includes("Acme");
+
+        });
+
+    });
+
+    after(() => {
+
+        _dom?.window.close();
+
+    });
 
     it("loads the list and edits a company", async () => {
 
-        _install();
-
-        try {
-
-            await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: { "acme": acme } });
-            await import("../lib/src/popup/popup.ts");
-            await _until(() => {
-
-                return _names().includes("Acme");
-
-            });
-            equal(document.getElementById("count").textContent, "1");
+        equal(document.getElementById("count").textContent, "1");
             equal(document.getElementById("empty-state").hidden, true);
 
             document.getElementById("linkedin-code").value = "beta";
@@ -203,12 +238,100 @@ describe("popup list", () => {
             equal(document.getElementById("count").textContent, "0");
             equal(document.getElementById("empty-state").hidden, false);
 
-        }
-        finally {
+    });
 
-            _dom?.window.close();
+    it("exports, imports, and drops a company that disappeared while editing", async () => {
 
-        }
+        const blobs = [];
+        const anchorClick = _dom.window.HTMLAnchorElement.prototype.click;
+        _dom.window.HTMLAnchorElement.prototype.click = function click () {
+
+            if ("" !== this.download) {
+                return;
+            }
+
+            return anchorClick.call(this);
+
+        };
+        URL.createObjectURL = (blob) => {
+
+            blobs.push(blob);
+            return "blob:companies";
+
+        };
+
+        document.getElementById("export-btn").click();
+        equal(document.getElementById("io-message").hidden, false);
+        equal(document.getElementById("io-message").textContent, "Empty list exported.");
+        equal((await blobs[0].text()).includes("\"version\": 3"), true);
+
+        await _chooseFile(_file("notes.txt", "text/plain", "hello"));
+        equal(document.getElementById("io-message").textContent, "Choose a JSON file.");
+        equal(document.getElementById("io-message").classList.contains("error"), true);
+
+        _allowDelete = true;
+        await _chooseFile(_file(
+            "companies.json",
+            "application/json",
+            JSON.stringify([ {
+                "linkedinCode": "gamma",
+                "names": [ "Gamma" ],
+                "indicators": [ "WANTED" ]
+            } ])
+        ));
+        await _until(() => {
+
+            return _names().includes("Gamma");
+
+        });
+        equal(document.getElementById("io-message").textContent, "1 company imported.");
+
+        document.getElementById("export-btn").click();
+        equal(document.getElementById("io-message").textContent, "1 company exported.");
+
+        const section = document.getElementById("io-section");
+        document.dispatchEvent(new window.Event("dragover", { "cancelable": true }));
+        equal(section.classList.contains("is-dragover"), true);
+
+        const leave = new window.Event("dragleave", { "cancelable": true });
+        Object.defineProperty(leave, "relatedTarget", { "value": null });
+        document.dispatchEvent(leave);
+        equal(section.classList.contains("is-dragover"), false);
+
+        const drop = new window.Event("drop", { "cancelable": true });
+        Object.defineProperty(drop, "dataTransfer", {
+            "value": {
+                "files": [ _file(
+                    "delta.json",
+                    "application/json",
+                    JSON.stringify([ {
+                        "linkedinCode": "delta",
+                        "names": [ "Delta" ],
+                        "indicators": [ "BANNED" ]
+                    } ])
+                ) ]
+            }
+        });
+        document.dispatchEvent(drop);
+        await _until(() => {
+
+            return _names().includes("Delta");
+
+        });
+        equal(_names().includes("Gamma"), false);
+
+        _item("Delta").querySelector("button").click();
+        equal(document.getElementById("form-title").textContent, "Edit company");
+
+        await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: { "acme": acme } });
+        await _until(() => {
+
+            return "Add a company" === document.getElementById("form-title").textContent;
+
+        });
+        deepEqual(_names(), [ "Acme" ]);
+        equal(document.getElementById("cancel-edit").hidden, true);
+        _dom.window.HTMLAnchorElement.prototype.click = anchorClick;
 
     });
 
