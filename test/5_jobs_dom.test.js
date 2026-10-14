@@ -48,6 +48,7 @@ const {
     findCompanyByName,
     findCompanyElementInCardByTextMatch,
     findCompanyInJobDetailPanel,
+    findCompanyInJobsTrackerCard,
     findCompanyInSduiCard,
     findCompanyInSearchResultsDetail,
     findCompanyNameElement,
@@ -57,7 +58,8 @@ const {
     isJobsPage,
     isJobsSearchResultsPage,
     isJobsTrackerPage,
-    resolveCompanyFromContainer
+    resolveCompanyFromContainer,
+    wrapCompanyNamePrefix
 } = await import("../lib/src/content/shared/job-dom-utils.ts");
 
 // tests
@@ -353,6 +355,52 @@ describe("search detail and job panel", () => {
         </body></html>`, "https://www.linkedin.com/jobs/view/10");
 
         equal(findCompanyInJobDetailPanel(document.getElementById("panel"), registry).element.id, "name");
+
+    });
+
+});
+
+describe("tracker card and name prefix", () => {
+
+    it("reads the company before the location and misses the rest", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="known"><p id="line">❌ Société Générale · Paris</p></div>
+            <div id="unknown"><p>Other · Lyon</p></div>
+            <div id="plain"><p>Société Générale</p></div>
+        </body></html>`, "https://www.linkedin.com/jobs-tracker");
+
+        const found = findCompanyInJobsTrackerCard(document.getElementById("known"), registry);
+        equal(found.element.id, "line");
+        equal(found.company.linkedinCode, "societe-generale");
+        equal(found.displayName, "Société Générale");
+        equal(findCompanyInJobsTrackerCard(document.getElementById("unknown"), registry), null);
+        equal(findCompanyInJobsTrackerCard(document.getElementById("plain"), registry), null);
+
+    });
+
+    it("wraps the company name and leaves the surrounding text", () => {
+
+        _install();
+        const line = document.createElement("p");
+        line.textContent = "Role at Acme, Paris";
+        document.body.append(line);
+
+        const wrapped = wrapCompanyNamePrefix(line, "Acme");
+        equal(wrapped.getAttribute("data-li-tracker-company-wrap"), "true");
+        equal(wrapped.textContent, "Acme");
+        equal(line.textContent, "Role at Acme, Paris");
+        equal(wrapCompanyNamePrefix(line, "Acme"), wrapped);
+
+        const exact = document.createElement("p");
+        exact.textContent = "Acme";
+        const exactWrap = wrapCompanyNamePrefix(exact, "Acme");
+        equal(exactWrap.textContent, "Acme");
+        equal(exact.childNodes.length, 1);
+
+        const missing = document.createElement("p");
+        missing.textContent = "Other";
+        equal(wrapCompanyNamePrefix(missing, "Acme"), missing);
 
     });
 
