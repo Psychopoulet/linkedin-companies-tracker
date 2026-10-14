@@ -181,6 +181,65 @@ describe("jobs page", () => {
             await chrome.storage.local.set(_registry(banned));
             equal(_highlighted("panel-name"), true);
 
+            _install(`<!doctype html><html><body>
+                <li class="jobs-search-results__list-item">
+                    <h4 id="known" class="base-search-card__subtitle">Acme</h4>
+                </li>
+                <li class="jobs-search-results__list-item">
+                    <h4 id="unknown" class="base-search-card__subtitle">Other</h4>
+                </li>
+                <li id="empty" class="jobs-search-results__list-item">
+                    <a href="/jobs/view/1">Engineer</a>
+                </li>
+            </body></html>`, viewUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(_highlighted("known"), true);
+            equal(_highlighted("unknown"), false);
+
+            _install(`<!doctype html><html><body>
+                <a href="/jobs/view/4"><p>Other · Lyon</p></a>
+            </body></html>`, trackerUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(document.querySelector(".li-tracker--highlighted"), null);
+
+            _install(`<!doctype html><html><body>
+                <div id="text-card" class="base-card">
+                    <a href="/jobs/view/1">Engineer</a>
+                    <span id="text-name">Acme</span>
+                </div>
+                <li id="list-card" class="scaffold-layout__list-item">
+                    <a href="/jobs/view/2">Engineer</a>
+                    <span id="list-name">Unknown Co</span>
+                </li>
+            </body></html>`, searchUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(_highlighted("text-name"), true);
+            equal(_highlighted("list-name"), false);
+
+            _install("<!doctype html><html><body></body></html>", searchUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(document.querySelector(".li-tracker--highlighted"), null);
+
+            _install(`<!doctype html><html><body>
+                <div class="job-details-jobs-unified-top-card">
+                    <h4 id="subtitle" class="base-search-card__subtitle">Unknown Co</h4>
+                </div>
+            </body></html>`, viewUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(_highlighted("subtitle"), false);
+
+            _install(`<!doctype html><html><body>
+                <div class="base-card"><a href="/jobs/view/8">Engineer</a></div>
+            </body></html>`, searchUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(document.querySelector(".li-tracker--highlighted"), null);
+
+            _install(`<!doctype html><html><body>
+                <div class="jobs-details__main-content"><div><p>Other</p></div></div>
+            </body></html>`, viewUrl);
+            await chrome.storage.local.set(_registry(banned));
+            equal(document.querySelector(".li-tracker--highlighted"), null);
+
         }
         finally {
 

@@ -144,12 +144,30 @@ describe("company page", () => {
             equal(title.classList.contains("li-tracker--highlighted"), false);
             equal(document.querySelectorAll(".li-tracker-add-btn").length, 1);
 
+            document.querySelector(".li-tracker-add-btn").click();
+            equal(isAddCompanyModalOpen(), true);
+            document.querySelector(".li-tracker-modal-form").requestSubmit();
+            await _until(() => {
+
+                return !isAddCompanyModalOpen();
+
+            });
+
             await chrome.storage.local.set(_registry(plain));
             equal(document.querySelectorAll(".li-tracker-add-btn").length, 1);
 
             await chrome.storage.local.set(_registry(banned));
             equal(title.classList.contains("li-tracker--highlighted"), true);
             equal(document.querySelectorAll(".li-tracker-add-btn").length, 0);
+
+            history.pushState({}, "", "/company/%20");
+            await chrome.storage.local.set(_registry(plain));
+            equal(document.querySelector(".li-tracker-add-btn"), null);
+
+            history.pushState({}, "", "/company/acme/");
+            title.textContent = "";
+            await chrome.storage.local.set(_registry(plain));
+            equal(document.querySelector(".li-tracker-add-btn"), null);
 
         }
         finally {

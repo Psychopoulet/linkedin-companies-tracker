@@ -129,6 +129,16 @@ describe("popup list", () => {
     before(async () => {
 
         _install();
+        const anchorClick = _dom.window.HTMLAnchorElement.prototype.click;
+        _dom.window.HTMLAnchorElement.prototype.click = function click () {
+
+            if ("" !== this.download) {
+                return;
+            }
+
+            return anchorClick.call(this);
+
+        };
         URL.createObjectURL = () => {
 
             return "blob:companies";
@@ -332,6 +342,209 @@ describe("popup list", () => {
         deepEqual(_names(), [ "Acme" ]);
         equal(document.getElementById("cancel-edit").hidden, true);
         _dom.window.HTMLAnchorElement.prototype.click = anchorClick;
+
+    });
+
+    it("covers import failures, extra names, and a rejected save", async () => {
+
+        const errors = [];
+        const report = console.error;
+        console.error = (error) => {
+
+            errors.push(error);
+
+        };
+        chrome.tabs.create = () => {
+
+            return Promise.reject(new Error("no tab"));
+
+        };
+        document.querySelector(".company-name-link").dispatchEvent(
+            new window.MouseEvent("click", { "bubbles": true, "cancelable": true })
+        );
+        await _until(() => {
+
+            return 0 < errors.length;
+
+        });
+        console.error = report;
+        equal(errors.length, 1);
+
+        document.getElementById("add-name").click();
+        equal(document.querySelectorAll(".name-row").length, 2);
+        document.querySelector(".name-remove").click();
+        equal(document.querySelectorAll(".name-row").length, 1);
+
+        const input = document.getElementById("import-file");
+        let opened = false;
+        input.click = () => {
+
+            opened = true;
+
+        };
+        document.getElementById("import-btn").click();
+        equal(opened, true);
+
+        Object.defineProperty(input, "files", {
+            "configurable": true,
+            "get": () => {
+
+                return [];
+
+            }
+        });
+        input.dispatchEvent(new window.Event("change"));
+
+        const bareDrop = new window.Event("drop", { "cancelable": true });
+        document.dispatchEvent(bareDrop);
+
+        document.dispatchEvent(new window.Event("dragover", { "cancelable": true }));
+        const stay = new window.Event("dragleave", { "cancelable": true });
+        Object.defineProperty(stay, "relatedTarget", { "value": document.body });
+        document.dispatchEvent(stay);
+        equal(document.getElementById("io-section").classList.contains("is-dragover"), true);
+
+        await chrome.storage.local.set({ "other": 1 });
+        await chrome.storage.local.set({
+            [REGISTRY_STORAGE_KEY]: {
+                "aaa": {
+                    "linkedinCode": "aaa",
+                    "names": [ "Aaa", "Aaa Inc" ],
+                    "indicators": [ "BANNED", "DONT_ANSWER" ]
+                },
+                "acme": acme,
+                "pay": {
+                    "linkedinCode": "pay",
+                    "names": [ "Pay Co" ],
+                    "indicators": [ "SALARY_AND_ADVANTAGES" ]
+                },
+                "plain": {
+                    "linkedinCode": "plain",
+                    "names": [ "Plain Co" ],
+                    "indicators": []
+                }
+            }
+        });
+        await _until(() => {
+
+            return _names().includes("Plain Co");
+
+        });
+        deepEqual(_names(), [ "Pay Co", "Acme", "Aaa", "Plain Co" ]);
+        equal(_item("Aaa").querySelector(".company-aliases").textContent, "Aaa Inc");
+        equal(_item("Aaa").querySelector(".badge").textContent.includes(","), true);
+        equal(_item("Plain Co").querySelector(".company-icon"), null);
+        equal(_item("Pay Co").querySelector(".company-name-link").style.color, "");
+
+        _item("Plain Co").querySelector("button").click();
+        equal(document.getElementById("comment").value, "");
+
+        const blobs = [];
+        URL.createObjectURL = (blob) => {
+
+            blobs.push(blob);
+            return "blob:companies";
+
+        };
+        document.getElementById("export-btn").click();
+        equal(document.getElementById("io-message").textContent, "4 companies exported.");
+
+        await _chooseFile(_file("bad.json", "application/json", "{"));
+        await _until(() => {
+
+            return document.getElementById("io-message").classList.contains("error");
+
+        });
+
+        let asked = false;
+        globalThis.confirm = () => {
+
+            asked = true;
+            return false;
+
+        };
+        await _chooseFile(_file(
+            "two.json",
+            "application/json",
+            JSON.stringify([
+                {
+                    "linkedinCode": "gamma",
+                    "names": [ "Gamma" ],
+                    "indicators": [ "WANTED" ]
+                },
+                {
+                    "linkedinCode": "delta",
+                    "names": [ "Delta" ],
+                    "indicators": [ "BANNED" ]
+                }
+            ])
+        ));
+        await _until(() => {
+
+            return asked;
+
+        });
+        equal(_names().includes("Gamma"), false);
+        globalThis.confirm = () => {
+
+            return _allowDelete;
+
+        };
+
+        _allowDelete = true;
+        await _chooseFile(_file(
+            "two.json",
+            "application/json",
+            JSON.stringify([
+                {
+                    "linkedinCode": "gamma",
+                    "names": [ "Gamma" ],
+                    "indicators": [ "WANTED" ]
+                },
+                {
+                    "linkedinCode": "delta",
+                    "names": [ "Delta" ],
+                    "indicators": [ "BANNED" ]
+                }
+            ])
+        ));
+        await _until(() => {
+
+            return _names().includes("Gamma") && _names().includes("Delta");
+
+        });
+        equal(document.getElementById("io-message").textContent, "2 companies imported.");
+
+        _item("Gamma").querySelector("button").click();
+        document.getElementById("linkedin-code").value = "missing";
+        await _submit();
+        await _until(() => {
+
+            return document.getElementById("form-error").textContent.includes("not found");
+
+        });
+
+        _item("Delta").querySelector(".danger").click();
+        await _until(() => {
+
+            return !_names().includes("Delta");
+
+        });
+
+        document.getElementById("linkedin-code").value = "gamma";
+        _item("Gamma").querySelector(".danger").click();
+        await _until(() => {
+
+            return "Add a company" === document.getElementById("form-title").textContent;
+
+        });
+
+        await chrome.storage.local.set({ [REGISTRY_STORAGE_KEY]: null });
+        await _until(() => {
+
+            return 0 === _names().length;
+
+        });
 
     });
 
