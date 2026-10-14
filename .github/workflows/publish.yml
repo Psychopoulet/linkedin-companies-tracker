@@ -60,7 +60,7 @@ jobs:
           egress-policy: audit
 
       - name: Setup the repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # curl -s https://api.github.com/repos/actions/checkout/commits/v6.0.2 | jq -r .sha
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # curl -s https://api.github.com/repos/actions/checkout/commits/v7.0.1 | jq -r .sha
         with:
           fetch-depth: 0                    # gitleaks uses a git rev range (e.g. push before..after); depth 1 often misses those commits
           fetch-tags: true                  # so local checks stay consistent; ls-remote still authoritative
@@ -114,7 +114,7 @@ jobs:
           egress-policy: audit
 
       - name: Setup the repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # curl -s https://api.github.com/repos/actions/checkout/commits/v6.0.2 | jq -r .sha
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # curl -s https://api.github.com/repos/actions/checkout/commits/v7.0.1 | jq -r .sha
         with:
           fetch-depth: 0                    # gitleaks uses a git rev range (e.g. push before..after); depth 1 often misses those commits
 
