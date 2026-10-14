@@ -59,6 +59,12 @@
     {
       "icon": "⚠️",
       "criticity": "WARNING",
+      "code": "FREELANCE",
+      "description": "Freelance"
+    },
+    {
+      "icon": "⚠️",
+      "criticity": "WARNING",
       "code": "SUSPECT",
       "description": "Suspicious"
     },
@@ -79,12 +85,6 @@
       "criticity": "DANGER",
       "code": "DONT_ANSWER",
       "description": "Does not reply"
-    },
-    {
-      "icon": "⚠️",
-      "criticity": "WARNING",
-      "code": "FREELANCE",
-      "description": "Freelance"
     }
   ] as const satisfies readonly Indicator[];
 
