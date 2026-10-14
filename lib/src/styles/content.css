@@ -32,6 +32,7 @@
 .li-tracker-icon .li-tracker-icon-glyph--answer {
   color: var(--li-tracker-glyph-color) !important;
   -webkit-text-fill-color: var(--li-tracker-glyph-color) !important;
+  font-variant-emoji: text !important;
 }
 
 .li-tracker-tooltip {

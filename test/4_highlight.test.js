@@ -156,6 +156,8 @@ describe("highlighter", () => {
         equal(glyphs[0].classList.contains("li-tracker-icon-glyph--answer"), false);
         equal(glyphs[1].classList.contains("li-tracker-icon-glyph--answer"), true);
         equal(glyphs[1].style.getPropertyValue("--li-tracker-glyph-color"), "#16a34a");
+        equal(glyphs[1].style.getPropertyValue("font-variant-emoji"), "text");
+        equal(glyphs[0].style.getPropertyValue("font-variant-emoji"), "");
 
     });
 
@@ -360,7 +362,9 @@ describe("add company modal", () => {
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
         equal(answerButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(22, 163, 74)");
+        equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
         equal(quietButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "");
+        equal(quietButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
 
         bannedButton.click();
         equal(bannedButton.getAttribute("aria-pressed"), "true");

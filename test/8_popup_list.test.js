@@ -445,6 +445,10 @@ describe("popup list", () => {
             "rgb(22, 163, 74)"
         );
         equal(
+            _item("Reply Co").querySelector(".company-icon span").style.getPropertyValue("font-variant-emoji"),
+            "text"
+        );
+        equal(
             [ ..._item("Aaa").querySelectorAll(".company-icon span") ].every((glyph) => {
                 return "" === glyph.style.getPropertyValue("-webkit-text-fill-color");
             }),
@@ -453,6 +457,10 @@ describe("popup list", () => {
         equal(
             document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("-webkit-text-fill-color"),
             "rgb(22, 163, 74)"
+        );
+        equal(
+            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
+            "text"
         );
 
         _item("Plain Co").querySelector("button").click();

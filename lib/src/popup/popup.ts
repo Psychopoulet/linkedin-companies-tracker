@@ -142,6 +142,7 @@
     }
     glyph.style.color = color;
     glyph.style.setProperty("-webkit-text-fill-color", color);
+    glyph.style.setProperty("font-variant-emoji", "text");
   }
 
   function _fillStatusSelects (): void {

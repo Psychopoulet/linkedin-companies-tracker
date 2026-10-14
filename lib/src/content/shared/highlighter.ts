@@ -59,6 +59,7 @@
       if (undefined !== color) {
         glyph.classList.add("li-tracker-icon-glyph--answer");
         glyph.style.setProperty("--li-tracker-glyph-color", color);
+        glyph.style.setProperty("font-variant-emoji", "text");
       }
 
       iconEl.append(glyph);

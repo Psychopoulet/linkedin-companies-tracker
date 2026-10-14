@@ -113,6 +113,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     if ("ANSWER" === indicator.code && undefined !== color) {
       glyph.style.color = color;
       glyph.style.setProperty("-webkit-text-fill-color", color);
+      glyph.style.setProperty("font-variant-emoji", "text");
     }
 
     option.addEventListener("click", (event) => {
