@@ -17,12 +17,12 @@
   const SAME_COLOR = "same";
 
   export const CRITICITIES = [
-    { "code": "GOOD", "order": 0, "color": "#16a34a" },
     { "code": "DATA", "order": 0, "color": SAME_COLOR },
-    { "code": "INFO", "order": 1, "color": "#009dcf" },
-    { "code": "WARNING", "order": 2, "color": "#ca8a04" },
-    { "code": "DANGER", "order": 3, "color": "#dc2626" },
-    { "code": "OK", "order": 4, "color": "#16a34a" }
+    { "code": "GOOD", "order": 1, "color": "#16a34a" },
+    { "code": "INFO", "order": 2, "color": "#009dcf" },
+    { "code": "WARNING", "order": 3, "color": "#ca8a04" },
+    { "code": "DANGER", "order": 4, "color": "#dc2626" },
+    { "code": "OK", "order": 5, "color": "#16a34a" }
   ] as const;
 
   export const INDICATORS = [

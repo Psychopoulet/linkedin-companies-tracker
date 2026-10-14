@@ -71,11 +71,12 @@ A company can have several indicators. The displayed color is the one with the *
 
 | Order | Criticity | Color |
 |------:|-----------|-------|
-| 0 | `GOOD` | `#16a34a` green |
-| 1 | `INFO` | `#009dcf` blue |
-| 2 | `WARNING` | `#ca8a04` yellow |
-| 3 | `DANGER` | `#dc2626` red |
-| 4 | `OK` | `#16a34a` green |
+| 0 | `DATA` | no color |
+| 1 | `GOOD` | `#16a34a` green |
+| 2 | `INFO` | `#009dcf` blue |
+| 3 | `WARNING` | `#ca8a04` yellow |
+| 4 | `DANGER` | `#dc2626` red |
+| 5 | `OK` | `#16a34a` green |
 
 | Icon | Code | Criticity | Description |
 |------|------|-----------|-------------|
@@ -172,7 +173,7 @@ Normalization also accepts the legacy shape described in [Import / export](#impo
 
 `normalizeCompanyName` trims, lowercases, strips accents, and collapses whitespace for comparison. `normalizeCompany` trims each name, drops blanks, and drops later duplicates under that comparison. A non-empty `names` array wins over a legacy `name` string; otherwise `name` becomes `names`. It does not invent a placeholder.
 
-`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `GOOD` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, at least one non-blank name, recognized indicators, and a comment that is either absent or a string. A missing `names` array, an empty array, or an array of blank strings is invalid.
+`companySortRank` is the index of the highest-order indicator in `getIndicators()`. Lists sort by that rank, then by French name, so `DATA` companies come first and `WANTED` last. `formatCompanyPopupDetail` joins indicator descriptions and the note for the tooltip and the popup. `isValidCompany` requires a code, at least one non-blank name, recognized indicators, and a comment that is either absent or a string. A missing `names` array, an empty array, or an array of blank strings is invalid.
 
 ### `storage/`
 
