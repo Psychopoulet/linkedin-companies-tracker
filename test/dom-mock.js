@@ -14,6 +14,7 @@ export function installDomMock (html = "<!doctype html><html><body></body></html
     globalThis.document = window.document;
     globalThis.HTMLElement = window.HTMLElement;
     globalThis.Node = window.Node;
+    globalThis.NodeFilter = window.NodeFilter;
     globalThis.MutationObserver = window.MutationObserver;
 
     return dom;

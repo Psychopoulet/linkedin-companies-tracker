@@ -9,6 +9,11 @@
 // consts
 
     const registry = {
+        "acme": {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": []
+        },
         "societe-generale": {
             "linkedinCode": "societe-generale",
             "names": [ "Société Générale" ],
@@ -41,11 +46,18 @@ _install();
 
 const {
     findCompanyByName,
+    findCompanyElementInCardByTextMatch,
+    findCompanyInJobDetailPanel,
+    findCompanyInSduiCard,
+    findCompanyInSearchResultsDetail,
+    findCompanyNameElement,
+    findCompanyNameElementInListCard,
     findJobCards,
     findJobViewContainer,
     isJobsPage,
     isJobsSearchResultsPage,
-    isJobsTrackerPage
+    isJobsTrackerPage,
+    resolveCompanyFromContainer
 } = await import("../lib/src/content/shared/job-dom-utils.ts");
 
 // tests
@@ -187,6 +199,160 @@ describe("job view container", () => {
             </div>
         </body></html>`, "https://www.linkedin.com/jobs/search-results/");
         equal(findJobViewContainer().id, "view");
+
+    });
+
+});
+
+describe("company name element", () => {
+
+    it("reads the company line and falls back to a heading", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="primary"><h4 class="base-search-card__subtitle"><a href="/company/acme">Acme</a></h4></div>
+            <div id="fallback"><h4 id="heading">Beta</h4></div>
+            <div id="empty"></div>
+        </body></html>`);
+
+        equal(findCompanyNameElement(document.getElementById("primary")).textContent, "Acme");
+        equal(findCompanyNameElement(document.getElementById("fallback")).id, "heading");
+        equal(findCompanyNameElement(document.getElementById("empty")), null);
+
+    });
+
+    it("keeps the company line and ignores the location", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="card">
+                <a class="job-card-list__title--link" href="/jobs/view/1">Engineer</a>
+                <div id="name" class="job-card-container__company-name">Acme</div>
+                <div class="artdeco-entity-lockup__subtitle">Paris, France</div>
+            </div>
+        </body></html>`);
+
+        equal(findCompanyNameElementInListCard(document.getElementById("card")).id, "name");
+
+        _install(`<!doctype html><html><body>
+            <div id="card">
+                <a class="job-card-list__title--link" href="/jobs/view/1">Engineer</a>
+                <span id="name">Acme</span>
+                <span>2 days ago</span>
+            </div>
+        </body></html>`);
+
+        equal(findCompanyNameElementInListCard(document.getElementById("card")).id, "name");
+
+    });
+
+});
+
+describe("company resolved from a card", () => {
+
+    it("uses the company code, then the link text", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="by-code"><a href="https://www.linkedin.com/company/acme/">Label</a></div>
+            <div id="by-name"><a href="https://www.linkedin.com/company/unknown/">Société Générale</a></div>
+            <div id="miss"><span>Other</span></div>
+        </body></html>`);
+
+        equal(resolveCompanyFromContainer(document.getElementById("by-code"), registry).linkedinCode, "acme");
+        equal(resolveCompanyFromContainer(document.getElementById("by-name"), registry).linkedinCode, "societe-generale");
+        equal(resolveCompanyFromContainer(document.getElementById("miss"), registry), undefined);
+
+    });
+
+    it("reads an SDUI card and ignores a location line", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="card" componentkey="job-card-component-ref-1">
+                <div><p id="name">Acme</p></div>
+                <div><p>Paris, France</p></div>
+            </div>
+        </body></html>`);
+
+        const card = document.getElementById("card");
+        equal(findCompanyNameElementInListCard(card).id, "name");
+        equal(findCompanyInSduiCard(card, registry).element.id, "name");
+        equal(findCompanyInSduiCard(card, registry).company.linkedinCode, "acme");
+
+        _install(`<!doctype html><html><body>
+            <div id="card" componentkey="job-card-component-ref-1"><div><p>Paris, France</p></div></div>
+        </body></html>`);
+        equal(findCompanyInSduiCard(document.getElementById("card"), registry), null);
+
+    });
+
+    it("matches the company text and skips the job title", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="card">
+                <a class="job-card-list__title--link" href="/jobs/view/1">Engineer at Acme</a>
+                <span>Paris, France</span>
+                <span id="name">Acme</span>
+            </div>
+        </body></html>`);
+
+        const found = findCompanyElementInCardByTextMatch(document.getElementById("card"), registry);
+        equal(found.element.id, "name");
+        equal(found.company.linkedinCode, "acme");
+
+        _install(`<!doctype html><html><body><div id="card"><span>Other</span></div></body></html>`);
+        equal(findCompanyElementInCardByTextMatch(document.getElementById("card"), registry), null);
+
+    });
+
+});
+
+describe("search detail and job panel", () => {
+
+    it("reads the detail company and ignores a list card and a location", () => {
+
+        _install(`<!doctype html><html><body>
+            <div componentkey="job-card-component-ref-1">
+                <a href="/company/acme" aria-label="Entreprise, Acme">Acme</a>
+            </div>
+            <a id="detail" href="/company/acme" aria-label="Entreprise, Acme.">Acme</a>
+        </body></html>`, "https://www.linkedin.com/jobs/search-results/");
+
+        equal(findCompanyInSearchResultsDetail(registry).element.id, "detail");
+
+        _install(`<!doctype html><html><body>
+            <a href="/company/place">Paris, France</a>
+            <a id="detail" href="/company/acme">Acme</a>
+            <a href="/jobs/view/9">Software Engineer</a>
+        </body></html>`, "https://www.linkedin.com/jobs/search-results/");
+
+        equal(findCompanyInSearchResultsDetail(registry).element.id, "detail");
+
+        _install(`<!doctype html><html><body>
+            <a id="detail" href="/company/acme" aria-label="Entreprise, Unknown Corp"></a>
+        </body></html>`, "https://www.linkedin.com/jobs/search-results/");
+
+        equal(findCompanyInSearchResultsDetail(registry).element.id, "detail");
+        equal(findCompanyInSearchResultsDetail(registry).company.linkedinCode, "acme");
+
+    });
+
+    it("reads the panel company from a link and from the subtitle", () => {
+
+        _install(`<!doctype html><html><body>
+            <div id="panel">
+                <a href="/company/place">Remote</a>
+                <a id="name" href="/company/acme">Acme</a>
+            </div>
+        </body></html>`, "https://www.linkedin.com/jobs/view/10");
+
+        equal(findCompanyInJobDetailPanel(document.getElementById("panel"), registry).element.id, "name");
+
+        _install(`<!doctype html><html><body>
+            <div id="panel">
+                <h4 id="name" class="base-search-card__subtitle">Acme</h4>
+                <p>Paris, France</p>
+            </div>
+        </body></html>`, "https://www.linkedin.com/jobs/view/10");
+
+        equal(findCompanyInJobDetailPanel(document.getElementById("panel"), registry).element.id, "name");
 
     });
 
