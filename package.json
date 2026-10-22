@@ -38,12 +38,12 @@
     "/lib/cjs"
   ],
   "engines": {
-    "node": ">=22.23.3"
+    "node": ">=22.23.4"
   },
 
   "dependencies": {},
   "devDependencies": {
-    "@types/chrome": "0.3.5",
+    "@types/chrome": "0.3.6",
     "c8": "12.0.0",
     "check-node-engine": "1.2.0",
     "check-version-modules": "2.5.0",
@@ -51,14 +51,14 @@
     "eslint-plugin-personnallinter": "git+ssh://git@github.com/Psychopoulet/eslint-plugin-personnallinter",
     "html-webpack-plugin": "5.6.8",
     "husky": "9.1.7",
-    "jsdom": "30.1.2",
+    "jsdom": "30.1.3",
     "mocha": "12.0.3",
     "rimraf": "6.1.3",
     "terser-webpack-plugin": "5.6.1",
     "ts-loader": "9.6.2",
     "typescript": "6.0.3",
     "used-deps-analyzer": "0.4.0",
-    "webpack": "5.111.1",
+    "webpack": "5.112.0",
     "webpack-cli": "7.2.3"
   },
 
