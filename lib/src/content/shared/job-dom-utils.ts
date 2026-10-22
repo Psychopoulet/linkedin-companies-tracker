@@ -110,11 +110,11 @@
       return true;
     }
 
-    if (/^(remote|hybrid|on-site|télétravail|sur site)/i.test(value)) {
+    if (/^(remote|hybrid|hybride|on-site|télétravail|teletravail|sur site|à distance|a distance)/i.test(value)) {
       return true;
     }
 
-    if (/\((?:sur site|hybrid|remote|télétravail)\)/i.test(value)) {
+    if (/\((?:sur site|hybrid|hybride|remote|on-site|on site|télétravail|teletravail|à distance|a distance|présentiel|presentiel)\)/i.test(value)) {
       return true;
     }
 
@@ -135,6 +135,23 @@
     }
 
     return false;
+
+  }
+
+  /** Location under a company line: "Paris" or "Ville de Paris (Hybride)". */
+  function _nextSiblingIsWorkplace (element: HTMLElement): boolean {
+
+    const next = element.parentElement?.nextElementSibling;
+    if (!(next instanceof HTMLElement) || "P" !== next.tagName) {
+      return false;
+    }
+
+    const text = _collapseText(next.textContent);
+    const placeName = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\s.'’-]*$/.test(text)
+      && 60 >= text.length
+      && !/engineer|developer|manager|fullstack|architect|consultant|designer|analyst|développeur|ingénieur|€|par yr|candidat/i.test(text);
+
+    return "" !== text && (_isLikelyLocationOrMeta(text) || placeName);
 
   }
 
@@ -317,6 +334,14 @@
 
     if (0 === candidates.length) {
       return null;
+    }
+
+    for (const paragraph of candidates) {
+
+      if (_nextSiblingIsWorkplace(paragraph)) {
+        return paragraph;
+      }
+
     }
 
     if (1 === candidates.length) {
