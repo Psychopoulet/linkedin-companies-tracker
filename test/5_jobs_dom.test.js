@@ -283,6 +283,42 @@ describe("company resolved from a card", () => {
         </body></html>`);
         equal(findCompanyInSduiCard(document.getElementById("card"), registry), null);
 
+        _install(`<!doctype html><html><body>
+            <div id="card" componentkey="job-card-component-ref-9">
+                <div>
+                    <div><p>Tech Lead Front-end (H/F)</p></div>
+                    <div><p id="name">Acme</p></div>
+                    <p>Ville de Paris (Hybride)</p>
+                </div>
+            </div>
+        </body></html>`);
+        equal(findCompanyNameElementInListCard(document.getElementById("card")).id, "name");
+        equal(findCompanyInSduiCard(document.getElementById("card"), registry).company.linkedinCode, "acme");
+
+        _install(`<!doctype html><html><body>
+            <div id="card" componentkey="job-card-component-ref-10">
+                <div>
+                    <div><p>Forward Deployed Engineer - Paris</p></div>
+                    <div><p id="name">Acme</p></div>
+                    <p>Paris</p>
+                </div>
+            </div>
+        </body></html>`);
+        equal(findCompanyNameElementInListCard(document.getElementById("card")).id, "name");
+        equal(findCompanyInSduiCard(document.getElementById("card"), registry).element.id, "name");
+
+        for (const location of [ "", "A".repeat(61), "Senior Engineer", "@@" ]) {
+
+            _install(`<!doctype html><html><body>
+                <div id="card" componentkey="job-card-component-ref-11">
+                    <div><p id="name">Acme</p></div>
+                    <p>${location}</p>
+                </div>
+            </body></html>`);
+            equal(findCompanyInSduiCard(document.getElementById("card"), registry).element.id, "name");
+
+        }
+
     });
 
     it("matches the company text and skips the job title", () => {
