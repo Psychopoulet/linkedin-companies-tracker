@@ -174,12 +174,14 @@ describe("highlighter", () => {
         }, "acme");
 
         const glyph = element.querySelector(".li-tracker-icon-glyph");
+        const glyphChar = glyph.querySelector(".li-tracker-icon-glyph-char");
 
         equal(element.classList.contains("li-tracker--colored"), false);
         equal(glyph.textContent, "💵");
-        equal(glyph.classList.contains("li-tracker-icon-glyph--answer"), true);
-        equal(glyph.style.getPropertyValue("--li-tracker-glyph-color"), "#dc2626");
-        equal(glyph.style.getPropertyValue("font-variant-emoji"), "text");
+        equal(glyph.classList.contains("li-tracker-icon-glyph--tint"), true);
+        equal(glyph.classList.contains("li-tracker-icon-glyph--answer"), false);
+        equal(glyph.style.getPropertyValue("font-variant-emoji"), "");
+        equal(glyphChar.style.getPropertyValue("font-variant-emoji"), "");
 
     });
 
@@ -390,8 +392,8 @@ describe("add company modal", () => {
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
         equal(unpaidButton.style.color, "");
-        equal(unpaidButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(220, 38, 38)");
-        equal(unpaidButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
+        equal(unpaidButton.querySelector("span").classList.contains("li-tracker-icon-glyph--tint"), true);
+        equal(unpaidButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
         equal(answerButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(22, 163, 74)");
         equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
         equal(quietButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "");

@@ -133,13 +133,21 @@
   }
 
   function _paintTextGlyph (glyph: HTMLElement, indicator: Indicator): void {
+    if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
+      glyph.classList.add("indicator-glyph--tint");
+      return;
+    }
     const color = getIndicatorGlyphColor(indicator);
     if (undefined === color) {
       return;
     }
+    const target = glyph.querySelector<HTMLElement>(":scope > .indicator-glyph-char") ?? glyph;
     glyph.style.color = color;
     glyph.style.setProperty("-webkit-text-fill-color", color);
     glyph.style.setProperty("font-variant-emoji", "text");
+    target.style.color = color;
+    target.style.setProperty("-webkit-text-fill-color", color);
+    target.style.setProperty("font-variant-emoji", "text");
   }
 
   function _fillStatusSelects (): void {
@@ -170,7 +178,11 @@
       checkbox.value = indicator.code;
       indicatorInputs.push(checkbox);
       const glyph = document.createElement("span");
-      glyph.textContent = indicator.icon;
+      const glyphChar = document.createElement("span");
+      glyph.className = "indicator-glyph";
+      glyphChar.className = "indicator-glyph-char";
+      glyphChar.textContent = indicator.icon;
+      glyph.append(glyphChar);
       _paintTextGlyph(glyph, indicator);
       const optionLabel = document.createElement("span");
       optionLabel.textContent = ` ${formatIndicatorLabel(indicator)}`;
@@ -254,7 +266,11 @@
         icon.className = "company-icon";
         for (const indicator of indicators) {
           const glyph = document.createElement("span");
-          glyph.textContent = indicator.icon;
+          const glyphChar = document.createElement("span");
+          glyph.className = "indicator-glyph";
+          glyphChar.className = "indicator-glyph-char";
+          glyphChar.textContent = indicator.icon;
+          glyph.append(glyphChar);
           _applyIndicatorColor(glyph, indicator);
           _paintTextGlyph(glyph, indicator);
           icon.append(glyph);

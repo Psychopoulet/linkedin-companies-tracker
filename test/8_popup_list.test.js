@@ -463,12 +463,12 @@ describe("popup list", () => {
             "text"
         );
         equal(
-            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("-webkit-text-fill-color"),
-            "rgb(220, 38, 38)"
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("indicator-glyph--tint"),
+            true
         );
         equal(
             document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
-            "text"
+            ""
         );
         equal(
             document.querySelector("input[value=\"SALARY_AND_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),

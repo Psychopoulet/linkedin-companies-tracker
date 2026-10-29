@@ -103,18 +103,29 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     option.setAttribute("aria-pressed", "false");
 
     const glyph = document.createElement("span");
-    glyph.textContent = `${indicator.icon} `;
-    option.append(glyph, formatIndicatorLabel(indicator));
+    const glyphChar = document.createElement("span");
+    glyph.className = "li-tracker-icon-glyph";
+    glyphChar.className = "li-tracker-icon-glyph-char";
+    glyphChar.textContent = indicator.icon;
+    glyph.append(glyphChar);
+    option.append(glyph, ` ${formatIndicatorLabel(indicator)}`);
 
     const color = getIndicatorColor(indicator);
     if (undefined !== color) {
       option.style.color = color;
     }
     const glyphColor = getIndicatorGlyphColor(indicator);
-    if (undefined !== glyphColor) {
+    if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
+      glyph.classList.add("li-tracker-icon-glyph--tint");
+    }
+    else if (undefined !== glyphColor) {
+      glyph.classList.add("li-tracker-icon-glyph--answer");
       glyph.style.color = glyphColor;
       glyph.style.setProperty("-webkit-text-fill-color", glyphColor);
       glyph.style.setProperty("font-variant-emoji", "text");
+      glyphChar.style.color = glyphColor;
+      glyphChar.style.setProperty("-webkit-text-fill-color", glyphColor);
+      glyphChar.style.setProperty("font-variant-emoji", "text");
     }
 
     option.addEventListener("click", (event) => {
