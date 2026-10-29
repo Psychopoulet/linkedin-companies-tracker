@@ -54,6 +54,8 @@
 .li-tracker--highlighted .li-tracker-icon-glyph,
 .li-tracker--highlighted .li-tracker-icon-glyph-char {
   display: inline-block !important;
+  position: relative !important;
+  z-index: 0 !important;
   font-size: 1em !important;
   font-weight: 400 !important;
   line-height: 1 !important;
@@ -61,22 +63,35 @@
   white-space: nowrap !important;
 }
 
+.li-tracker--highlighted .li-tracker-icon-glyph-strike {
+  font-size: 1em !important;
+  font-weight: 400 !important;
+  line-height: 0 !important;
+}
+
 .li-tracker-icon .li-tracker-icon-glyph {
   color: inherit !important;
   -webkit-text-fill-color: initial !important;
 }
 
-.li-tracker-icon-glyph--text,
-.li-tracker-icon-glyph--text .li-tracker-icon-glyph-char {
-  color: var(--li-tracker-glyph-color) !important;
-  -webkit-text-fill-color: var(--li-tracker-glyph-color) !important;
-  font-variant-emoji: text !important;
+.li-tracker-icon-glyph--strike {
+  position: relative !important;
 }
 
-.li-tracker-icon-glyph--tint .li-tracker-icon-glyph-char {
-  font-variant-emoji: normal !important;
-  -webkit-text-fill-color: currentcolor !important;
-  filter: hue-rotate(215deg) saturate(4);
+.li-tracker-icon-glyph-strike {
+  position: absolute !important;
+  top: 50% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 0.14em !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 1px !important;
+  background: #dc2626 !important;
+  transform: translateY(-50%) rotate(-42deg) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
 }
 
 .li-tracker-tooltip {

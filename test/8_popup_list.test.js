@@ -441,12 +441,18 @@ describe("popup list", () => {
         equal(_item("Plain Co").querySelector(".company-icon"), null);
         equal(_item("Pay Co").querySelector(".company-name-link").style.color, "");
         equal(
-            _item("Reply Co").querySelector(".company-icon span").style.getPropertyValue("-webkit-text-fill-color"),
-            "rgb(22, 163, 74)"
+            _item("Reply Co").querySelector(".company-icon span").classList.contains("li-tracker-icon-glyph--strike"),
+            false
         );
         equal(
             _item("Reply Co").querySelector(".company-icon span").style.getPropertyValue("font-variant-emoji"),
-            "text"
+            ""
+        );
+        equal(
+            [ ..._item("Aaa").querySelectorAll(".li-tracker-icon-glyph") ].some((glyph) => {
+                return glyph.classList.contains("li-tracker-icon-glyph--strike");
+            }),
+            true
         );
         equal(
             [ ..._item("Aaa").querySelectorAll(".company-icon span") ].every((glyph) => {
@@ -455,15 +461,19 @@ describe("popup list", () => {
             true
         );
         equal(
-            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("-webkit-text-fill-color"),
-            "rgb(22, 163, 74)"
+            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
+            false
         );
         equal(
             document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
-            "text"
+            ""
         );
         equal(
-            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--tint"),
+            document.querySelector("input[value=\"DONT_ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
+            true
+        );
+        equal(
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
             true
         );
         equal(

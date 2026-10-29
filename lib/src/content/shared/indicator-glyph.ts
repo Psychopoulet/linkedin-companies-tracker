@@ -28,16 +28,13 @@
 
   }
 
-  function _paintTextGlyph (glyph: HTMLElement, glyphChar: HTMLElement, color: string): void {
+  function _appendStrike (glyph: HTMLElement): void {
 
-    glyph.classList.add(`${GLYPH_CLASS}--text`);
-    glyph.style.setProperty("--li-tracker-glyph-color", color);
-    glyph.style.color = color;
-    glyph.style.setProperty("-webkit-text-fill-color", color);
-    glyph.style.setProperty("font-variant-emoji", "text");
-    glyphChar.style.color = color;
-    glyphChar.style.setProperty("-webkit-text-fill-color", color);
-    glyphChar.style.setProperty("font-variant-emoji", "text");
+    const strike = glyph.ownerDocument.createElement("span");
+
+    strike.className = `${GLYPH_CLASS}-strike`;
+    strike.setAttribute("aria-hidden", "true");
+    glyph.append(strike);
 
   }
 
@@ -49,14 +46,11 @@ export function createIndicatorGlyph (doc: Document, indicator: Indicator): HTML
   const paint = getIndicatorGlyphPaint(indicator);
 
   glyph.className = GLYPH_CLASS;
+  _appendGlyphChar(glyph, indicator.icon);
 
-  const glyphChar = _appendGlyphChar(glyph, indicator.icon);
-
-  if ("tint" === paint.mode) {
-    glyph.classList.add(`${GLYPH_CLASS}--tint`);
-  }
-  else if ("text" === paint.mode) {
-    _paintTextGlyph(glyph, glyphChar, paint.color);
+  if ("strike" === paint.mode) {
+    glyph.classList.add(`${GLYPH_CLASS}--strike`);
+    _appendStrike(glyph);
   }
 
   return glyph;

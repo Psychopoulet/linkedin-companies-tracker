@@ -12,8 +12,7 @@
 
   export type IndicatorGlyphPaint
     = { "mode": "plain" }
-    | { "mode": "tint" }
-    | { "mode": "text"; "color": string };
+    | { "mode": "strike" };
 
   export type IndicatorCode = (typeof INDICATORS)[number]["code"];
 
@@ -120,24 +119,15 @@ export function getIndicatorColor (indicator: Indicator): string | undefined {
 
 export function getIndicatorGlyphPaint (indicator: Indicator): IndicatorGlyphPaint {
 
-  if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
-    return { "mode": "tint" };
-  }
-
-  if ("ANSWER" === indicator.code) {
-    const color = getIndicatorColor(indicator);
-    if (undefined !== color) {
-      return { "mode": "text", "color": color };
-    }
+  if (
+    "DONT_ANSWER" === indicator.code
+    || "WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code
+  ) {
+    return { "mode": "strike" };
   }
 
   return { "mode": "plain" };
 
-}
-
-export function getIndicatorGlyphColor (indicator: Indicator): string | undefined {
-  const paint = getIndicatorGlyphPaint(indicator);
-  return "text" === paint.mode ? paint.color : undefined;
 }
 
 export function getIndicators (): Indicator[] {

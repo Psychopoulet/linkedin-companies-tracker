@@ -18,7 +18,7 @@
         readCompanyIndicators,
         STATUS_SORT_ORDER
     } from "../lib/src/types/company.ts";
-    import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicatorGlyphColor, getIndicatorGlyphPaint, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
+    import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicatorGlyphPaint, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
     import { debounce } from "../lib/src/content/shared/debounce.ts";
     import { extractLinkedinCodeFromHref, extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
@@ -284,16 +284,16 @@ describe("indicators", () => {
         const answer = getIndicatorByCode("ANSWER");
 
         const unpaid = getIndicatorByCode("WITHOUT_SALARY_NOR_ADVANTAGES");
+        const quiet = getIndicatorByCode("DONT_ANSWER");
 
         equal(banned === undefined ? undefined : getIndicatorColor(banned), "#dc2626");
         equal(salary === undefined ? undefined : getIndicatorColor(salary), undefined);
         equal(answer === undefined ? undefined : getIndicatorColor(answer), "#16a34a");
         equal(unpaid === undefined ? undefined : getIndicatorColor(unpaid), undefined);
-        equal(unpaid === undefined ? undefined : getIndicatorGlyphPaint(unpaid).mode, "tint");
+        equal(unpaid === undefined ? undefined : getIndicatorGlyphPaint(unpaid).mode, "strike");
+        equal(quiet === undefined ? undefined : getIndicatorGlyphPaint(quiet).mode, "strike");
         equal(salary === undefined ? undefined : getIndicatorGlyphPaint(salary).mode, "plain");
-        equal(answer === undefined ? undefined : getIndicatorGlyphPaint(answer).mode, "text");
-        equal(salary === undefined ? undefined : getIndicatorGlyphColor(salary), undefined);
-        equal(answer === undefined ? undefined : getIndicatorGlyphColor(answer), "#16a34a");
+        equal(answer === undefined ? undefined : getIndicatorGlyphPaint(answer).mode, "plain");
 
     });
 
