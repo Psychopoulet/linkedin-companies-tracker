@@ -2,7 +2,7 @@
 
   // locals
   import { formatCompanyPopupDetail } from "../../types/company";
-  import { getIndicatorColor, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { getIndicatorGlyphColor, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
 
 // types & interfaces
 
@@ -41,10 +41,6 @@
     return formatCompanyPopupDetail(company);
   }
 
-  function _answerGlyphColor (indicator: Indicator): string | undefined {
-    return "ANSWER" === indicator.code ? getIndicatorColor(indicator) : undefined;
-  }
-
   function _fillStatusGlyphs (iconEl: HTMLElement, indicators: readonly Indicator[]): void {
 
     iconEl.replaceChildren();
@@ -52,7 +48,7 @@
     for (const indicator of indicators) {
 
       const glyph = iconEl.ownerDocument.createElement("span");
-      const color = _answerGlyphColor(indicator);
+      const color = getIndicatorGlyphColor(indicator);
       glyph.className = "li-tracker-icon-glyph";
       glyph.textContent = indicator.icon;
 

@@ -82,7 +82,7 @@ A company can have several indicators. The displayed color is the one with the *
 |------|------|-----------|-------------|
 | ✅ | `WANTED` | OK | Desired company |
 | 💵 | `SALARY_AND_ADVANTAGES` | DATA | Shows salary and benefits |
-| 💸 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits |
+| 💵 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits |
 | 💼 | `IT_SERVICES_COMPANY` | INFO | IT services company |
 | 👨‍💼 | `HEADHUNTER` | INFO | Recruiter / staffing agency |
 | ⚠️ | `SUSPECT` | WARNING | Suspicious |
@@ -91,7 +91,7 @@ A company can have several indicators. The displayed color is the one with the *
 | 📞 | `ANSWER` | GOOD | Replies |
 | 📞 | `DONT_ANSWER` | DANGER | Does not reply |
 
-`SUSPECT` and `FREELANCE` share the same icon. `ANSWER` and `DONT_ANSWER` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
+`SALARY_AND_ADVANTAGES` and `WITHOUT_SALARY_NOR_ADVANTAGES` share the same icon. `SUSPECT` and `FREELANCE` share the same icon. `ANSWER` and `DONT_ANSWER` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
 
 ## Import / export
 

@@ -39,7 +39,7 @@
       "description": "Shows salary and benefits"
     },
     {
-      "icon": "💸",
+      "icon": "💵",
       "criticity": "DATA",
       "code": "WITHOUT_SALARY_NOR_ADVANTAGES",
       "description": "Does not show salary or benefits"
@@ -111,6 +111,20 @@
 export function getIndicatorColor (indicator: Indicator): string | undefined {
   const { color } = _getCriticity(indicator.criticity);
   return SAME_COLOR === color ? undefined : color;
+}
+
+export function getIndicatorGlyphColor (indicator: Indicator): string | undefined {
+
+  if ("ANSWER" === indicator.code) {
+    return getIndicatorColor(indicator);
+  }
+
+  if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
+    return _getCriticity("DANGER").color;
+  }
+
+  return undefined;
+
 }
 
 export function getIndicators (): Indicator[] {

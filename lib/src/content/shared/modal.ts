@@ -2,7 +2,7 @@
 
   // locals
   import { normalizeCompany } from "../../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators } from "../../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicatorGlyphColor, getIndicators } from "../../types/indicator";
   import { sendMessage } from "./messaging";
 
 // types & interfaces
@@ -110,9 +110,10 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     if (undefined !== color) {
       option.style.color = color;
     }
-    if ("ANSWER" === indicator.code && undefined !== color) {
-      glyph.style.color = color;
-      glyph.style.setProperty("-webkit-text-fill-color", color);
+    const glyphColor = getIndicatorGlyphColor(indicator);
+    if (undefined !== glyphColor) {
+      glyph.style.color = glyphColor;
+      glyph.style.setProperty("-webkit-text-fill-color", glyphColor);
       glyph.style.setProperty("font-variant-emoji", "text");
     }
 

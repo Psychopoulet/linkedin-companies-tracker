@@ -2,7 +2,7 @@
 
   // locals
   import { companyLinkedinUrl, formatCompanyPopupDetail, normalizeCompany, normalizeLinkedinCode, normalizeRegistry, companySortRank } from "../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicatorGlyphColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
   import { parseCompaniesJson, serializeCompanies } from "../storage/import-export";
 
@@ -132,11 +132,8 @@
     }
   }
 
-  function _paintAnswerGlyph (glyph: HTMLElement, indicator: Indicator): void {
-    if ("ANSWER" !== indicator.code) {
-      return;
-    }
-    const color = getIndicatorColor(indicator);
+  function _paintTextGlyph (glyph: HTMLElement, indicator: Indicator): void {
+    const color = getIndicatorGlyphColor(indicator);
     if (undefined === color) {
       return;
     }
@@ -174,7 +171,7 @@
       indicatorInputs.push(checkbox);
       const glyph = document.createElement("span");
       glyph.textContent = indicator.icon;
-      _paintAnswerGlyph(glyph, indicator);
+      _paintTextGlyph(glyph, indicator);
       const optionLabel = document.createElement("span");
       optionLabel.textContent = ` ${formatIndicatorLabel(indicator)}`;
       _applyIndicatorColor(optionLabel, indicator);
@@ -259,7 +256,7 @@
           const glyph = document.createElement("span");
           glyph.textContent = indicator.icon;
           _applyIndicatorColor(glyph, indicator);
-          _paintAnswerGlyph(glyph, indicator);
+          _paintTextGlyph(glyph, indicator);
           icon.append(glyph);
         }
         name.append(icon, label);

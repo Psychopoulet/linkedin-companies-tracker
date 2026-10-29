@@ -161,6 +161,28 @@ describe("highlighter", () => {
 
     });
 
+    it("paints the missing-salary glyph red", () => {
+
+        const element = document.createElement("h1");
+        element.textContent = "Acme";
+        document.body.append(element);
+
+        applyCompanyHighlight(element, {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "WITHOUT_SALARY_NOR_ADVANTAGES" ]
+        }, "acme");
+
+        const glyph = element.querySelector(".li-tracker-icon-glyph");
+
+        equal(element.classList.contains("li-tracker--colored"), false);
+        equal(glyph.textContent, "💵");
+        equal(glyph.classList.contains("li-tracker-icon-glyph--answer"), true);
+        equal(glyph.style.getPropertyValue("--li-tracker-glyph-color"), "#dc2626");
+        equal(glyph.style.getPropertyValue("font-variant-emoji"), "text");
+
+    });
+
     it("shows and hides the tooltip", () => {
 
         const element = document.createElement("h1");
@@ -359,8 +381,17 @@ describe("add company modal", () => {
 
         });
 
+        const unpaidButton = [ ...document.querySelectorAll(".li-tracker-modal-indicator") ].find((button) => {
+
+            return button.textContent.includes("WITHOUT_SALARY_NOR_ADVANTAGES");
+
+        });
+
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
+        equal(unpaidButton.style.color, "");
+        equal(unpaidButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(220, 38, 38)");
+        equal(unpaidButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
         equal(answerButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(22, 163, 74)");
         equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
         equal(quietButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "");

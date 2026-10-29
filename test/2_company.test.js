@@ -18,7 +18,7 @@
         readCompanyIndicators,
         STATUS_SORT_ORDER
     } from "../lib/src/types/company.ts";
-    import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
+    import { formatIndicatorLabel, getIndicatorByCode, getIndicatorColor, getIndicatorGlyphColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, stripLeadingIndicatorIcon } from "../lib/src/types/indicator.ts";
     import { parseCompaniesJson, serializeCompanies } from "../lib/src/storage/import-export.ts";
     import { debounce } from "../lib/src/content/shared/debounce.ts";
     import { extractLinkedinCodeFromHref, extractLinkedinCodeFromPathname } from "../lib/src/content/shared/linkedin-url.ts";
@@ -283,9 +283,15 @@ describe("indicators", () => {
         const salary = getIndicatorByCode("SALARY_AND_ADVANTAGES");
         const answer = getIndicatorByCode("ANSWER");
 
+        const unpaid = getIndicatorByCode("WITHOUT_SALARY_NOR_ADVANTAGES");
+
         equal(banned === undefined ? undefined : getIndicatorColor(banned), "#dc2626");
         equal(salary === undefined ? undefined : getIndicatorColor(salary), undefined);
         equal(answer === undefined ? undefined : getIndicatorColor(answer), "#16a34a");
+        equal(unpaid === undefined ? undefined : getIndicatorColor(unpaid), undefined);
+        equal(unpaid === undefined ? undefined : getIndicatorGlyphColor(unpaid), "#dc2626");
+        equal(salary === undefined ? undefined : getIndicatorGlyphColor(salary), undefined);
+        equal(answer === undefined ? undefined : getIndicatorGlyphColor(answer), "#16a34a");
 
     });
 

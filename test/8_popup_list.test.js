@@ -462,6 +462,18 @@ describe("popup list", () => {
             document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
             "text"
         );
+        equal(
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("-webkit-text-fill-color"),
+            "rgb(220, 38, 38)"
+        );
+        equal(
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
+            "text"
+        );
+        equal(
+            document.querySelector("input[value=\"SALARY_AND_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
+            ""
+        );
 
         _item("Plain Co").querySelector("button").click();
         equal(document.getElementById("comment").value, "");
