@@ -463,7 +463,7 @@ describe("popup list", () => {
             "text"
         );
         equal(
-            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("indicator-glyph--tint"),
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--tint"),
             true
         );
         equal(

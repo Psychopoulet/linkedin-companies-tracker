@@ -194,31 +194,6 @@ button:hover {
   line-height: 1;
 }
 
-.indicator-glyph {
-  display: inline-block;
-  width: auto;
-  height: auto;
-  overflow: visible;
-  font-weight: 400;
-  font-size: 1em;
-  line-height: 1;
-  vertical-align: -0.15em;
-  flex: none;
-}
-
-.indicator-glyph-char {
-  display: inline-block;
-  font-size: 1em;
-  font-weight: 400;
-  line-height: 1;
-  overflow: visible;
-  white-space: nowrap;
-}
-
-.indicator-glyph--tint .indicator-glyph-char {
-  filter: hue-rotate(215deg) saturate(4);
-}
-
 .company-aliases {
   font-size: 12px;
   font-weight: 400;

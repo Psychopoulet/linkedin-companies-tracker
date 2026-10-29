@@ -30,6 +30,7 @@
   vertical-align: -0.15em;
 }
 
+.li-tracker-icon-glyph,
 .li-tracker-icon .li-tracker-icon-glyph,
 .li-tracker-modal-indicator .li-tracker-icon-glyph {
   display: inline-block !important;
@@ -47,8 +48,11 @@
   flex: none !important;
 }
 
+.li-tracker-icon-glyph-char,
 .li-tracker-icon .li-tracker-icon-glyph-char,
-.li-tracker-modal-indicator .li-tracker-icon-glyph-char {
+.li-tracker-modal-indicator .li-tracker-icon-glyph-char,
+.li-tracker--highlighted .li-tracker-icon-glyph,
+.li-tracker--highlighted .li-tracker-icon-glyph-char {
   display: inline-block !important;
   font-size: 1em !important;
   font-weight: 400 !important;
@@ -62,15 +66,14 @@
   -webkit-text-fill-color: initial !important;
 }
 
-.li-tracker-icon .li-tracker-icon-glyph--answer,
-.li-tracker-icon .li-tracker-icon-glyph--answer .li-tracker-icon-glyph-char {
+.li-tracker-icon-glyph--text,
+.li-tracker-icon-glyph--text .li-tracker-icon-glyph-char {
   color: var(--li-tracker-glyph-color) !important;
   -webkit-text-fill-color: var(--li-tracker-glyph-color) !important;
   font-variant-emoji: text !important;
 }
 
-.li-tracker-icon .li-tracker-icon-glyph--tint .li-tracker-icon-glyph-char,
-.li-tracker-modal-indicator .li-tracker-icon-glyph--tint .li-tracker-icon-glyph-char {
+.li-tracker-icon-glyph--tint .li-tracker-icon-glyph-char {
   font-variant-emoji: normal !important;
   -webkit-text-fill-color: currentcolor !important;
   filter: hue-rotate(215deg) saturate(4);

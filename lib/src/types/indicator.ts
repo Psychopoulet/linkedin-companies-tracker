@@ -10,6 +10,11 @@
     "description"?: string;
   }
 
+  export type IndicatorGlyphPaint
+    = { "mode": "plain" }
+    | { "mode": "tint" }
+    | { "mode": "text"; "color": string };
+
   export type IndicatorCode = (typeof INDICATORS)[number]["code"];
 
 // consts
@@ -113,18 +118,26 @@ export function getIndicatorColor (indicator: Indicator): string | undefined {
   return SAME_COLOR === color ? undefined : color;
 }
 
-export function getIndicatorGlyphColor (indicator: Indicator): string | undefined {
-
-  if ("ANSWER" === indicator.code) {
-    return getIndicatorColor(indicator);
-  }
+export function getIndicatorGlyphPaint (indicator: Indicator): IndicatorGlyphPaint {
 
   if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
-    return _getCriticity("DANGER").color;
+    return { "mode": "tint" };
   }
 
-  return undefined;
+  if ("ANSWER" === indicator.code) {
+    const color = getIndicatorColor(indicator);
+    if (undefined !== color) {
+      return { "mode": "text", "color": color };
+    }
+  }
 
+  return { "mode": "plain" };
+
+}
+
+export function getIndicatorGlyphColor (indicator: Indicator): string | undefined {
+  const paint = getIndicatorGlyphPaint(indicator);
+  return "text" === paint.mode ? paint.color : undefined;
 }
 
 export function getIndicators (): Indicator[] {

@@ -2,7 +2,8 @@
 
   // locals
   import { formatCompanyPopupDetail } from "../../types/company";
-  import { getIndicatorGlyphColor, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { createIndicatorGlyph } from "./indicator-glyph";
 
 // types & interfaces
 
@@ -46,29 +47,7 @@
     iconEl.replaceChildren();
 
     for (const indicator of indicators) {
-
-      const glyph = iconEl.ownerDocument.createElement("span");
-      const glyphChar = iconEl.ownerDocument.createElement("span");
-      const color = getIndicatorGlyphColor(indicator);
-      glyph.className = "li-tracker-icon-glyph";
-      glyphChar.className = "li-tracker-icon-glyph-char";
-      glyphChar.textContent = indicator.icon;
-
-      if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
-        glyph.classList.add("li-tracker-icon-glyph--tint");
-      }
-      else if (undefined !== color) {
-        glyph.classList.add("li-tracker-icon-glyph--answer");
-        glyph.style.setProperty("--li-tracker-glyph-color", color);
-        glyph.style.setProperty("font-variant-emoji", "text");
-        glyphChar.style.color = color;
-        glyphChar.style.setProperty("-webkit-text-fill-color", color);
-        glyphChar.style.setProperty("font-variant-emoji", "text");
-      }
-
-      glyph.append(glyphChar);
-      iconEl.append(glyph);
-
+      iconEl.append(createIndicatorGlyph(iconEl.ownerDocument, indicator));
     }
 
   }

@@ -153,8 +153,8 @@ describe("highlighter", () => {
 
         equal(icon.textContent, "📞📞");
         equal(glyphs.length, 2);
-        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--answer"), false);
-        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--answer"), true);
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--text"), false);
+        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--text"), true);
         equal(glyphs[1].style.getPropertyValue("--li-tracker-glyph-color"), "#16a34a");
         equal(glyphs[1].style.getPropertyValue("font-variant-emoji"), "text");
         equal(glyphs[0].style.getPropertyValue("font-variant-emoji"), "");
@@ -179,7 +179,7 @@ describe("highlighter", () => {
         equal(element.classList.contains("li-tracker--colored"), false);
         equal(glyph.textContent, "💵");
         equal(glyph.classList.contains("li-tracker-icon-glyph--tint"), true);
-        equal(glyph.classList.contains("li-tracker-icon-glyph--answer"), false);
+        equal(glyph.classList.contains("li-tracker-icon-glyph--text"), false);
         equal(glyph.style.getPropertyValue("font-variant-emoji"), "");
         equal(glyphChar.style.getPropertyValue("font-variant-emoji"), "");
 
