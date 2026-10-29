@@ -8,6 +8,9 @@
 
   "scripts": {
 
+    "install-prod": "npm install --omit=dev --omit=optional && npm audit fix --omit=dev --omit=optional",
+    "install-dev": "npm install --allow-git=root && npm audit fix --allow-git=root && npx husky",
+
     "lint-back": "npx eslint --config .eslintrc-back.cjs --ext .ts,.cts,.mts ./lib/src/**/*",
     "lint-front": "echo 'no linting front yet'",
     "lint-tests": "echo 'no linting tests yet'",
