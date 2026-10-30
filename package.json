@@ -46,10 +46,10 @@
 
   "dependencies": {},
   "devDependencies": {
-    "@types/chrome": "0.3.6",
+    "@types/chrome": "0.3.7",
     "c8": "12.0.0",
-    "check-node-engine": "1.2.0",
-    "check-version-modules": "2.5.0",
+    "check-node-engine": "1.2.1",
+    "check-version-modules": "2.5.2",
     "copy-webpack-plugin": "14.0.0",
     "eslint-plugin-personnallinter": "git+ssh://git@github.com/Psychopoulet/eslint-plugin-personnallinter",
     "html-webpack-plugin": "5.6.8",
@@ -60,8 +60,8 @@
     "terser-webpack-plugin": "5.6.1",
     "ts-loader": "9.6.2",
     "typescript": "6.0.3",
-    "used-deps-analyzer": "0.4.0",
-    "webpack": "5.112.0",
+    "used-deps-analyzer": "0.4.1",
+    "webpack": "5.112.2",
     "webpack-cli": "7.2.3"
   },
 
