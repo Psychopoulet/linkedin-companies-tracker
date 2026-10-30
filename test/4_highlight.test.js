@@ -136,7 +136,7 @@ describe("highlighter", () => {
 
     });
 
-    it("paints only the ANSWER telephone green", () => {
+    it("colors the telephones green and red", () => {
 
         const element = document.createElement("h1");
         element.textContent = "Acme";
@@ -153,11 +153,60 @@ describe("highlighter", () => {
 
         equal(icon.textContent, "📞📞");
         equal(glyphs.length, 2);
-        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--answer"), false);
-        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--answer"), true);
-        equal(glyphs[1].style.getPropertyValue("--li-tracker-glyph-color"), "#16a34a");
-        equal(glyphs[1].style.getPropertyValue("font-variant-emoji"), "text");
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--color-red"), true);
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--color-green"), true);
+        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(glyphs[0].querySelector(".li-tracker-icon-glyph-strike") === null, true);
         equal(glyphs[0].style.getPropertyValue("font-variant-emoji"), "");
+        equal(glyphs[1].style.getPropertyValue("font-variant-emoji"), "");
+
+    });
+
+    it("shows a telephone icon before the other icons", () => {
+
+        const element = document.createElement("h1");
+        element.textContent = "Acme";
+        document.body.append(element);
+
+        applyCompanyHighlight(element, {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "BANNED", "ANSWER" ]
+        }, "acme");
+
+        const glyphs = [ ...element.querySelectorAll(".li-tracker-icon-glyph") ];
+
+        equal(element.style.getPropertyValue("--li-tracker-color"), "#dc2626");
+        equal(glyphs.length, 2);
+        equal(glyphs[0].textContent, "📞");
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--color-green"), true);
+        equal(glyphs[1].textContent, "❌");
+
+    });
+
+    it("strikes the missing-salary glyph", () => {
+
+        const element = document.createElement("h1");
+        element.textContent = "Acme";
+        document.body.append(element);
+
+        applyCompanyHighlight(element, {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "WITHOUT_SALARY_NOR_ADVANTAGES" ]
+        }, "acme");
+
+        const glyph = element.querySelector(".li-tracker-icon-glyph");
+        const glyphChar = glyph.querySelector(".li-tracker-icon-glyph-char");
+
+        equal(element.classList.contains("li-tracker--colored"), false);
+        equal(glyph.textContent, "💵");
+        equal(glyph.classList.contains("li-tracker-icon-glyph--color-red"), false);
+        equal(glyph.classList.contains("li-tracker-icon-glyph--strike"), true);
+        equal(glyph.querySelector(".li-tracker-icon-glyph-strike") === null, false);
+        equal(glyph.style.getPropertyValue("font-variant-emoji"), "");
+        equal(glyphChar.style.getPropertyValue("font-variant-emoji"), "");
 
     });
 
@@ -359,11 +408,25 @@ describe("add company modal", () => {
 
         });
 
+        const unpaidButton = [ ...document.querySelectorAll(".li-tracker-modal-indicator") ].find((button) => {
+
+            return button.textContent.includes("WITHOUT_SALARY_NOR_ADVANTAGES");
+
+        });
+
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
-        equal(answerButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "rgb(22, 163, 74)");
-        equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "text");
-        equal(quietButton.querySelector("span").style.getPropertyValue("-webkit-text-fill-color"), "");
+        equal(unpaidButton.style.color, "");
+        equal(unpaidButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-red"), false);
+        equal(unpaidButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), true);
+        equal(salaryButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-green"), false);
+        equal(salaryButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(unpaidButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
+        equal(answerButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(answerButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-green"), true);
+        equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
+        equal(quietButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(quietButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-red"), true);
         equal(quietButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
 
         bannedButton.click();

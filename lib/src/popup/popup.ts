@@ -2,7 +2,8 @@
 
   // locals
   import { companyLinkedinUrl, formatCompanyPopupDetail, normalizeCompany, normalizeLinkedinCode, normalizeRegistry, companySortRank } from "../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, sortIndicatorsForIcons } from "../types/indicator";
+  import { createIndicatorGlyph } from "../content/shared/indicator-glyph";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
   import { parseCompaniesJson, serializeCompanies } from "../storage/import-export";
 
@@ -132,19 +133,6 @@
     }
   }
 
-  function _paintAnswerGlyph (glyph: HTMLElement, indicator: Indicator): void {
-    if ("ANSWER" !== indicator.code) {
-      return;
-    }
-    const color = getIndicatorColor(indicator);
-    if (undefined === color) {
-      return;
-    }
-    glyph.style.color = color;
-    glyph.style.setProperty("-webkit-text-fill-color", color);
-    glyph.style.setProperty("font-variant-emoji", "text");
-  }
-
   function _fillStatusSelects (): void {
     const indicators = getIndicators();
 
@@ -165,16 +153,15 @@
       filterOption.textContent = formatIndicatorLabel(indicator);
       _applyIndicatorColor(filterOption, indicator);
       statusFilter.append(filterOption);
-
+    }
+    for (const indicator of sortIndicatorsForIcons(indicators)) {
       const option = document.createElement("label");
       option.className = "indicator-option";
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.value = indicator.code;
       indicatorInputs.push(checkbox);
-      const glyph = document.createElement("span");
-      glyph.textContent = indicator.icon;
-      _paintAnswerGlyph(glyph, indicator);
+      const glyph = createIndicatorGlyph(document, indicator);
       const optionLabel = document.createElement("span");
       optionLabel.textContent = ` ${formatIndicatorLabel(indicator)}`;
       _applyIndicatorColor(optionLabel, indicator);
@@ -255,12 +242,8 @@
       if (0 < indicators.length) {
         const icon = document.createElement("span");
         icon.className = "company-icon";
-        for (const indicator of indicators) {
-          const glyph = document.createElement("span");
-          glyph.textContent = indicator.icon;
-          _applyIndicatorColor(glyph, indicator);
-          _paintAnswerGlyph(glyph, indicator);
-          icon.append(glyph);
+        for (const indicator of sortIndicatorsForIcons(indicators)) {
+          icon.append(createIndicatorGlyph(document, indicator));
         }
         name.append(icon, label);
       }

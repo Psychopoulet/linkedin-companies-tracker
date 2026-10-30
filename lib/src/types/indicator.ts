@@ -10,6 +10,11 @@
     "description"?: string;
   }
 
+  export interface IndicatorGlyphPaint {
+    "strike": boolean;
+    "color": "green" | "red" | "none";
+  }
+
   export type IndicatorCode = (typeof INDICATORS)[number]["code"];
 
 // consts
@@ -39,7 +44,7 @@
       "description": "Shows salary and benefits"
     },
     {
-      "icon": "💸",
+      "icon": "💵",
       "criticity": "DATA",
       "code": "WITHOUT_SALARY_NOR_ADVANTAGES",
       "description": "Does not show salary or benefits"
@@ -113,6 +118,29 @@ export function getIndicatorColor (indicator: Indicator): string | undefined {
   return SAME_COLOR === color ? undefined : color;
 }
 
+export function getIndicatorGlyphPaint (indicator: Indicator): IndicatorGlyphPaint {
+
+  const paint: IndicatorGlyphPaint = {
+    "strike": false,
+    "color": "none"
+  };
+
+  if ("WITHOUT_SALARY_NOR_ADVANTAGES" === indicator.code) {
+    paint.strike = true;
+  }
+
+  if ("ANSWER" === indicator.code) {
+    paint.color = "green";
+  }
+
+  if ("DONT_ANSWER" === indicator.code) {
+    paint.color = "red";
+  }
+
+  return paint;
+
+}
+
 export function getIndicators (): Indicator[] {
   return [ ...INDICATORS ].sort(_compareByCriticity);
 }
@@ -135,6 +163,27 @@ export function sortIndicatorsByCriticityDesc (codes: readonly string[]): Indica
     .sort((a, b) => {
       return _compareByCriticity(b, a);
     });
+
+}
+
+export function sortIndicatorsForIcons (indicators: readonly Indicator[]): Indicator[] {
+
+  const leading: Indicator[] = [];
+  const rest: Indicator[] = [];
+
+  for (const indicator of indicators) {
+    if (
+      "ANSWER" === indicator.code
+      || "DONT_ANSWER" === indicator.code
+    ) {
+      leading.push(indicator);
+    }
+    else {
+      rest.push(indicator);
+    }
+  }
+
+  return [ ...leading, ...rest ];
 
 }
 

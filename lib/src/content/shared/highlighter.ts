@@ -2,7 +2,8 @@
 
   // locals
   import { formatCompanyPopupDetail } from "../../types/company";
-  import { getIndicatorColor, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { getIndicatorsColor, sortIndicatorsByCriticityDesc, sortIndicatorsForIcons } from "../../types/indicator";
+  import { createIndicatorGlyph } from "./indicator-glyph";
 
 // types & interfaces
 
@@ -41,29 +42,12 @@
     return formatCompanyPopupDetail(company);
   }
 
-  function _answerGlyphColor (indicator: Indicator): string | undefined {
-    return "ANSWER" === indicator.code ? getIndicatorColor(indicator) : undefined;
-  }
-
   function _fillStatusGlyphs (iconEl: HTMLElement, indicators: readonly Indicator[]): void {
 
     iconEl.replaceChildren();
 
-    for (const indicator of indicators) {
-
-      const glyph = iconEl.ownerDocument.createElement("span");
-      const color = _answerGlyphColor(indicator);
-      glyph.className = "li-tracker-icon-glyph";
-      glyph.textContent = indicator.icon;
-
-      if (undefined !== color) {
-        glyph.classList.add("li-tracker-icon-glyph--answer");
-        glyph.style.setProperty("--li-tracker-glyph-color", color);
-        glyph.style.setProperty("font-variant-emoji", "text");
-      }
-
-      iconEl.append(glyph);
-
+    for (const indicator of sortIndicatorsForIcons(indicators)) {
+      iconEl.append(createIndicatorGlyph(iconEl.ownerDocument, indicator));
     }
 
   }

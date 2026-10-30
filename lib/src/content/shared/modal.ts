@@ -2,7 +2,8 @@
 
   // locals
   import { normalizeCompany } from "../../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators } from "../../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators, sortIndicatorsForIcons } from "../../types/indicator";
+  import { createIndicatorGlyph } from "./indicator-glyph";
   import { sendMessage } from "./messaging";
 
 // types & interfaces
@@ -93,7 +94,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   // <input type="checkbox"> et les rend non cliquables dans nos éléments injectés.
   const selectedIndicators: Set<CompanyStatus> = new Set();
 
-  for (const indicator of getIndicators()) {
+  for (const indicator of sortIndicatorsForIcons(getIndicators())) {
 
     const code = indicator.code as CompanyStatus;
     const option = document.createElement("button");
@@ -102,18 +103,12 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
     option.className = "li-tracker-modal-indicator";
     option.setAttribute("aria-pressed", "false");
 
-    const glyph = document.createElement("span");
-    glyph.textContent = `${indicator.icon} `;
-    option.append(glyph, formatIndicatorLabel(indicator));
+    const glyph = createIndicatorGlyph(document, indicator);
+    option.append(glyph, ` ${formatIndicatorLabel(indicator)}`);
 
     const color = getIndicatorColor(indicator);
     if (undefined !== color) {
       option.style.color = color;
-    }
-    if ("ANSWER" === indicator.code && undefined !== color) {
-      glyph.style.color = color;
-      glyph.style.setProperty("-webkit-text-fill-color", color);
-      glyph.style.setProperty("font-variant-emoji", "text");
     }
 
     option.addEventListener("click", (event) => {
