@@ -82,16 +82,16 @@ A company can have several indicators. The displayed color is the one with the *
 |------|------|-----------|-------------|
 | ✅ | `WANTED` | OK | Desired company |
 | 💵 | `SALARY_AND_ADVANTAGES` | DATA | Shows salary and benefits |
-| 💵 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits |
+| 💵 | `WITHOUT_SALARY_NOR_ADVANTAGES` | DATA | Does not show salary or benefits. The 💵 is crossed by a red strike |
 | 💼 | `IT_SERVICES_COMPANY` | INFO | IT services company |
 | 👨‍💼 | `HEADHUNTER` | INFO | Recruiter / staffing agency |
 | ⚠️ | `SUSPECT` | WARNING | Suspicious |
 | ⚠️ | `FREELANCE` | WARNING | Freelance |
 | ❌ | `BANNED` | DANGER | Company to avoid |
-| 📞 | `ANSWER` | GOOD | Replies |
+| 📞 | `ANSWER` | GOOD | Replies. The 📞 is green (`#16a34a`) |
 | 📞 | `DONT_ANSWER` | DANGER | Does not reply |
 
-`SALARY_AND_ADVANTAGES` and `WITHOUT_SALARY_NOR_ADVANTAGES` share the same icon. `SUSPECT` and `FREELANCE` share the same icon. `ANSWER` and `DONT_ANSWER` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
+`ANSWER` draws 📞 in green (`#16a34a`). `DONT_ANSWER` draws 📞 in red (`#dc2626`). Those two icons are always shown before the others. `WITHOUT_SALARY_NOR_ADVANTAGES` draws 💵 crossed by a red strike; `SALARY_AND_ADVANTAGES` uses the same 💵 with no strike. `SUSPECT` and `FREELANCE` share the same icon. Indicators are defined in [`lib/src/types/indicator.ts`](./lib/src/types/indicator.ts).
 
 ## Import / export
 
@@ -157,8 +157,10 @@ Data model. No Chrome APIs, no DOM.
 
 Indicator catalog and criticity.
 
+- `getIndicatorGlyphPaint` chooses the glyph treatment. `ANSWER` is a green 📞 and `DONT_ANSWER` a red 📞. Only `WITHOUT_SALARY_NOR_ADVANTAGES` is struck.
 - `getIndicators` sorts from lowest order to highest.
 - `getIndicatorByCode` looks up a code.
+- `sortIndicatorsForIcons` shows `ANSWER` and `DONT_ANSWER` before the other icons. It does not change the criticity color.
 - `sortIndicatorsByCriticityDesc` sorts a list of codes from highest order to lowest.
 - `getIndicatorsColor` returns the color of the highest-order indicator.
 - `formatIndicatorLabel` produces `CODE — description`.

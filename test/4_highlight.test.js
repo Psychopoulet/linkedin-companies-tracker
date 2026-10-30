@@ -136,7 +136,7 @@ describe("highlighter", () => {
 
     });
 
-    it("strikes only the DONT_ANSWER telephone", () => {
+    it("colors the telephones green and red", () => {
 
         const element = document.createElement("h1");
         element.textContent = "Acme";
@@ -153,11 +153,35 @@ describe("highlighter", () => {
 
         equal(icon.textContent, "📞📞");
         equal(glyphs.length, 2);
-        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--strike"), true);
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--color-red"), true);
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(glyphs[1].classList.contains("li-tracker-icon-glyph--color-green"), true);
         equal(glyphs[1].classList.contains("li-tracker-icon-glyph--strike"), false);
-        equal(glyphs[0].querySelector(".li-tracker-icon-glyph-strike") === null, false);
+        equal(glyphs[0].querySelector(".li-tracker-icon-glyph-strike") === null, true);
         equal(glyphs[0].style.getPropertyValue("font-variant-emoji"), "");
         equal(glyphs[1].style.getPropertyValue("font-variant-emoji"), "");
+
+    });
+
+    it("shows a telephone icon before the other icons", () => {
+
+        const element = document.createElement("h1");
+        element.textContent = "Acme";
+        document.body.append(element);
+
+        applyCompanyHighlight(element, {
+            "linkedinCode": "acme",
+            "names": [ "Acme" ],
+            "indicators": [ "BANNED", "ANSWER" ]
+        }, "acme");
+
+        const glyphs = [ ...element.querySelectorAll(".li-tracker-icon-glyph") ];
+
+        equal(element.style.getPropertyValue("--li-tracker-color"), "#dc2626");
+        equal(glyphs.length, 2);
+        equal(glyphs[0].textContent, "📞");
+        equal(glyphs[0].classList.contains("li-tracker-icon-glyph--color-green"), true);
+        equal(glyphs[1].textContent, "❌");
 
     });
 
@@ -178,6 +202,7 @@ describe("highlighter", () => {
 
         equal(element.classList.contains("li-tracker--colored"), false);
         equal(glyph.textContent, "💵");
+        equal(glyph.classList.contains("li-tracker-icon-glyph--color-red"), false);
         equal(glyph.classList.contains("li-tracker-icon-glyph--strike"), true);
         equal(glyph.querySelector(".li-tracker-icon-glyph-strike") === null, false);
         equal(glyph.style.getPropertyValue("font-variant-emoji"), "");
@@ -392,11 +417,16 @@ describe("add company modal", () => {
         equal(salaryButton.style.color, "");
         equal(bannedButton.style.color.length > 0, true);
         equal(unpaidButton.style.color, "");
+        equal(unpaidButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-red"), false);
         equal(unpaidButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), true);
+        equal(salaryButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-green"), false);
+        equal(salaryButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
         equal(unpaidButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
         equal(answerButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(answerButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-green"), true);
         equal(answerButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
-        equal(quietButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), true);
+        equal(quietButton.querySelector("span").classList.contains("li-tracker-icon-glyph--strike"), false);
+        equal(quietButton.querySelector("span").classList.contains("li-tracker-icon-glyph--color-red"), true);
         equal(quietButton.querySelector("span").style.getPropertyValue("font-variant-emoji"), "");
 
         bannedButton.click();

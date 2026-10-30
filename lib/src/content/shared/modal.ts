@@ -2,7 +2,7 @@
 
   // locals
   import { normalizeCompany } from "../../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators } from "../../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators, sortIndicatorsForIcons } from "../../types/indicator";
   import { createIndicatorGlyph } from "./indicator-glyph";
   import { sendMessage } from "./messaging";
 
@@ -94,7 +94,7 @@ export function showAddCompanyModal (options: AddCompanyModalOptions): void {
   // <input type="checkbox"> et les rend non cliquables dans nos éléments injectés.
   const selectedIndicators: Set<CompanyStatus> = new Set();
 
-  for (const indicator of getIndicators()) {
+  for (const indicator of sortIndicatorsForIcons(getIndicators())) {
 
     const code = indicator.code as CompanyStatus;
     const option = document.createElement("button");

@@ -441,8 +441,8 @@ describe("popup list", () => {
         equal(_item("Plain Co").querySelector(".company-icon"), null);
         equal(_item("Pay Co").querySelector(".company-name-link").style.color, "");
         equal(
-            _item("Reply Co").querySelector(".company-icon span").classList.contains("li-tracker-icon-glyph--strike"),
-            false
+            _item("Reply Co").querySelector(".company-icon span").classList.contains("li-tracker-icon-glyph--color-green"),
+            true
         );
         equal(
             _item("Reply Co").querySelector(".company-icon span").style.getPropertyValue("font-variant-emoji"),
@@ -450,7 +450,7 @@ describe("popup list", () => {
         );
         equal(
             [ ..._item("Aaa").querySelectorAll(".li-tracker-icon-glyph") ].some((glyph) => {
-                return glyph.classList.contains("li-tracker-icon-glyph--strike");
+                return glyph.classList.contains("li-tracker-icon-glyph--color-red");
             }),
             true
         );
@@ -461,20 +461,36 @@ describe("popup list", () => {
             true
         );
         equal(
-            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
-            false
+            document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--color-green"),
+            true
         );
         equal(
             document.querySelector("input[value=\"ANSWER\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),
             ""
         );
         equal(
-            document.querySelector("input[value=\"DONT_ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
+            document.querySelector("input[value=\"DONT_ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--color-red"),
             true
+        );
+        equal(
+            document.querySelector("input[value=\"DONT_ANSWER\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
+            false
         );
         equal(
             document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
             true
+        );
+        equal(
+            document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--color-red"),
+            false
+        );
+        equal(
+            document.querySelector("input[value=\"SALARY_AND_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--color-green"),
+            false
+        );
+        equal(
+            document.querySelector("input[value=\"SALARY_AND_ADVANTAGES\"]").nextElementSibling.classList.contains("li-tracker-icon-glyph--strike"),
+            false
         );
         equal(
             document.querySelector("input[value=\"WITHOUT_SALARY_NOR_ADVANTAGES\"]").nextElementSibling.style.getPropertyValue("font-variant-emoji"),

@@ -78,6 +78,16 @@
   position: relative !important;
 }
 
+.li-tracker-icon-glyph--color-green .li-tracker-icon-glyph-char {
+  font-variant-emoji: normal !important;
+  filter: grayscale(1) sepia(1) hue-rotate(85deg) saturate(5) !important;
+}
+
+.li-tracker-icon-glyph--color-red .li-tracker-icon-glyph-char {
+  font-variant-emoji: normal !important;
+  filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(12) brightness(0.9) !important;
+}
+
 .li-tracker-icon-glyph-strike {
   position: absolute !important;
   top: 50% !important;

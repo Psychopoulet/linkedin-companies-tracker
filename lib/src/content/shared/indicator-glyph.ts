@@ -6,7 +6,7 @@
 // types & interfaces
 
   // locals
-  import type { Indicator } from "../../types/indicator";
+  import type { Indicator, IndicatorGlyphPaint } from "../../types/indicator";
 
 // consts
 
@@ -38,6 +38,19 @@
 
   }
 
+  function _paintGlyph (glyph: HTMLElement, paint: IndicatorGlyphPaint): void {
+
+    if (paint.strike) {
+      glyph.classList.add(`${GLYPH_CLASS}--strike`);
+      _appendStrike(glyph);
+    }
+
+    if ("none" !== paint.color) {
+      glyph.classList.add(`${GLYPH_CLASS}--color-${paint.color}`);
+    }
+
+  }
+
 // module
 
 export function createIndicatorGlyph (doc: Document, indicator: Indicator): HTMLSpanElement {
@@ -47,11 +60,7 @@ export function createIndicatorGlyph (doc: Document, indicator: Indicator): HTML
 
   glyph.className = GLYPH_CLASS;
   _appendGlyphChar(glyph, indicator.icon);
-
-  if ("strike" === paint.mode) {
-    glyph.classList.add(`${GLYPH_CLASS}--strike`);
-    _appendStrike(glyph);
-  }
+  _paintGlyph(glyph, paint);
 
   return glyph;
 

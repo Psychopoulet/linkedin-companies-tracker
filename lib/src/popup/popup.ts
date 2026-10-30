@@ -2,7 +2,7 @@
 
   // locals
   import { companyLinkedinUrl, formatCompanyPopupDetail, normalizeCompany, normalizeLinkedinCode, normalizeRegistry, companySortRank } from "../types/company";
-  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../types/indicator";
+  import { formatIndicatorLabel, getIndicatorColor, getIndicators, getIndicatorsColor, sortIndicatorsByCriticityDesc, sortIndicatorsForIcons } from "../types/indicator";
   import { createIndicatorGlyph } from "../content/shared/indicator-glyph";
   import { REGISTRY_STORAGE_KEY } from "../storage/constants";
   import { parseCompaniesJson, serializeCompanies } from "../storage/import-export";
@@ -153,7 +153,8 @@
       filterOption.textContent = formatIndicatorLabel(indicator);
       _applyIndicatorColor(filterOption, indicator);
       statusFilter.append(filterOption);
-
+    }
+    for (const indicator of sortIndicatorsForIcons(indicators)) {
       const option = document.createElement("label");
       option.className = "indicator-option";
       const checkbox = document.createElement("input");
@@ -241,7 +242,7 @@
       if (0 < indicators.length) {
         const icon = document.createElement("span");
         icon.className = "company-icon";
-        for (const indicator of indicators) {
+        for (const indicator of sortIndicatorsForIcons(indicators)) {
           icon.append(createIndicatorGlyph(document, indicator));
         }
         name.append(icon, label);

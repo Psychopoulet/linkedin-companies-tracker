@@ -2,7 +2,7 @@
 
   // locals
   import { formatCompanyPopupDetail } from "../../types/company";
-  import { getIndicatorsColor, sortIndicatorsByCriticityDesc } from "../../types/indicator";
+  import { getIndicatorsColor, sortIndicatorsByCriticityDesc, sortIndicatorsForIcons } from "../../types/indicator";
   import { createIndicatorGlyph } from "./indicator-glyph";
 
 // types & interfaces
@@ -46,7 +46,7 @@
 
     iconEl.replaceChildren();
 
-    for (const indicator of indicators) {
+    for (const indicator of sortIndicatorsForIcons(indicators)) {
       iconEl.append(createIndicatorGlyph(iconEl.ownerDocument, indicator));
     }
 
